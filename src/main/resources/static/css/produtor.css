@@ -1,0 +1,40 @@
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: #f4faf6;
+}
+
+.text-accent {
+  color: #1b8a5a;
+}
+
+.btn-accent {
+  background-color: #1b8a5a;
+  color: #fff;
+  border: none;
+}
+
+.btn-accent:hover {
+  background-color: #146c43;
+}
+
+.card-custom {
+  border-radius: 14px;
+  border: none;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+}
+
+input:focus {
+  border-color: #1b8a5a !important;
+  box-shadow: 0 0 0 0.2rem rgba(27,138,90,0.25) !important;
+}
+
+.header-title {
+  font-family: 'Playfair Display', serif;
+}
+.tab-pane-content {
+  display: none;
+}
+
+.tab-pane-content.active {
+  display: block;
+}
