@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Comprador – SGPA</title>
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+
+  <!-- CSS -->
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+
+<body class="dashboard-body comprador-dashboard">
+
+<!-- ================= SIDEBAR ================= -->
+<div class="sidebar sidebar-blue" id="sidebar">
+
+  <div class="sidebar-brand">
+    <i class="bi bi-tree-fill text-accent"></i>
+    <span class="brand-text ms-2">SGPA</span>
+  </div>
+
+  <div class="sidebar-user px-3 py-3 border-bottom border-white border-opacity-10">
+
+    <div class="d-flex align-items-center gap-2">
+
+      <div class="avatar-circle buyer-avatar">
+        <i class="bi bi-person-fill"></i>
+      </div>
+
+      <div>
+		<div class="text-white fw-semibold small"
+		     th:text="${comprador != null ? comprador.nome + ' ' + comprador.apelido : 'Comprador'}"
+		     id="sidebarNome">
+		  Comprador
+		</div>
+
+		<div class="text-white opacity-50 small">
+		  Comprador
+		</div>
+
+  <nav class="sidebar-nav mt-2">
+
+    <a href="#" class="sidebar-link active" data-tab="explorar">
+      <i class="bi bi-search"></i> Explorar Produtos
+    </a>
+
+    <a href="#" class="sidebar-link" data-tab="meus-pedidos">
+      <i class="bi bi-bag-fill"></i> Meus Pedidos
+    </a>
+
+    <a href="#" class="sidebar-link" data-tab="favoritos">
+      <i class="bi bi-heart-fill"></i> Favoritos
+    </a>
+
+  </nav>
+
+  <div class="sidebar-footer">
+
+    <a th:href="@{/}" class="sidebar-link text-danger-light">
+      <i class="bi bi-box-arrow-left"></i> Sair
+    </a>
+
+  </div>
+
+</div>
+
+<!-- ================= MAIN ================= -->
+<div class="main-content" id="mainContent">
+
+  <!-- TOP BAR -->
+  <div class="topbar d-flex align-items-center justify-content-between px-4">
+
+    <button class="btn btn-sm btn-outline-secondary d-lg-none" id="sidebarToggle">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+
+    <h6 class="mb-0 fw-semibold text-dark" id="pageTitle">
+      Explorar Produtos
+    </h6>
+
+    <div class="d-flex align-items-center gap-3">
+
+      <span class="badge bg-blue-soft text-primary">
+        <i class="bi bi-bag-check-fill me-1"></i>Comprador
+      </span>
+
+    </div>
+  </div>
+
+  <div class="content-area p-4">
+
+    <!-- ALERT -->
+    <div th:if="${sucessoCadastro}" class="alert alert-success alert-dismissible fade show mb-4">
+
+      <i class="bi bi-check-circle-fill me-2"></i>
+
+      <span th:text="${sucessoCadastro}"></span>
+
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+
+    </div>
+
+    <!-- ================= TAB EXPLORAR ================= -->
+    <div class="tab-pane-content active" id="tab-explorar">
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar dashboard-card p-3 mb-4">
+
+        <div class="row g-2 align-items-end">
+
+          <div class="col-md-4">
+
+            <label class="form-label small fw-semibold mb-1">
+              <i class="bi bi-search me-1"></i>Pesquisar produto
+            </label>
+
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input type="text" class="form-control" id="searchProduto"
+                     placeholder="Ex: milho, tomate, feijão..."/>
+            </div>
+
+          </div>
+
+          <div class="col-md-3">
+
+            <label class="form-label small fw-semibold mb-1">
+              <i class="bi bi-map me-1"></i>Filtrar por Província
+            </label>
+
+            <select class="form-select" id="filtroProvincia">
+              <option value="">Todas as Províncias</option>
+              <option>Maputo Cidade</option>
+              <option>Maputo Província</option>
+              <option>Gaza</option>
+              <option>Inhambane</option>
+              <option>Sofala</option>
+              <option>Manica</option>
+              <option>Tete</option>
+              <option>Zambézia</option>
+              <option>Nampula</option>
+              <option>Cabo Delgado</option>
+              <option>Niassa</option>
+            </select>
+
+          </div>
+
+          <div class="col-md-3">
+
+            <label class="form-label small fw-semibold mb-1">
+              <i class="bi bi-tag me-1"></i>Tipo de Produto
+            </label>
+
+            <select class="form-select" id="filtroCategoria">
+              <option value="">Todas as Categorias</option>
+              <option>Cereais</option>
+              <option>Legumes e Hortícolas</option>
+              <option>Frutas</option>
+              <option>Raízes e Tubérculos</option>
+              <option>Leguminosas</option>
+              <option>Oleaginosas</option>
+              <option>Especiarias</option>
+            </select>
+
+          </div>
+
+          <div class="col-md-2">
+            <button class="btn btn-accent-blue w-100" id="btnFiltrar">
+              <i class="bi bi-funnel-fill me-1"></i>Filtrar
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RESULTADOS -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+
+        <span class="text-muted small" id="resultCount">
+          A carregar ofertas...
+        </span>
+
+        <div class="btn-group btn-group-sm">
+
+          <button class="btn btn-outline-secondary active" id="viewGrid">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+          </button>
+
+          <button class="btn btn-outline-secondary" id="viewList">
+            <i class="bi bi-list-ul"></i>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- PRODUTOS -->
+      <div class="row g-4" id="produtosGrid">
+
+        <div class="col-sm-6 col-xl-4" th:each="oferta : ${ofertas}">
+
+          <div class="product-card">
+
+            <div class="product-card-badge" th:text="${oferta.estado}">
+              Activo
+            </div>
+
+            <div class="product-card-icon">
+              <i class="bi bi-basket2-fill"></i>
+            </div>
+
+            <div class="product-card-body p-3">
+
+              <div class="d-flex justify-content-between align-items-start mb-1">
+
+                <h6 class="product-name mb-0" th:text="${oferta.nomeProduto}">
+                  Produto
+                </h6>
+
+                <span class="product-category-tag" th:text="${oferta.categoria}">
+                  Categoria
+                </span>
+
+              </div>
+
+              <p class="product-desc text-muted small mb-2"
+                 th:text="${oferta.descricao}">
+                Descrição
+              </p>
+
+              <div class="product-meta d-flex gap-3 mb-3">
+
+                <span>
+                  <i class="bi bi-stack me-1 text-accent"></i>
+                  <span th:text="${oferta.quantidadeTotal} + ' ' + ${oferta.unidade}">
+                    Qtd
+                  </span>
+                </span>
+
+                <span>
+                  <i class="bi bi-geo-alt me-1 text-accent"></i>
+                  <span th:text="${oferta.provincia}">
+                    Localização
+                  </span>
+                </span>
+
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center">
+
+                <div class="product-price">
+                  MT
+                  <span th:text="${#numbers.formatDecimal(oferta.preco, 1, 2)}">
+                    0.00
+                  </span>
+                  <span class="small text-muted">/<span th:text="${oferta.unidade}">un</span></span>
+                </div>
+
+                <button class="btn btn-accent-blue btn-sm"
+                        th:data-id="${oferta.id}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#modalDetalhe">
+                  <i class="bi bi-eye me-1"></i>Ver
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- EMPTY -->
+        <div th:if="${#lists.isEmpty(ofertas)}" class="col-12 text-center text-muted py-5">
+          <i class="bi bi-inbox fs-1 d-block mb-3 opacity-50"></i>
+          <p>Nenhuma oferta disponível de momento.</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= MEUS PEDIDOS ================= -->
+    <div class="tab-pane-content" id="tab-meus-pedidos">
+
+      <div class="dashboard-card p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+
+          <h5 class="fw-semibold mb-0">
+            <i class="bi bi-bag-fill text-primary me-2"></i>Meus Pedidos
+          </h5>
+
+          <select class="form-select form-select-sm" id="filtroMeusPedidos" style="width:auto">
+            <option value="">Todos</option>
+            <option value="pendente">Pendentes</option>
+            <option value="aceite">Aceites</option>
+            <option value="rejeitado">Rejeitados</option>
+          </select>
+
+        </div>
+
+        <div class="table-responsive">
+
+          <table class="table table-hover align-middle">
+
+            <thead class="table-head-blue">
+              <tr>
+                <th>#</th>
+                <th>Produto</th>
+                <th>Produtor</th>
+                <th>Data Pedido</th>
+                <th>Data Resposta</th>
+                <th>Estado</th>
+                <th>Acções</th>
+              </tr>
+            </thead>
+
+            <tbody id="tbodyMeusPedidos">
+
+              <tr th:each="pedido : ${meusPedidos}">
+                <td th:text="${pedido.id}"></td>
+                <td th:text="${pedido.nomeProduto}"></td>
+                <td th:text="${pedido.nomeProdutor}"></td>
+                <td th:text="${#temporals.format(pedido.dataPedido, 'dd/MM/yyyy')}"></td>
+                <td th:text="${pedido.dataResposta != null} ? ${#temporals.format(pedido.dataResposta, 'dd/MM/yyyy')} : '–'"></td>
+                <td>
+                  <span th:class="'badge ' + (${pedido.estado} == 'aceite' ? 'bg-success' : (${pedido.estado} == 'rejeitado' ? 'bg-danger' : 'bg-warning text-dark'))"
+                        th:text="${pedido.estado}">
+                    pendente
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-eye"></i>
+                  </button>
+                </td>
+              </tr>
+
+              <tr th:if="${#lists.isEmpty(meusPedidos)}">
+                <td colspan="7" class="text-center text-muted py-4">
+                  <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                  Nenhum pedido realizado ainda.
+                </td>
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= FAVORITOS ================= -->
+    <div class="tab-pane-content" id="tab-favoritos">
+
+      <div class="dashboard-card p-4">
+
+        <h5 class="fw-semibold mb-4">
+          <i class="bi bi-heart-fill text-danger me-2"></i>Produtos Favoritos
+        </h5>
+
+        <div id="favoritosGrid" class="row g-3">
+
+          <div class="col-12 text-center text-muted py-4">
+            <i class="bi bi-heart fs-3 d-block mb-2"></i>
+            Nenhum produto nos favoritos.
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ================= MODAL ================= -->
+<div class="modal fade" id="modalDetalhe" tabindex="-1">
+
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+
+    <div class="modal-content">
+
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-semibold">
+          <i class="bi bi-box-seam-fill text-accent me-2"></i>Detalhes da Oferta
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="row g-4">
+
+          <div class="col-md-5">
+            <div class="product-detail-icon text-center p-4">
+              <i class="bi bi-basket2-fill" id="modalProductIcon"></i>
+            </div>
+          </div>
+
+          <div class="col-md-7">
+
+            <h4 id="modalNomeProduto" class="fw-bold">–</h4>
+            <span class="badge badge-category mb-3" id="modalCategoria">–</span>
+
+            <p id="modalDescricao" class="text-muted small">–</p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+<script th:src="@{/js/dashboard-comprador.js}"></script>
+
+</body>
+</html>

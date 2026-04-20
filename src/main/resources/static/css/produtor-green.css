@@ -1,0 +1,26 @@
+.bg-agro {
+    background: #f4fff4;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.table-success {
+    background-color: #2e7d32 !important;
+    color: white;
+}
+
+.text-success {
+    color: #2e7d32 !important;
+}
+
+.btn-success {
+    background-color: #2e7d32;
+    border: none;
+}
+
+.btn-success:hover {
+    background-color: #1b5e20;
+}
+
+.card {
+    border-radius: 12px;
+}

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Produtor – SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body class="dashboard-body">
+
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <i class="bi bi-tree-fill text-accent"></i>
+      <span class="brand-text ms-2">SGPA</span>
+    </div>
+    <div class="sidebar-user px-3 py-3 border-bottom border-white border-opacity-10">
+      <div class="d-flex align-items-center gap-2">
+        <div class="avatar-circle"><i class="bi bi-person-fill"></i></div>
+        <div>
+          <!-- Nome do produtor injectado pelo Thymeleaf -->
+          <div class="text-white fw-semibold small"
+               th:text="${produtor != null} ? produtor.nome + ' ' + produtor.apelido : 'Produtor'"
+               id="sidebarNome">Produtor</div>
+          <div class="text-white opacity-50 small">Produtor</div>
+        </div>
+      </div>
+    </div>
+	<nav class="sidebar-nav mt-2">
+	  <a th:href="@{/produtor/dashboard}" class="sidebar-link"
+	     th:classappend="${activePage == 'dashboard'} ? 'active'">
+	    <i class="bi bi-grid-fill"></i> Visão Geral
+	  </a>
+
+	  <a th:href="@{/produtor/publicar-oferta}" class="sidebar-link"
+	     th:classappend="${activePage == 'publicar'} ? 'active'">
+	    <i class="bi bi-plus-circle-fill"></i> Publicar Oferta
+	  </a>
+
+	  <a th:href="@{/produtor/minhas-ofertas}" class="sidebar-link"
+	     th:classappend="${activePage == 'ofertas'} ? 'active'">
+	    <i class="bi bi-box-seam-fill"></i> Minhas Ofertas
+	  </a>
+
+	  <a th:href="@{/produtor/pedidos}" class="sidebar-link"
+	     th:classappend="${activePage == 'pedidos'} ? 'active'">
+	    <i class="bi bi-list-check"></i> Pedidos Recebidos
+	  </a>
+
+	  <a th:href="@{/produtor/historico}" class="sidebar-link"
+	     th:classappend="${activePage == 'historico'} ? 'active'">
+	    <i class="bi bi-clock-history"></i> Histórico de Vendas
+	  </a>
+	</nav>
+    <div class="sidebar-footer">
+      <a th:href="@{/}" class="sidebar-link text-danger-light">
+        <i class="bi bi-box-arrow-left"></i> Sair
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+
+    <!-- Top Bar -->
+    <div class="topbar d-flex align-items-center justify-content-between px-4">
+      <button class="btn btn-sm btn-outline-secondary d-lg-none" id="sidebarToggle">
+        <i class="bi bi-list fs-5"></i>
+      </button>
+      <h6 class="mb-0 fw-semibold text-dark" id="pageTitle">Visão Geral</h6>
+      <div class="d-flex align-items-center gap-3">
+        <span class="badge bg-accent-soft text-accent">
+          <i class="bi bi-tree-fill me-1"></i>Produtor
+        </span>
+      </div>
+    </div>
+
+    <div class="content-area p-4">
+
+      <!-- Mensagem flash de sucesso (após cadastro) -->
+      <div th:if="${sucessoCadastro}" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${sucessoCadastro}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+
+      <!-- TAB: Visão Geral -->
+      <div class="tab-pane-content active" id="tab-visao-geral">
+        <div class="row g-4 mb-4">
+          <!-- Stat: Ofertas Activas -->
+          <div class="col-sm-6 col-xl-3">
+            <div class="stat-widget">
+              <div class="stat-w-icon bg-green-soft"><i class="bi bi-box-seam-fill text-accent"></i></div>
+              <div>
+                <div class="stat-w-num"
+                     th:text="${totalOfertas != null} ? ${totalOfertas} : '0'"
+                     id="totalOfertas">0</div>
+                <div class="stat-w-label">Ofertas Activas</div>
+              </div>
+            </div>
+          </div>
+          <!-- Stat: Pedidos Recebidos -->
+          <div class="col-sm-6 col-xl-3">
+            <div class="stat-widget">
+              <div class="stat-w-icon bg-blue-soft"><i class="bi bi-bag-check-fill text-info"></i></div>
+              <div>
+                <div class="stat-w-num"
+                     th:text="${totalPedidos != null} ? ${totalPedidos} : '0'"
+                     id="totalPedidos">0</div>
+                <div class="stat-w-label">Pedidos Recebidos</div>
+              </div>
+            </div>
+          </div>
+          <!-- Stat: Pendentes -->
+          <div class="col-sm-6 col-xl-3">
+            <div class="stat-widget">
+              <div class="stat-w-icon bg-yellow-soft"><i class="bi bi-hourglass-split text-warning"></i></div>
+              <div>
+                <div class="stat-w-num"
+                     th:text="${pedidosPendentes != null} ? ${pedidosPendentes} : '0'"
+                     id="pedidosPendentes">0</div>
+                <div class="stat-w-label">Pendentes</div>
+              </div>
+            </div>
+          </div>
+          <!-- Stat: Vendas Concluídas -->
+          <div class="col-sm-6 col-xl-3">
+            <div class="stat-widget">
+              <div class="stat-w-icon bg-purple-soft"><i class="bi bi-check-circle-fill text-success"></i></div>
+              <div>
+                <div class="stat-w-num"
+                     th:text="${pedidosAceites != null} ? ${pedidosAceites} : '0'"
+                     id="pedidosAceites">0</div>
+                <div class="stat-w-label">Vendas Concluídas</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Últimas Ofertas -->
+          <div class="col-lg-6">
+            <div class="dashboard-card p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-semibold mb-0"><i class="bi bi-clock-history me-2 text-accent"></i>Últimas Ofertas</h6>
+				<a th:href="@{/produtor/minhas-ofertas}" class="btn btn-sm btn-accent">
+				  Ver todas
+				</a>
+              </div>
+              <div id="listaUltimasOfertas">
+                <!-- Iteração das últimas 3 ofertas -->
+                <div th:each="oferta : ${ultimasOfertas}" class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                  <div>
+                    <div class="fw-semibold small" th:text="${oferta.nomeProduto}">Produto</div>
+                    <div class="text-muted x-small" th:text="${oferta.categoria}">Categoria</div>
+                  </div>
+                  <span th:class="'badge ' + (${oferta.estado} == 'ativo' ? 'bg-success' : 'bg-secondary')"
+                        th:text="${oferta.estado}">activo</span>
+                </div>
+                <p th:if="${#lists.isEmpty(ultimasOfertas)}"
+                   class="text-muted small text-center py-3">Nenhuma oferta publicada ainda.</p>
+              </div>
+            </div>
+          </div>
+          <!-- Pedidos Recentes -->
+          <div class="col-lg-6">
+            <div class="dashboard-card p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-semibold mb-0"><i class="bi bi-list-check me-2 text-accent"></i>Pedidos Recentes</h6>
+				<a th:href="@{/produtor/pedidos}" class="btn btn-sm btn-accent">
+				  Ver todos
+				</a>
+              </div>
+              <div id="listaUltimosPedidos">
+                <div th:each="pedido : ${ultimosPedidos}" class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                  <div>
+                    <div class="fw-semibold small" th:text="${pedido.nomeComprador}">Comprador</div>
+                    <div class="text-muted x-small" th:text="${pedido.nomeProduto}">Produto</div>
+                  </div>
+                  <span th:class="'badge ' + (${pedido.estado} == 'aceite' ? 'bg-success' : (${pedido.estado} == 'rejeitado' ? 'bg-danger' : 'bg-warning text-dark'))"
+                        th:text="${pedido.estado}">pendente</span>
+                </div>
+                <p th:if="${#lists.isEmpty(ultimosPedidos)}"
+                   class="text-muted small text-center py-3">Nenhum pedido recebido ainda.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Publicar Oferta -->
+      <div class="tab-pane-content" id="tab-publicar-oferta">
+        <div class="row justify-content-center">
+          <div class="col-lg-8">
+            <div class="dashboard-card p-4">
+              <h5 class="fw-semibold mb-4">
+                <i class="bi bi-plus-circle-fill text-accent me-2"></i>Publicar Nova Oferta de Venda
+              </h5>
+              <form id="formOferta"
+                    th:action="@{/produtor/publicar-oferta}"
+                    th:object="${oferta}"
+                    method="post"
+                    novalidate>
+
+               <input type="hidden"
+       th:if="${_csrf != null}"
+       th:name="${_csrf.parameterName}"
+       th:value="${_csrf.token}"/>
+
+                <div class="form-section-label mb-3">
+                  <i class="bi bi-box2-heart-fill me-2"></i>Informação do Produto
+                </div>
+                <div class="row g-3">
+                  <!-- Categoria -->
+                  <div class="col-md-6">
+                    <label class="form-label">Produto (Categoria) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                      <select class="form-select"
+                              th:class="${#fields.hasErrors('categoria')} ? 'form-select is-invalid' : 'form-select'"
+                              id="categoria" th:field="*{categoria}" required>
+                        <option value="">Selecione a categoria...</option>
+                        <option value="Cereais">Cereais (Milho, Arroz, Trigo)</option>
+                        <option value="Legumes">Legumes e Hortícolas</option>
+                        <option value="Frutas">Frutas</option>
+                        <option value="Raizes">Raízes e Tubérculos</option>
+                        <option value="Leguminosas">Leguminosas (Feijão, Amendoim)</option>
+                        <option value="Oleaginosas">Oleaginosas</option>
+                        <option value="Especiarias">Especiarias</option>
+                        <option value="Outro">Outro</option>
+                      </select>
+                      <div class="invalid-feedback" th:errors="*{categoria}">Selecione uma categoria.</div>
+                    </div>
+                  </div>
+                  <!-- Nome Produto -->
+                  <div class="col-md-6">
+                    <label class="form-label">Nome do Produto <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-basket2"></i></span>
+                      <input type="text" class="form-control"
+                             th:class="${#fields.hasErrors('nomeProduto')} ? 'form-control is-invalid' : 'form-control'"
+                             id="nomeProduto" th:field="*{nomeProduto}"
+                             placeholder="Ex: Milho Branco" required/>
+                      <div class="invalid-feedback" th:errors="*{nomeProduto}">Nome é obrigatório.</div>
+                    </div>
+                  </div>
+                  <!-- Descrição -->
+                  <div class="col-12">
+                    <label class="form-label">Descrição do Produto</label>
+                    <textarea class="form-control" id="descricaoProduto" th:field="*{descricao}"
+                              rows="2" placeholder="Descreva o produto, qualidade, origem..."></textarea>
+                  </div>
+                </div>
+
+                <div class="form-section-label mt-4 mb-3">
+                  <i class="bi bi-currency-exchange me-2"></i>Quantidade e Preço
+                </div>
+                <div class="row g-3">
+                  <!-- Quantidade -->
+                  <div class="col-md-4">
+                    <label class="form-label">Quantidade Total <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-stack"></i></span>
+                      <input type="number" class="form-control"
+                             th:class="${#fields.hasErrors('quantidadeTotal')} ? 'form-control is-invalid' : 'form-control'"
+                             id="quantidadeTotal" th:field="*{quantidadeTotal}"
+                             placeholder="Ex: 500" min="1" required/>
+                      <div class="invalid-feedback" th:errors="*{quantidadeTotal}">Quantidade inválida.</div>
+                    </div>
+                  </div>
+                  <!-- Unidade -->
+                  <div class="col-md-4">
+                    <label class="form-label">Unidade <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-rulers"></i></span>
+                      <select class="form-select"
+                              th:class="${#fields.hasErrors('unidade')} ? 'form-select is-invalid' : 'form-select'"
+                              id="unidade" th:field="*{unidade}" required>
+                        <option value="">Unidade...</option>
+                        <option value="kg">Kg</option>
+                        <option value="ton">Tonelada</option>
+                        <option value="saco">Saco (50kg)</option>
+                        <option value="caixa">Caixa</option>
+                        <option value="unidade">Unidade</option>
+                        <option value="litro">Litro</option>
+                      </select>
+                      <div class="invalid-feedback" th:errors="*{unidade}">Selecione a unidade.</div>
+                    </div>
+                  </div>
+                  <!-- Preço -->
+                  <div class="col-md-4">
+                    <label class="form-label">Preço por Unidade (MZN) <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <span class="input-group-text">MT</span>
+                      <input type="number" class="form-control"
+                             th:class="${#fields.hasErrors('preco')} ? 'form-control is-invalid' : 'form-control'"
+                             id="preco" th:field="*{preco}"
+                             placeholder="Ex: 1500" min="0" required/>
+                      <div class="invalid-feedback" th:errors="*{preco}">Preço inválido.</div>
+                    </div>
+                  </div>
+                  <!-- Data Publicação -->
+                  <div class="col-md-6">
+                    <label class="form-label">Data de Publicação</label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                      <input type="date" class="form-control" id="dataPublicacao" th:field="*{dataPublicacao}"/>
+                    </div>
+                  </div>
+                  <!-- Data Validade -->
+                  <div class="col-md-6">
+                    <label class="form-label">Data de Validade da Oferta</label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-calendar-x"></i></span>
+                      <input type="date" class="form-control" id="dataValidade" th:field="*{dataValidade}"/>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section-label mt-4 mb-3">
+                  <i class="bi bi-geo-alt-fill me-2"></i>Localização da Oferta
+                </div>
+                <div class="row g-3">
+                  <!-- Bairro -->
+                  <div class="col-md-6">
+                    <label class="form-label">Bairro <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-house"></i></span>
+                      <input type="text" class="form-control"
+                             th:class="${#fields.hasErrors('bairro')} ? 'form-control is-invalid' : 'form-control'"
+                             id="bairroOferta" th:field="*{bairro}"
+                             placeholder="Bairro onde está o produto" required/>
+                      <div class="invalid-feedback" th:errors="*{bairro}">Bairro é obrigatório.</div>
+                    </div>
+                  </div>
+                  <!-- Estado Oferta -->
+                  <div class="col-md-6">
+                    <label class="form-label">Estado da Oferta</label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-toggle-on"></i></span>
+                      <select class="form-select" id="estadoOferta" th:field="*{estado}">
+                        <option value="ativo">Activo</option>
+                        <option value="inativo">Inactivo</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-4 d-flex gap-3">
+                  <button type="submit" class="btn btn-accent flex-fill">
+                    <i class="bi bi-send-fill me-2"></i>Publicar Oferta
+                  </button>
+                  <button type="reset" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-counterclockwise me-2"></i>Limpar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Minhas Ofertas -->
+      <div class="tab-pane-content" id="tab-minhas-ofertas">
+        <div class="dashboard-card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h5 class="fw-semibold mb-0"><i class="bi bi-box-seam-fill text-accent me-2"></i>Minhas Ofertas</h5>
+            <div class="d-flex gap-2">
+              <input type="text" class="form-control form-control-sm" id="searchOfertas" placeholder="Pesquisar..."/>
+              <button class="btn btn-accent btn-sm" data-tab-link="publicar-oferta">
+                <i class="bi bi-plus-lg me-1"></i>Nova
+              </button>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle" id="tabelaOfertas">
+              <thead class="table-head-green">
+                <tr>
+                  <th>#</th>
+                  <th>Produto</th>
+                  <th>Quantidade</th>
+                  <th>Preço/Un</th>
+                  <th>Validade</th>
+                  <th>Estado</th>
+                  <th>Acções</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyOfertas">
+                <!-- Iteração Thymeleaf -->
+                <tr th:each="oferta, iStat : ${minhasOfertas}">
+                  <td th:text="${iStat.count}"></td>
+                  <td th:text="${oferta.nomeProduto}"></td>
+                  <td th:text="${oferta.quantidadeTotal} + ' ' + ${oferta.unidade}"></td>
+                  <td th:text="'MT ' + ${#numbers.formatDecimal(oferta.preco, 1, 2)}"></td>
+                  <td th:text="${oferta.dataValidade != null} ? ${#temporals.format(oferta.dataValidade, 'dd/MM/yyyy')} : '–'"></td>
+                  <td>
+                    <span th:class="'badge ' + (${oferta.estado} == 'ativo' ? 'bg-success' : 'bg-secondary')"
+                          th:text="${oferta.estado}">activo</span>
+                  </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary me-1"
+                            th:data-id="${oferta.id}"
+                            data-bs-toggle="modal" data-bs-target="#modalEditar">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                            th:data-id="${oferta.id}">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <!-- Estado vazio -->
+                <tr th:if="${#lists.isEmpty(minhasOfertas)}">
+                  <td colspan="7" class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                    Nenhuma oferta publicada.
+                    <a href="#" data-tab-link="publicar-oferta">Publicar agora</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Pedidos Recebidos -->
+      <div class="tab-pane-content" id="tab-pedidos">
+        <div class="dashboard-card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h5 class="fw-semibold mb-0"><i class="bi bi-list-check text-accent me-2"></i>Pedidos Recebidos</h5>
+            <select class="form-select form-select-sm" id="filtroPedidos" style="width:auto">
+              <option value="">Todos</option>
+              <option value="pendente">Pendentes</option>
+              <option value="aceite">Aceites</option>
+              <option value="rejeitado">Rejeitados</option>
+            </select>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-head-green">
+                <tr>
+                  <th>#</th>
+                  <th>Comprador</th>
+                  <th>Produto</th>
+                  <th>Data Pedido</th>
+                  <th>Estado</th>
+                  <th>Acções</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyPedidos">
+                <!-- Iteração Thymeleaf -->
+                <tr th:each="pedido, iStat : ${pedidosRecebidos}">
+                  <td th:text="${iStat.count}"></td>
+                  <td th:text="${pedido.nomeComprador}"></td>
+                  <td th:text="${pedido.nomeProduto}"></td>
+                  <td th:text="${#temporals.format(pedido.dataPedido, 'dd/MM/yyyy')}"></td>
+                  <td>
+                    <span th:class="'badge ' + (${pedido.estado} == 'aceite' ? 'bg-success' : (${pedido.estado} == 'rejeitado' ? 'bg-danger' : 'bg-warning text-dark'))"
+                          th:text="${pedido.estado}">pendente</span>
+                  </td>
+                  <td class="d-flex gap-1">
+                    <button class="btn btn-sm btn-success" th:data-id="${pedido.id}">
+                      <i class="bi bi-check-lg"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" th:data-id="${pedido.id}">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </td>
+                </tr>
+                <!-- Estado vazio -->
+                <tr th:if="${#lists.isEmpty(pedidosRecebidos)}">
+                  <td colspan="6" class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>Nenhum pedido recebido ainda.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Histórico de Vendas -->
+      <div class="tab-pane-content" id="tab-historico">
+        <div class="dashboard-card p-4">
+          <h5 class="fw-semibold mb-4"><i class="bi bi-clock-history text-accent me-2"></i>Histórico de Vendas</h5>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-head-green">
+                <tr>
+                  <th>#</th>
+                  <th>Produto</th>
+                  <th>Comprador</th>
+                  <th>Qtd Vendida</th>
+                  <th>Valor Total</th>
+                  <th>Data</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyHistorico">
+                <!-- Iteração Thymeleaf -->
+                <tr th:each="venda, iStat : ${historicoVendas}">
+                  <td th:text="${iStat.count}"></td>
+                  <td th:text="${venda.nomeProduto}"></td>
+                  <td th:text="${venda.nomeComprador}"></td>
+                  <td th:text="${venda.quantidade} + ' ' + ${venda.unidade}"></td>
+                  <td th:text="'MT ' + ${#numbers.formatDecimal(venda.valorTotal, 1, 2)}"></td>
+                  <td th:text="${#temporals.format(venda.data, 'dd/MM/yyyy')}"></td>
+                  <td>
+                    <span class="badge bg-success">Concluída</span>
+                  </td>
+                </tr>
+                <!-- Estado vazio -->
+                <tr th:if="${#lists.isEmpty(historicoVendas)}">
+                  <td colspan="7" class="text-center text-muted py-4">
+                    <i class="bi bi-graph-up fs-3 d-block mb-2"></i>Nenhuma venda registada ainda.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+  </div><!-- /main-content -->
+
+  <!-- Modal Alterar Preço/Quantidade -->
+  <div class="modal fade" id="modalEditar" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title fw-semibold">
+            <i class="bi bi-pencil-fill text-accent me-2"></i>Editar Oferta
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <!-- Token CSRF para submissão AJAX -->
+          <input type="hidden" id="csrfToken"
+                 th:name="${_csrf.parameterName}"
+                 th:value="${_csrf.token}"/>
+          <input type="hidden" id="editOfertaId" value=""/>
+          <div class="mb-3">
+            <label class="form-label">Novo Preço (MZN)</label>
+            <div class="input-group">
+              <span class="input-group-text">MT</span>
+              <input type="number" class="form-control" id="editPreco" min="0"/>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nova Quantidade</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-stack"></i></span>
+              <input type="number" class="form-control" id="editQuantidade" min="0"/>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-accent btn-sm" id="btnSalvarEdicao">
+            <i class="bi bi-check-circle me-1"></i>Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+  <script th:src="@{/js/main.js}"></script>
+  <script th:src="@{/js/dashboard-produtor.js}"></script>
+</body>
+</html>
