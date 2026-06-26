@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editar Oferta – SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body class="form-body">
+
+<nav class="navbar navbar-dark" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2"
+       th:href="@{/produtor/minhas-ofertas(produtorId=${produtorId})}">
+      <i class="bi bi-arrow-left-circle me-1"></i>
+      <img src="/images/logo.png" alt="Logo" class="logo-sm">
+      <span class="brand-text">SGPA</span>
+    </a>
+    <span class="text-light small opacity-75">Editar Oferta</span>
+  </div>
+</nav>
+
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="form-header text-center mb-4">
+        <img src="/images/logo.png" class="logo-form mb-3" alt="logo">
+        <h4 class="form-page-title">
+          <i class="bi bi-pencil-square me-2 text-accent"></i>Editar Oferta
+        </h4>
+        <p class="text-muted small">Actualize os dados da sua oferta</p>
+      </div>
+
+      <!-- FOTO ACTUAL -->
+      <div th:if="${oferta.imagemPath != null and !#strings.isEmpty(oferta.imagemPath)}"
+           class="text-center mb-3">
+        <p class="text-muted small mb-1"><i class="bi bi-image me-1"></i>Foto actual da oferta:</p>
+        <img th:src="${oferta.imagemPath}" alt="Foto actual"
+             style="max-height:180px;border-radius:12px;object-fit:cover;box-shadow:0 2px 12px rgba(0,0,0,0.10);"/>
+      </div>
+
+      <div class="form-card p-4 p-md-5">
+        <form th:action="@{/produtor/editar-oferta/{id}(id=${oferta.id})}"
+              th:object="${oferta}"
+              method="post"
+              enctype="multipart/form-data">
+
+          <input type="hidden" name="produtorId" th:value="${produtorId}"/>
+
+          <!-- PRODUTO -->
+          <div class="form-section-label mb-3">
+            <i class="bi bi-box-seam me-2"></i>Produto
+          </div>
+          <div class="row g-3">
+
+            <!-- CATEGORIA -->
+            <div class="col-md-6">
+              <label class="form-label">Categoria *</label>
+              <select class="form-select" id="categoriaSelect" name="categoria" required>
+                <option value="">Selecione a categoria...</option>
+                <option value="Cereais"     th:selected="${oferta.categoria == 'Cereais'}">Cereais</option>
+                <option value="Frutas"      th:selected="${oferta.categoria == 'Frutas'}">Frutas</option>
+                <option value="Legumes"     th:selected="${oferta.categoria == 'Legumes'}">Legumes</option>
+                <option value="Tubérculos"  th:selected="${oferta.categoria == 'Tubérculos'}">Tubérculos</option>
+                <option value="Hortícolas"  th:selected="${oferta.categoria == 'Hortícolas'}">Hortícolas</option>
+                <option value="Oleaginosas" th:selected="${oferta.categoria == 'Oleaginosas'}">Oleaginosas</option>
+              </select>
+            </div>
+
+            <!-- NOME DO PRODUTO -->
+            <div class="col-md-6">
+              <label class="form-label">Nome do Produto *</label>
+              <select class="form-select" id="produtoSelect" name="nomeProduto" required>
+                <option value="">— Selecione primeiro a categoria —</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Descrição</label>
+              <textarea class="form-control" th:field="*{descricao}" rows="3"
+                        placeholder="Descreva o produto, qualidade, origem..."></textarea>
+            </div>
+          </div>
+
+          <!-- FOTO DO PRODUTO -->
+          <div class="form-section-label mt-4 mb-3">
+            <i class="bi bi-camera-fill me-2"></i>Foto do Produto
+          </div>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Substituir Foto
+                <span class="text-muted small">(opcional — deixe vazio para manter a actual)</span>
+              </label>
+              <div class="foto-upload-area" id="fotoArea"
+                   onclick="document.getElementById('imagemFile').click()">
+                <div id="fotoPreviewWrap" class="text-center py-4">
+                  <i class="bi bi-cloud-upload fs-2 text-muted d-block mb-2"></i>
+                  <p class="text-muted small mb-0">Clique para selecionar uma nova foto</p>
+                  <p class="text-muted" style="font-size:.75rem">JPG, PNG ou WEBP</p>
+                </div>
+                <img id="fotoPreview" src="" alt="Preview"
+                     style="display:none; max-height:200px; border-radius:8px; object-fit:cover; width:100%;"/>
+              </div>
+              <input type="file" id="imagemFile" name="imagemFile" accept="image/*"
+                     class="d-none" onchange="previewFoto(this)">
+            </div>
+          </div>
+
+          <!-- DETALHES -->
+          <div class="form-section-label mt-4 mb-3">
+            <i class="bi bi-info-circle me-2"></i>Detalhes
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Quantidade Total *</label>
+              <input type="number" class="form-control" th:field="*{quantidadeTotal}"
+                     min="1" step="0.01" required>
+              <div class="form-text text-muted" style="font-size:.75rem;">
+                Quantidade original da oferta
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Quantidade Restante</label>
+              <input type="number" class="form-control" th:field="*{quantidadeRestante}"
+                     min="0" step="0.01">
+              <div class="form-text text-muted" style="font-size:.75rem;">
+                Stock disponível actualmente
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Unidade *</label>
+              <select class="form-select" th:field="*{unidade}" required>
+                <option value="kg">Kg</option>
+                <option value="saco">Saco</option>
+                <option value="caixa">Caixa</option>
+                <option value="unidade">Unidade</option>
+                <option value="tonelada">Tonelada</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Preço (MZN) *</label>
+              <div class="input-group">
+                <span class="input-group-text">MZN</span>
+                <input type="number" class="form-control" th:field="*{preco}"
+                       min="0" step="0.01" required>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Estado</label>
+              <select class="form-select" name="estado">
+                <option value="ATIVO"    th:selected="${oferta.estado.name() == 'ATIVO'}">Ativo</option>
+                <option value="INATIVO"  th:selected="${oferta.estado.name() == 'INATIVO'}">Inativo</option>
+                <option value="EXPIRADO" th:selected="${oferta.estado.name() == 'EXPIRADO'}">Expirado</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Data de Validade</label>
+              <input type="datetime-local" class="form-control"
+                     name="dataValidade"
+                     th:value="${oferta.dataValidade != null ? #temporals.format(oferta.dataValidade, 'yyyy-MM-dd''T''HH:mm') : ''}">
+            </div>
+          </div>
+
+          <!-- BOTÕES -->
+          <div class="mt-4 d-flex gap-3">
+            <button class="btn btn-accent btn-lg flex-grow-1" type="submit">
+              <i class="bi bi-floppy-fill me-2"></i>Guardar Alterações
+            </button>
+            <a th:href="@{/produtor/minhas-ofertas(produtorId=${produtorId})}"
+               class="btn btn-outline-secondary btn-lg">
+              <i class="bi bi-x-circle me-1"></i>Cancelar
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script th:inline="javascript">
+var PRODUTOS_POR_CATEGORIA = {
+  "Cereais":     ["Milho Branco","Milho Amarelo","Arroz","Trigo","Sorgo (Mapira)","Feijão Nhemba","Feijão Manteiga","Feijão Borlotti","Amendoim","Soja","Massango (Milhete)"],
+  "Frutas":      ["Manga","Banana","Papaia (Mamão)","Laranja","Limão","Abacate","Coco","Ananás","Maçã","Melancia","Melão","Goiaba","Maracujá","Tangerina","Lichias"],
+  "Legumes":     ["Tomate","Cebola","Alho","Pimento Verde","Pimento Vermelho","Pepino","Courgette (Abóbora)","Ervilhas","Vagem"],
+  "Tubérculos":  ["Mandioca","Batata-Doce","Batata Comum","Inhame","Rábano","Nabo"],
+  "Hortícolas":  ["Espinafre","Couve Portuguesa","Couve Lombarda","Alface","Cenoura","Beterraba","Repolho","Acelga","Agrião","Coentros","Salsa"],
+  "Oleaginosas": ["Girassol","Sésamo","Caju (Castanha de Caju)","Coco (copra)","Amendoim (para óleo)","Palma"]
+};
+
+var nomeProdutoActual = /*[[${oferta.nomeProduto}]]*/ '';
+
+(function () {
+  var selCategoria = document.getElementById('categoriaSelect');
+  var selProduto   = document.getElementById('produtoSelect');
+
+  function preencherProdutos(categoria, valorSeleccionado) {
+    selProduto.innerHTML = '';
+    selProduto.disabled  = true;
+
+    if (!categoria || !PRODUTOS_POR_CATEGORIA[categoria]) {
+      var ph = document.createElement('option');
+      ph.value = ''; ph.textContent = '— Selecione primeiro a categoria —';
+      selProduto.appendChild(ph);
+      return;
+    }
+
+    var placeholder = document.createElement('option');
+    placeholder.value = ''; placeholder.textContent = 'Selecione o produto...';
+    selProduto.appendChild(placeholder);
+
+    PRODUTOS_POR_CATEGORIA[categoria].forEach(function (nome) {
+      var opt = document.createElement('option');
+      opt.value = nome; opt.textContent = nome;
+      if (nome === valorSeleccionado) opt.selected = true;
+      selProduto.appendChild(opt);
+    });
+
+    // Se o produto actual não está na lista, adiciona-o como opção personalizada
+    if (valorSeleccionado && !PRODUTOS_POR_CATEGORIA[categoria].includes(valorSeleccionado)) {
+      var custom = document.createElement('option');
+      custom.value = valorSeleccionado; custom.textContent = valorSeleccionado; custom.selected = true;
+      selProduto.appendChild(custom);
+    }
+
+    selProduto.disabled = false;
+  }
+
+  selCategoria.addEventListener('change', function () {
+    preencherProdutos(this.value, '');
+  });
+
+  // Pré-preencher com o valor actual ao carregar
+  if (selCategoria.value) {
+    preencherProdutos(selCategoria.value, nomeProdutoActual);
+  }
+})();
+
+function previewFoto(input) {
+  var preview = document.getElementById('fotoPreview');
+  var wrap    = document.getElementById('fotoPreviewWrap');
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      wrap.style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+
+<style>
+.foto-upload-area {
+  border: 2px dashed var(--border-input, #d1d5db);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color .2s;
+  padding: 0.5rem;
+  background: #fafbfc;
+}
+.foto-upload-area:hover { border-color: var(--accent, #16a34a); }
+.form-section-label {
+  font-size: .8rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--accent, #16a34a); padding: .5rem 0;
+  border-bottom: 1px solid var(--border, #e5e7eb);
+  display: flex; align-items: center;
+}
+</style>
+</body>
+</html>

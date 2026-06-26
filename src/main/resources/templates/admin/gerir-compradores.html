@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Compradores – Administração SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:#0b0d0f; --ink-2:#12161a; --ink-3:#1a1f26; --panel:#1f252d;
+      --line:rgba(255,255,255,.06); --mid:#6b7584; --soft:#9aa3b0; --cream:#f0ece4;
+      --amber:#e8a838; --amber-d:#c48820; --amber-g:rgba(232,168,56,.15);
+      --green:#3dba7e; --green-g:rgba(61,186,126,.12);
+      --red:#e05555; --red-g:rgba(224,85,85,.12);
+      --ff-head:'DM Serif Display',Georgia,serif; --ff-body:'DM Sans',system-ui,sans-serif;
+    }
+    html,body{height:100%;} body{font-family:var(--ff-body);background:var(--ink);color:var(--cream);display:flex;}
+    .sidebar{width:240px;min-height:100vh;background:var(--ink-2);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:28px 0;position:fixed;top:0;left:0;bottom:0;z-index:10;}
+    .sb-brand{display:flex;align-items:center;gap:12px;padding:0 24px 28px;border-bottom:1px solid var(--line);margin-bottom:20px;}
+    .sb-brand-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--amber-d),var(--amber));display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink);}
+    .sb-brand-text{font-family:var(--ff-head);font-size:17px;color:var(--cream);}
+    .sb-brand-badge{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);background:var(--amber-g);border:1px solid rgba(232,168,56,.2);padding:2px 6px;border-radius:3px;}
+    .sb-section{padding:0 12px 8px;}
+    .sb-section-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);padding:0 12px;margin-bottom:6px;}
+    .sb-nav{list-style:none;}
+    .sb-nav li a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:14px;color:var(--soft);text-decoration:none;transition:background 150ms,color 150ms;}
+    .sb-nav li a:hover,.sb-nav li a.active{background:var(--panel);color:var(--cream);}
+    .sb-nav li a.active{color:var(--amber);}
+    .sb-nav li a i{font-size:15px;width:18px;text-align:center;}
+    .sb-footer{margin-top:auto;padding:16px 24px;border-top:1px solid var(--line);}
+    .sb-user{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .sb-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--amber-d),var(--amber));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;flex-shrink:0;}
+    .sb-avatar img{width:100%;height:100%;object-fit:cover;}
+    .sb-user-name{font-size:13px;font-weight:500;color:var(--cream);}
+    .sb-user-role{font-size:11px;color:var(--mid);margin-top:1px;}
+    .sb-logout{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mid);text-decoration:none;padding:8px 10px;border-radius:7px;transition:background 150ms,color 150ms;}
+    .sb-logout:hover{background:var(--panel);color:var(--red);}
+    .main{margin-left:240px;flex:1;min-height:100vh;padding:36px 40px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
+    .topbar-title{font-family:var(--ff-head);font-size:26px;color:var(--cream);}
+    .topbar-sub{font-size:13px;color:var(--mid);margin-top:4px;}
+    .btn-novo{height:42px;padding:0 20px;background:linear-gradient(135deg,#29a065,var(--green));color:#fff;border:none;border-radius:10px;font-family:var(--ff-body);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;transition:opacity 150ms;}
+    .btn-novo:hover{opacity:.88;}
+    .flash{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:9px;margin-bottom:22px;font-size:14px;}
+    .flash.sucesso{background:var(--green-g);border:1px solid rgba(61,186,126,.2);color:var(--green);}
+    .flash.erro{background:var(--red-g);border:1px solid rgba(224,85,85,.2);color:var(--red);}
+    .search-bar{display:flex;gap:12px;margin-bottom:24px;}
+    .search-field{position:relative;flex:1;}
+    .search-field i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--mid);pointer-events:none;}
+    .search-input{width:100%;height:44px;padding:0 44px 0 42px;background:var(--panel);border:1.5px solid var(--line);border-radius:10px;font-family:var(--ff-body);font-size:14px;color:var(--cream);outline:none;transition:border-color 150ms,box-shadow 150ms;}
+    .search-input::placeholder{color:var(--mid);}
+    .search-input:focus{border-color:var(--amber-d);box-shadow:0 0 0 3px var(--amber-g);}
+    .search-btn{height:44px;padding:0 20px;background:linear-gradient(135deg,var(--amber-d),var(--amber));color:var(--ink);border:none;border-radius:10px;font-family:var(--ff-body);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:7px;transition:opacity 150ms;}
+    .search-btn:hover{opacity:.88;}
+    .page-layout{display:grid;grid-template-columns:1fr 360px;gap:24px;align-items:start;}
+    .table-wrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+    .table-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--line);}
+    .table-title{font-family:var(--ff-head);font-size:18px;color:var(--cream);display:flex;align-items:center;gap:8px;}
+    .table-title i{font-size:15px;color:var(--amber);}
+    .count-badge{font-size:12px;font-weight:600;color:var(--amber);background:var(--amber-g);padding:3px 10px;border-radius:20px;}
+    table{width:100%;border-collapse:collapse;}
+    thead tr{background:var(--ink-3);}
+    thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);}
+    tbody tr{border-top:1px solid var(--line);transition:background 150ms;}
+    tbody tr:hover{background:rgba(255,255,255,.02);}
+    tbody td{padding:14px 16px;font-size:14px;color:var(--soft);}
+    tbody td.nome{color:var(--cream);font-weight:500;}
+    .avatar-cell{display:flex;align-items:center;gap:10px;}
+    .avatar-sm{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#29a065,var(--green));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;}
+    .btn-remover{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:var(--red-g);border:1px solid rgba(224,85,85,.2);color:var(--red);border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--ff-body);transition:background 150ms;}
+    .btn-remover:hover{background:rgba(224,85,85,.22);}
+    .btn-ver{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:var(--amber-g);border:1px solid rgba(232,168,56,.2);color:var(--amber);border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:var(--ff-body);text-decoration:none;transition:background 150ms;}
+    .btn-ver:hover{background:rgba(232,168,56,.22);}
+    .empty-state{text-align:center;padding:48px;font-size:14px;color:var(--mid);}
+    .empty-state i{font-size:32px;display:block;margin-bottom:12px;}
+    /* Form card criar */
+    .form-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;position:sticky;top:24px;}
+    .form-card-title{font-family:var(--ff-head);font-size:19px;color:var(--cream);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+    .form-card-title i{color:var(--green);font-size:16px;}
+    .form-card-sub{font-size:12px;color:var(--mid);margin-bottom:20px;}
+    .form-group{margin-bottom:14px;}
+    .form-group label{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mid);margin-bottom:6px;}
+    .form-input{width:100%;height:40px;padding:0 12px;background:var(--ink-3);border:1.5px solid var(--line);border-radius:8px;font-family:var(--ff-body);font-size:14px;color:var(--cream);outline:none;transition:border-color 150ms,box-shadow 150ms;}
+    .form-input::placeholder{color:var(--mid);}
+    .form-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(61,186,126,.12);}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .btn-criar{width:100%;height:42px;background:linear-gradient(135deg,#29a065,var(--green));color:#fff;border:none;border-radius:9px;font-family:var(--ff-body);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;transition:opacity 150ms;}
+    .btn-criar:hover{opacity:.88;}
+    /* Modal */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center;}
+    .overlay.open{display:flex;}
+    .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:32px;max-width:400px;width:90%;animation:fadeUp .25s ease;}
+    .modal-title{font-family:var(--ff-head);font-size:22px;color:var(--cream);margin-bottom:10px;}
+    .modal-text{font-size:14px;color:var(--soft);line-height:1.6;margin-bottom:24px;}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+    .modal-cancel{padding:10px 20px;background:none;border:1.5px solid var(--line);border-radius:9px;color:var(--soft);font-family:var(--ff-body);font-size:14px;cursor:pointer;}
+    .modal-confirm{padding:10px 20px;background:var(--red);border:none;border-radius:9px;color:#fff;font-family:var(--ff-body);font-size:14px;font-weight:600;cursor:pointer;transition:opacity 150ms;}
+    .modal-confirm:hover{opacity:.85;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-icon"><i class="bi bi-shield-fill"></i></div>
+    <div>
+      <div class="sb-brand-text">SGPA</div>
+      <div class="sb-brand-badge">Admin</div>
+    </div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Principal</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+    </ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Utilizadores</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
+      <li><a href="/admin/compradores" class="active"><i class="bi bi-cart-fill"></i> Compradores</a></li>
+    </ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Transacções</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
+    </ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Conta</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/perfil"><i class="bi bi-person-circle"></i> Editar Perfil</a></li>
+      <li><a href="/admin/historico"><i class="bi bi-clock-history"></i> Histórico</a></li>
+    </ul>
+  </div>
+
+  <div th:if="${isSuperAdmin}" class="sb-section">
+    <div class="sb-section-label">Sistema</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li>
+    </ul>
+  </div>
+
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">
+        <img th:if="${adminFoto != null}" th:src="${adminFoto}" alt="Foto"/>
+        <span th:unless="${adminFoto != null}" th:text="${nomeAdmin != null ? nomeAdmin.substring(0,1).toUpperCase() : 'A'}">A</span>
+      </div>
+      <div>
+        <div class="sb-user-name" th:text="${nomeAdmin}">Administrador</div>
+        <div class="sb-user-role">Super Admin</div>
+      </div>
+    </div>
+    <a href="/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Gestão de Compradores</div>
+      <div class="topbar-sub">Pesquise, veja, crie e remova compradores da plataforma</div>
+    </div>
+    <button class="btn-novo" onclick="abrirModalCriar()">
+      <i class="bi bi-person-plus-fill"></i> Novo Comprador
+    </button>
+  </div>
+
+  <div th:if="${sucesso}" class="flash sucesso">
+    <i class="bi bi-check-circle-fill"></i>
+    <span th:text="${sucesso}"></span>
+  </div>
+  <div th:if="${erro}" class="flash erro">
+    <i class="bi bi-exclamation-circle-fill"></i>
+    <span th:text="${erro}"></span>
+  </div>
+
+  <form th:action="@{/admin/compradores}" method="get" class="search-bar">
+    <div class="search-field">
+      <i class="bi bi-search"></i>
+      <input type="text" name="pesquisa" class="search-input"
+             placeholder="Pesquisar por nome, email ou NUIT..."
+             th:value="${pesquisa}"/>
+    </div>
+    <button type="submit" class="search-btn"><i class="bi bi-search"></i> Pesquisar</button>
+  </form>
+
+  <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title"><i class="bi bi-people-fill"></i> Compradores</div>
+        <span class="count-badge" th:text="${compradores.size()} + ' registados'">0 registados</span>
+      </div>
+      <div th:if="${#lists.isEmpty(compradores)}" class="empty-state">
+        <i class="bi bi-person-x"></i>
+        Nenhum comprador encontrado.
+      </div>
+
+      <table th:if="${!#lists.isEmpty(compradores)}">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Telefone</th>
+            <th>NUIT</th>
+            <th>Último Acesso</th>
+            <th>Acções</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="c : ${compradores}">
+            <td class="nome">
+              <div class="avatar-cell">
+                <div class="avatar-sm" th:text="${c.nome.substring(0,1).toUpperCase()}">C</div>
+                <span th:text="${c.nomeCompleto}">Nome</span>
+              </div>
+            </td>
+            <td th:text="${c.email ?: '-'}">email</td>
+            <td th:text="${c.telefone ?: '-'}">telefone</td>
+            <td th:text="${c.nuit ?: '-'}">nuit</td>
+            <td th:text="${c.ultimoAcesso != null ? #temporals.format(c.ultimoAcesso,'dd/MM/yyyy HH:mm') : 'Nunca'}">-</td>
+            <td style="display:flex;gap:6px;align-items:center;">
+              <a th:href="@{/admin/compradores/{id}(id=${c.id})}" class="btn-ver">
+                <i class="bi bi-eye"></i> Ver
+              </a>
+              <button class="btn-remover"
+                      th:onclick="'abrirModal(' + ${c.id} + ', \'' + ${c.nomeCompleto} + '\')'">
+                <i class="bi bi-trash3"></i> Remover
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+</main>
+
+<!-- Modal confirmação remoção -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">Confirmar remoção</div>
+    <p class="modal-text">Tem a certeza que pretende remover o comprador <strong id="modalNome"></strong>? Esta acção é irreversível.</p>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="fecharModal()">Cancelar</button>
+      <form id="modalForm" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <button type="submit" class="modal-confirm"><i class="bi bi-trash3"></i> Remover</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal criar comprador -->
+<div class="overlay" id="modalCriarOverlay">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-title"><i class="bi bi-person-plus-fill" style="color:var(--green);margin-right:8px;font-size:20px;"></i>Novo Comprador</div>
+    <p class="modal-text" style="margin-bottom:20px;">Preencha os dados para registar um novo comprador na plataforma.</p>
+    <form th:action="@{/admin/compradores/criar}" method="post">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome</label>
+          <input type="text" name="nome" class="form-input" placeholder="Nome" required/>
+        </div>
+        <div class="form-group">
+          <label>Apelido</label>
+          <input type="text" name="apelido" class="form-input" placeholder="Apelido" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" name="email" class="form-input" placeholder="email@exemplo.com" required/>
+      </div>
+      <div class="form-group">
+        <label>Telefone</label>
+        <input type="text" name="telefone" class="form-input" placeholder="84 000 0000" required/>
+      </div>
+      <div class="form-group">
+        <label>NUIT <span style="font-weight:400;text-transform:none;">(opcional)</span></label>
+        <input type="text" name="nuit" class="form-input" placeholder="000000000"/>
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" name="senha" class="form-input" placeholder="Senha de acesso" required/>
+      </div>
+      <div class="modal-actions" style="margin-top:20px;">
+        <button type="button" class="modal-cancel" onclick="fecharModalCriar()">Cancelar</button>
+        <button type="submit" class="modal-confirm" style="background:var(--green);color:#fff;">
+          <i class="bi bi-person-plus-fill"></i> Criar Comprador
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function abrirModal(id, nome) {
+    document.getElementById('modalNome').textContent = nome;
+    document.getElementById('modalForm').action = '/admin/compradores/' + id + '/remover';
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+  function fecharModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+  document.getElementById('modalOverlay').addEventListener('click', function(e) { if(e.target===this) fecharModal(); });
+  function abrirModalCriar() {
+    document.getElementById('modalCriarOverlay').classList.add('open');
+  }
+  function fecharModalCriar() {
+    document.getElementById('modalCriarOverlay').classList.remove('open');
+  }
+  document.getElementById('modalCriarOverlay').addEventListener('click', function(e) { if(e.target===this) fecharModalCriar(); });
+</script>
+</body>
+</html>

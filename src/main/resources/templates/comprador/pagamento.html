@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pagamento – SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Nunito',sans-serif;background:#f0f4f0;color:#1c1c1c;min-height:100vh}
+
+    /* HEADER */
+    .pag-header{background:#2d6a2d;padding:.9rem 1.5rem;display:flex;align-items:center;gap:1rem}
+    .pag-header a{color:#fff;text-decoration:none;font-size:.95rem;display:flex;align-items:center;gap:.4rem;opacity:.85}
+    .pag-header a:hover{opacity:1}
+    .pag-header-title{color:#fff;font-size:1.1rem;font-weight:800;margin:0 auto}
+
+    /* LAYOUT */
+    .pag-wrap{max-width:900px;margin:2rem auto;padding:0 1rem 3rem;display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+    @media(max-width:640px){.pag-wrap{grid-template-columns:1fr}}
+    .pag-card{background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.07)}
+    .pag-card-title{font-size:1rem;font-weight:800;color:#2d6a2d;margin-bottom:1.1rem;display:flex;align-items:center;gap:.5rem}
+
+    /* RESUMO */
+    .resumo-row{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid #f0f0f0;font-size:.92rem}
+    .resumo-row:last-child{border-bottom:none}
+    .resumo-row .label{color:#777}
+    .resumo-row .val{font-weight:700}
+    .resumo-total{margin-top:.8rem;padding:.8rem;background:#f0f7f0;border-radius:10px;display:flex;justify-content:space-between;align-items:center}
+    .resumo-total .label{font-size:.85rem;color:#555}
+    .resumo-total .val{font-size:1.35rem;font-weight:900;color:#2d6a2d}
+
+    /* NÚMERO DO PRODUTOR */
+    .num-produtor-box{background:#f0fdf4;border:2px solid #16a34a;border-radius:14px;padding:1rem 1.2rem;margin-top:1rem;text-align:center}
+    .num-produtor-box .np-label{font-size:.78rem;color:#166534;font-weight:700;margin-bottom:.35rem}
+    .num-produtor-box .np-num{font-size:1.7rem;font-weight:900;color:#15803d;letter-spacing:.1em;font-variant-numeric:tabular-nums}
+    .num-produtor-box .np-sub{font-size:.73rem;color:#4b7c59;margin-top:.25rem}
+
+    /* AVISO */
+    .aviso{background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:.7rem 1rem;font-size:.82rem;color:#7a5c00;display:flex;gap:.5rem;align-items:flex-start;margin-top:.9rem}
+    .aviso i{flex-shrink:0;margin-top:.1rem}
+
+    /* RADIO OPERADORAS */
+    .op-radio-group{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.2rem}
+    .op-radio-label{display:flex;align-items:center;gap:.75rem;border:2px solid #e0e0e0;border-radius:12px;padding:.75rem 1rem;cursor:pointer;transition:all .18s;background:#fafafa;user-select:none;position:relative}
+    .op-radio-label:hover{border-color:#aaa;background:#f5f5f5}
+    .op-radio-label input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+    .op-radio-label.selected{border-color:#2d6a2d;background:#f0f7f0;box-shadow:0 0 0 3px #bbf7d0}
+    .op-icon-wrap{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+    .op-mpesa  .op-icon-wrap{background:#fde8e8;color:#e30613}
+    .op-emola  .op-icon-wrap{background:#fff3e0;color:#f7941d}
+    .op-mkesh  .op-icon-wrap{background:#e3f0ff;color:#00529b}
+    .op-outros .op-icon-wrap{background:#f3f4f6;color:#555}
+    .op-radio-text{line-height:1.2}
+    .op-radio-name{font-size:.9rem;font-weight:800;color:#1a1a1a;display:block}
+    .op-radio-sub{font-size:.73rem;color:#888;display:block}
+    .op-radio-label.selected .op-radio-name{color:#166534}
+    .op-check{margin-left:auto;color:#16a34a;font-size:1rem;display:none}
+    .op-radio-label.selected .op-check{display:block}
+
+    /* CAMPO REFERÊNCIA */
+    .ref-section{margin-top:.5rem}
+    .ref-label{font-size:.83rem;font-weight:700;color:#374151;margin-bottom:.4rem;display:block}
+    .ref-input{width:100%;padding:.7rem 1rem;border:2px solid #e0e0e0;border-radius:10px;font-size:1rem;font-weight:700;font-family:inherit;outline:none;transition:border .18s;letter-spacing:.04em}
+    .ref-input:focus{border-color:#2d6a2d;box-shadow:0 0 0 3px #bbf7d0}
+    .ref-input.valido{border-color:#16a34a}
+    .ref-hint{font-size:.75rem;color:#9ca3af;margin-top:.3rem}
+
+    /* BOTÃO */
+    .btn-enviar{width:100%;padding:.95rem;background:#2d6a2d;color:#fff;border:none;border-radius:12px;font-size:1.05rem;font-weight:800;cursor:pointer;margin-top:1.4rem;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:background .18s}
+    .btn-enviar:hover:not(:disabled){background:#235423}
+    .btn-enviar:disabled{background:#9ca3af;cursor:not-allowed}
+  </style>
+</head>
+<body>
+
+<header class="pag-header">
+  <a th:href="@{/comprador/dashboard(id=${pedido.comprador != null ? pedido.comprador.id : ''})}">
+    <i class="bi bi-arrow-left"></i> Voltar
+  </a>
+  <span class="pag-header-title"><i class="bi bi-shield-lock-fill"></i>&nbsp; Pagamento Seguro</span>
+</header>
+
+<div class="pag-wrap">
+
+  <!-- ── COLUNA ESQUERDA: RESUMO ── -->
+  <div class="pag-card">
+    <div class="pag-card-title"><i class="bi bi-receipt"></i> Resumo do Pedido</div>
+
+    <div class="resumo-row">
+      <span class="label">Produto</span>
+      <span class="val" th:text="${pedido.oferta != null ? pedido.oferta.nomeProduto : '—'}">—</span>
+    </div>
+    <div class="resumo-row" th:if="${pedido.oferta != null}">
+      <span class="label">Produtor</span>
+      <span class="val" th:text="${pedido.oferta.produtor != null ? pedido.oferta.produtor.nomeCompleto : '—'}">—</span>
+    </div>
+    <div class="resumo-row" th:if="${pedido.quantidade != null}">
+      <span class="label">Quantidade</span>
+      <span class="val">
+        <span th:text="${pedido.quantidade}">0</span>
+        <span th:if="${pedido.oferta != null}" th:text="' ' + ${pedido.oferta.unidade}"></span>
+      </span>
+    </div>
+    <div class="resumo-row" th:if="${pedido.oferta != null}">
+      <span class="label">Preço unitário</span>
+      <span class="val" th:text="${#numbers.formatDecimal(pedido.oferta.preco,1,2)} + ' MT'">—</span>
+    </div>
+    <div class="resumo-total">
+      <span class="label">Total a pagar</span>
+      <span class="val" th:text="${#numbers.formatDecimal(total,1,2)} + ' MT'">0,00 MT</span>
+    </div>
+
+    <!-- NÚMERO DO PRODUTOR -->
+    <div class="num-produtor-box"
+         th:if="${pedido.numeroPagamentoProdutor != null and !#strings.isEmpty(pedido.numeroPagamentoProdutor)}">
+      <div class="np-label"><i class="bi bi-phone-fill"></i> Envie o pagamento para este número:</div>
+      <div class="np-num" th:text="${pedido.numeroPagamentoProdutor}">—</div>
+      <div class="np-sub">
+        Número do produtor
+        <span th:if="${pedido.oferta != null and pedido.oferta.produtor != null}"
+              th:text="'– ' + ${pedido.oferta.produtor.nomeCompleto}"></span>
+      </div>
+    </div>
+
+    <div class="aviso">
+      <i class="bi bi-info-circle-fill"></i>
+      <span>Efectue a transferência para o número acima e depois preencha os dados do pagamento ao lado.</span>
+    </div>
+  </div>
+
+  <!-- ── COLUNA DIREITA: MÉTODO DE PAGAMENTO ── -->
+  <div class="pag-card">
+    <div class="pag-card-title"><i class="bi bi-credit-card-2-front"></i> Método de Pagamento</div>
+
+    <!-- RADIOS -->
+    <div class="op-radio-group">
+
+      <label class="op-radio-label op-mpesa" id="lbl-MPESA" onclick="selectOp('MPESA','CONTA_MOVEL',this)">
+        <input type="radio" name="_op" value="MPESA"/>
+        <div class="op-icon-wrap"><i class="bi bi-phone-fill"></i></div>
+        <div class="op-radio-text">
+          <span class="op-radio-name">M-Pesa</span>
+          <span class="op-radio-sub">Vodacom</span>
+        </div>
+        <i class="bi bi-check-circle-fill op-check"></i>
+      </label>
+
+      <label class="op-radio-label op-emola" id="lbl-EMOLA" onclick="selectOp('EMOLA','CONTA_MOVEL',this)">
+        <input type="radio" name="_op" value="EMOLA"/>
+        <div class="op-icon-wrap"><i class="bi bi-phone-fill"></i></div>
+        <div class="op-radio-text">
+          <span class="op-radio-name">e-Mola</span>
+          <span class="op-radio-sub">Movitel</span>
+        </div>
+        <i class="bi bi-check-circle-fill op-check"></i>
+      </label>
+
+      <label class="op-radio-label op-mkesh" id="lbl-MKESH" onclick="selectOp('MKESH','CONTA_MOVEL',this)">
+        <input type="radio" name="_op" value="MKESH"/>
+        <div class="op-icon-wrap"><i class="bi bi-phone-fill"></i></div>
+        <div class="op-radio-text">
+          <span class="op-radio-name">Mkesh</span>
+          <span class="op-radio-sub">Mcel</span>
+        </div>
+        <i class="bi bi-check-circle-fill op-check"></i>
+      </label>
+
+      <label class="op-radio-label op-outros" id="lbl-OUTROS" onclick="selectOp('OUTROS','BANCO',this)">
+        <input type="radio" name="_op" value="OUTROS"/>
+        <div class="op-icon-wrap"><i class="bi bi-bank2"></i></div>
+        <div class="op-radio-text">
+          <span class="op-radio-name">Outros</span>
+          <span class="op-radio-sub">Banco / Transferência</span>
+        </div>
+        <i class="bi bi-check-circle-fill op-check"></i>
+      </label>
+
+    </div>
+
+    <!-- CAMPO DE REFERÊNCIA (aparece depois de escolher operadora) -->
+    <div class="ref-section" id="ref-section" style="display:none;">
+      <label class="ref-label" id="ref-label" for="ref-input">Número de telemóvel</label>
+      <input type="tel" class="ref-input" id="ref-input"
+             placeholder="8X XXX XXXX" autocomplete="off" maxlength="20"
+             oninput="onRefInput(this)"/>
+      <div class="ref-hint" id="ref-hint">Introduza o número que usou para efectuar o pagamento.</div>
+      <!-- Aviso de número incorreto -->
+      <div id="aviso-num-errado" style="display:none;margin-top:.5rem;background:#fff3cd;border:1.5px solid #ffc107;
+           border-radius:9px;padding:.6rem .9rem;font-size:.82rem;color:#856404;display:none;align-items:center;gap:.5rem;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span>O número introduzido não coincide com o número fornecido pelo produtor. Por segurança, só pode confirmar o pagamento para o número exacto indicado.</span>
+      </div>
+    </div>
+
+    <!-- FORM HIDDEN -->
+    <form id="form-pagamento" th:action="@{/comprador/pagamento/enviar}" method="post">
+      <input type="hidden" name="pedidoId"        th:value="${pedido.id}"/>
+      <input type="hidden" name="metodoPagamento" id="f-metodo"    value=""/>
+      <input type="hidden" name="operadora"       id="f-operadora" value=""/>
+      <input type="hidden" name="referencia"      id="f-referencia" value=""/>
+      <!-- Número do produtor para validação no front-end -->
+      <input type="hidden" id="num-produtor-esperado"
+             th:value="${pedido.numeroPagamentoProdutor != null ? pedido.numeroPagamentoProdutor : ''}"/>
+      <button type="submit" class="btn-enviar" id="btn-enviar" disabled>
+        <i class="bi bi-check-circle-fill"></i> Confirmar Pagamento Efectuado
+      </button>
+    </form>
+  </div>
+
+</div>
+
+<script>
+var opAtual = '', metodoAtual = '';
+
+// ── SELECCIONAR OPERADORA ─────────────────────────────────────────────
+function selectOp(op, metodo, labelEl) {
+  opAtual    = op;
+  metodoAtual = metodo;
+  document.getElementById('f-operadora').value = op;
+  document.getElementById('f-metodo').value    = metodo;
+
+  // Remover selected de todos os labels
+  document.querySelectorAll('.op-radio-label').forEach(function(l){ l.classList.remove('selected'); });
+  labelEl.classList.add('selected');
+
+  // Marcar o radio
+  var radio = labelEl.querySelector('input[type=radio]');
+  if (radio) radio.checked = true;
+
+  // Mostrar campo de referência
+  var sec = document.getElementById('ref-section');
+  var lbl = document.getElementById('ref-label');
+  var inp = document.getElementById('ref-input');
+  var hint = document.getElementById('ref-hint');
+  sec.style.display = 'block';
+
+  if (metodo === 'CONTA_MOVEL') {
+    var nomes = {MPESA:'M-Pesa', EMOLA:'e-Mola', MKESH:'Mkesh'};
+    lbl.textContent  = 'Número de telemóvel (' + (nomes[op] || op) + ')';
+    inp.type         = 'tel';
+    inp.maxLength    = 12;  // "8X XXX XXXX" = 11 chars + 1
+    inp.placeholder  = '8X XXX XXXX';
+    hint.textContent = 'Introduza EXACTAMENTE o número para o qual efectuou o pagamento ' + (nomes[op] || op) + '.';
+  } else {
+    lbl.textContent  = 'Referência / NIB da transferência';
+    inp.type         = 'text';
+    inp.maxLength    = 40;
+    inp.placeholder  = 'Ex: 0001.0000.12345678.10';
+    hint.textContent = 'NIB, número de referência ou comprovativo da transferência.';
+  }
+
+  // Reset input
+  inp.value = '';
+  inp.className = 'ref-input';
+  document.getElementById('f-referencia').value = '';
+  esconderAvisoErro();
+  updateBtn();
+  inp.focus();
+}
+
+// ── MÁSCARA AUTOMÁTICA ───────────────────────────────────────────────
+function onRefInput(inp) {
+  if (metodoAtual === 'CONTA_MOVEL') {
+    aplicarMascaraTel(inp);
+  }
+  document.getElementById('f-referencia').value = inp.value.trim();
+  validarNumero(inp);
+  updateBtn();
+}
+
+function aplicarMascaraTel(inp) {
+  var digits = inp.value.replace(/\D/g, '');
+  if (digits.length > 9) digits = digits.slice(0, 9);
+  var fmt = '';
+  if      (digits.length <= 2) fmt = digits;
+  else if (digits.length <= 5) fmt = digits.slice(0,2) + ' ' + digits.slice(2);
+  else                          fmt = digits.slice(0,2) + ' ' + digits.slice(2,5) + ' ' + digits.slice(5);
+  inp.value = fmt;
+  if (digits.length === 9) {
+    inp.classList.add('valido');
+    inp.style.borderColor = '#16a34a';
+    inp.style.boxShadow   = '0 0 0 3px #bbf7d0';
+  } else {
+    inp.classList.remove('valido');
+    inp.style.borderColor = '';
+    inp.style.boxShadow   = '';
+  }
+}
+
+// ── VALIDAR SE NÚMERO COINCIDE COM O DO PRODUTOR ─────────────────────
+function normalizar(num) {
+  return num.replace(/\D/g, '');
+}
+
+function validarNumero(inp) {
+  var avisoPainel = document.getElementById('aviso-num-errado');
+  if (metodoAtual !== 'CONTA_MOVEL') {
+    if (avisoPainel) avisoPainel.style.display = 'none';
+    return true;
+  }
+  var numEsperado = document.getElementById('num-produtor-esperado');
+  if (!numEsperado || !numEsperado.value) return true; // sem número produtor: não bloquear
+
+  var digits       = normalizar(inp.value);
+  var digitsEsper  = normalizar(numEsperado.value);
+
+  if (digits.length < 9) {
+    // Ainda a escrever, não mostrar aviso
+    if (avisoPainel) avisoPainel.style.display = 'none';
+    return false;
+  }
+
+  if (digits !== digitsEsper) {
+    if (avisoPainel) avisoPainel.style.display = 'flex';
+    inp.style.borderColor = '#dc2626';
+    inp.style.boxShadow   = '0 0 0 3px #fecaca';
+    inp.classList.remove('valido');
+    return false;
+  } else {
+    if (avisoPainel) avisoPainel.style.display = 'none';
+    return true;
+  }
+}
+
+function esconderAvisoErro() {
+  var avisoPainel = document.getElementById('aviso-num-errado');
+  if (avisoPainel) avisoPainel.style.display = 'none';
+}
+
+// ── ACTIVAR BOTÃO ────────────────────────────────────────────────────
+function updateBtn() {
+  var refVal   = document.getElementById('ref-input').value.trim();
+  var digits   = refVal.replace(/\D/g,'');
+  var inp      = document.getElementById('ref-input');
+
+  var telOk    = false;
+  if (metodoAtual === 'CONTA_MOVEL') {
+    // Para números de telemóvel: tem de ter 9 dígitos E coincidir com o do produtor
+    var numEsperado = document.getElementById('num-produtor-esperado');
+    var digitsEsper = numEsperado ? normalizar(numEsperado.value) : '';
+    telOk = digits.length === 9 && (digitsEsper === '' || digits === digitsEsper);
+  } else {
+    telOk = refVal.length >= 5;
+  }
+
+  var ok = opAtual !== '' && telOk;
+  document.getElementById('btn-enviar').disabled = !ok;
+}
+</script>
+</body>
+</html>

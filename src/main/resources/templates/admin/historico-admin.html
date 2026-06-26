@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Histórico de Actividade – SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#0b0d0f;--ink-2:#12161a;--ink-3:#1a1f26;--panel:#1f252d;
+      --steel:#2c3340;--mid:#6b7584;--soft:#9aa3b0;--line:rgba(255,255,255,.06);--cream:#f0ece4;
+      --amber:#e8a838;--amber-d:#c48820;--amber-g:rgba(232,168,56,.15);
+      --green:#3dba7e;--green-g:rgba(61,186,126,.12);
+      --blue:#4d9de0;--blue-g:rgba(77,157,224,.12);
+      --red:#e05555;--red-g:rgba(224,85,85,.12);
+      --ff-head:'DM Serif Display',Georgia,serif;--ff-body:'DM Sans',system-ui,sans-serif;
+    }
+    html,body{height:100%;}
+    body{font-family:var(--ff-body);background:var(--ink);color:var(--cream);display:flex;}
+
+    /* ── SIDEBAR ── */
+    .sidebar{width:240px;min-height:100vh;background:var(--ink-2);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:28px 0;position:fixed;top:0;left:0;bottom:0;z-index:10;}
+    .sb-brand{display:flex;align-items:center;gap:12px;padding:0 24px 28px;border-bottom:1px solid var(--line);margin-bottom:20px;}
+    .sb-brand-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--amber-d),var(--amber));display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink);}
+    .sb-brand-text{font-family:var(--ff-head);font-size:17px;color:var(--cream);}
+    .sb-brand-badge{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);background:var(--amber-g);border:1px solid rgba(232,168,56,.2);padding:2px 6px;border-radius:3px;}
+    .sb-section{padding:0 12px 8px;}
+    .sb-section-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);padding:0 12px;margin-bottom:6px;}
+    .sb-nav{list-style:none;}
+    .sb-nav li a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:14px;color:var(--soft);text-decoration:none;transition:background 150ms,color 150ms;}
+    .sb-nav li a:hover,.sb-nav li a.active{background:var(--panel);color:var(--cream);}
+    .sb-nav li a.active{color:var(--amber);}
+    .sb-nav li a i{font-size:15px;width:18px;text-align:center;}
+    .sb-footer{margin-top:auto;padding:16px 24px;border-top:1px solid var(--line);}
+    .sb-user{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .sb-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--amber-d),var(--amber));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;flex-shrink:0;}
+    .sb-avatar img{width:100%;height:100%;object-fit:cover;}
+    .sb-user-name{font-size:13px;font-weight:500;color:var(--cream);}
+    .sb-user-role{font-size:11px;color:var(--mid);margin-top:1px;}
+    .sb-logout{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mid);text-decoration:none;padding:8px 10px;border-radius:7px;transition:background 150ms,color 150ms;}
+    .sb-logout:hover{background:var(--panel);color:var(--red);}
+
+    /* ── MAIN ── */
+    .main{margin-left:240px;flex:1;min-height:100vh;padding:36px 40px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
+    .topbar-title{font-family:var(--ff-head);font-size:28px;color:var(--cream);}
+    .topbar-sub{font-size:14px;color:var(--mid);margin-top:4px;}
+
+    /* ── LOG TIMELINE ── */
+    .log-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+    .log-header{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--line);}
+    .log-title{font-family:var(--ff-head);font-size:19px;color:var(--cream);display:flex;align-items:center;gap:9px;}
+    .log-title i{font-size:15px;color:var(--amber);}
+    .log-count{font-size:12px;font-weight:600;color:var(--amber);background:var(--amber-g);padding:3px 10px;border-radius:20px;}
+
+    .log-filter{display:flex;gap:8px;padding:14px 24px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+    .filter-btn{padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--ink-3);color:var(--soft);transition:all 150ms;text-decoration:none;}
+    .filter-btn:hover,.filter-btn.active{background:var(--amber-g);border-color:rgba(232,168,56,.3);color:var(--amber);}
+
+    .log-table{width:100%;border-collapse:collapse;}
+    .log-table thead tr{background:var(--ink-3);}
+    .log-table thead th{padding:10px 18px;text-align:left;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--mid);}
+    .log-table tbody tr{border-top:1px solid var(--line);transition:background 120ms;}
+    .log-table tbody tr:hover{background:rgba(255,255,255,.02);}
+    .log-table tbody td{padding:13px 18px;font-size:13px;color:var(--soft);vertical-align:middle;}
+    .log-table tbody td.strong{color:var(--cream);font-weight:500;}
+    .log-table tbody td.mono{font-family:monospace;font-size:12px;}
+
+    /* Tipo badges */
+    .tipo-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+    .tipo-LOGIN           {background:var(--blue-g);color:var(--blue);}
+    .tipo-EDITAR_PERFIL   {background:rgba(232,168,56,.12);color:var(--amber);}
+    .tipo-CRIAR_PRODUTOR  {background:var(--green-g);color:var(--green);}
+    .tipo-REMOVER_PRODUTOR{background:var(--red-g);color:var(--red);}
+    .tipo-CRIAR_COMPRADOR {background:var(--green-g);color:var(--green);}
+    .tipo-REMOVER_COMPRADOR{background:var(--red-g);color:var(--red);}
+    .tipo-CRIAR_ADMIN     {background:var(--blue-g);color:var(--blue);}
+    .tipo-REMOVER_ADMIN   {background:var(--red-g);color:var(--red);}
+    .tipo-default         {background:rgba(107,117,132,.15);color:var(--soft);}
+
+    .tipo-icon{font-size:13px;}
+
+    .empty{text-align:center;padding:48px;color:var(--mid);}
+    .empty i{font-size:32px;display:block;margin-bottom:12px;color:var(--steel);}
+    .empty p{font-size:14px;}
+
+    /* Pessoa envolvida */
+    .pessoa-cell{display:flex;flex-direction:column;gap:4px;}
+    .pessoa-nome{font-size:13px;font-weight:600;color:var(--cream);}
+    .pessoa-tipo{display:inline-flex;align-items:center;font-size:10px;font-weight:700;
+      letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:20px;width:fit-content;}
+    .ptipo-admin    {background:var(--blue-g);color:var(--blue);}
+    .ptipo-produtor {background:var(--amber-g);color:var(--amber);}
+    .ptipo-comprador{background:var(--green-g);color:var(--green);}
+    .sem-afectado{color:var(--mid);font-size:13px;}
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-icon"><i class="bi bi-shield-fill"></i></div>
+    <div>
+      <div class="sb-brand-text">SGPA</div>
+      <div class="sb-brand-badge">Admin</div>
+    </div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Principal</div>
+    <ul class="sb-nav"><li><a href="/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li></ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Utilizadores</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
+      <li><a href="/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
+    </ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Transacções</div>
+    <ul class="sb-nav"><li><a href="/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li></ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Conta</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/perfil"><i class="bi bi-person-circle"></i> Editar Perfil</a></li>
+      <li><a href="/admin/historico" class="active"><i class="bi bi-clock-history"></i> Histórico</a></li>
+    </ul>
+  </div>
+  <div th:if="${isSuperAdmin}" class="sb-section">
+    <div class="sb-section-label">Sistema</div>
+    <ul class="sb-nav"><li><a href="/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li></ul>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">
+        <img th:if="${adminFoto != null}" th:src="${adminFoto}" alt="Foto"/>
+        <span th:unless="${adminFoto != null}" th:text="${nomeAdmin != null ? nomeAdmin.substring(0,1).toUpperCase() : 'A'}">A</span>
+      </div>
+      <div>
+        <div class="sb-user-name" th:text="${nomeAdmin}">Admin</div>
+        <div class="sb-user-role" th:text="${isSuperAdmin ? 'Super Admin' : 'Admin'}">Admin</div>
+      </div>
+    </div>
+    <a href="/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" th:text="${isSuperAdmin ? 'Histórico Global de Actividade' : 'Histórico de Actividade'}">Histórico de Actividade</div>
+      <div class="topbar-sub" th:text="${isSuperAdmin ? 'Registo completo de todas as acções de todos os administradores.' : 'Registo completo de todas as acções realizadas pela sua conta.'}">Registo completo de todas as acções realizadas pela sua conta.</div>
+    </div>
+  </div>
+
+  <div class="log-card">
+    <div class="log-header">
+      <div class="log-title"><i class="bi bi-clock-history"></i> Acções Registadas</div>
+      <span class="log-count" th:text="${#lists.size(logs)} + ' registos'">0 registos</span>
+    </div>
+
+    <!-- Filtro por tipo -->
+    <div class="log-filter">
+      <a href="/admin/historico" class="filter-btn active">Todos</a>
+      <a href="#" onclick="filtrar('LOGIN')" class="filter-btn">Login</a>
+      <a href="#" onclick="filtrar('CRIAR_PRODUTOR')" class="filter-btn">Produtores criados</a>
+      <a href="#" onclick="filtrar('REMOVER_PRODUTOR')" class="filter-btn">Produtores removidos</a>
+      <a href="#" onclick="filtrar('CRIAR_COMPRADOR')" class="filter-btn">Compradores criados</a>
+      <a href="#" onclick="filtrar('REMOVER_COMPRADOR')" class="filter-btn">Compradores removidos</a>
+      <a href="#" onclick="filtrar('CRIAR_ADMIN')" class="filter-btn">Admins criados</a>
+      <a href="#" onclick="filtrar('EDITAR_PERFIL')" class="filter-btn">Perfil editado</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(logs)}" class="empty">
+      <i class="bi bi-inbox"></i>
+      <p>Ainda não há nenhum registo de actividade para a sua conta.</p>
+    </div>
+
+    <table class="log-table" th:if="${!#lists.isEmpty(logs)}" id="logTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Tipo</th>
+          <th>Pessoa Envolvida</th>
+          <th>Descrição</th>
+          <th>Data / Hora</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="log, stat : ${logs}" th:attr="data-tipo=${log.tipoAcao}">
+          <td class="mono" th:text="${stat.count}">1</td>
+          <td>
+            <span class="tipo-badge"
+              th:classappend="${'tipo-' + log.tipoAcao}"
+              th:text="${log.tipoAcao.replace('_',' ')}">TIPO</span>
+          </td>
+          <td>
+            <!-- Se há pessoa afectada (produtor, comprador, outro admin) -->
+            <div th:if="${log.nomeAfectado != null}" class="pessoa-cell">
+              <span class="pessoa-nome" th:text="${log.nomeAfectado}">—</span>
+              <span class="pessoa-tipo"
+                th:classappend="${log.tipoAfectado == 'ADMIN' ? ' ptipo-admin' :
+                                  log.tipoAfectado == 'PRODUTOR' ? ' ptipo-produtor' :
+                                  log.tipoAfectado == 'COMPRADOR' ? ' ptipo-comprador' : ''}"
+                th:text="${log.tipoAfectado}">—</span>
+            </div>
+            <!-- Para acções próprias (login, editar perfil) mostra o admin que agiu -->
+            <div th:if="${log.nomeAfectado == null and log.admin != null}" class="pessoa-cell">
+              <span class="pessoa-nome" th:text="${log.admin.nomeCompleto}">—</span>
+              <span class="pessoa-tipo ptipo-admin">ADMIN</span>
+            </div>
+            <span th:if="${log.nomeAfectado == null and log.admin == null}" class="sem-afectado">—</span>
+          </td>
+          <td class="strong" th:text="${log.descricao}">—</td>
+          <td class="mono"
+              th:text="${log.dataAcao != null ? #temporals.format(log.dataAcao,'dd/MM/yyyy HH:mm:ss') : '—'}">—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+  function filtrar(tipo) {
+    const rows = document.querySelectorAll('#logTable tbody tr');
+    rows.forEach(row => {
+      row.style.display = (row.dataset.tipo === tipo) ? '' : 'none';
+    });
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+  // Botão "Todos" repõe
+  document.querySelector('.filter-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelectorAll('#logTable tbody tr').forEach(r => r.style.display = '');
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+</script>
+</body>
+</html>

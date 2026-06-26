@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mercado Agrário – SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:wght@700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/comprador.css"/>
+</head>
+
+<body style="font-family:'Nunito',sans-serif;background:#f5f5f5;color:#1c1c1c;">
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="mkt-header">
+  <div class="mkt-header-top">
+
+    <a class="mkt-logo" th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}">
+		<img src="/images/logo.png" alt="Logo SGPA" class="mkt-logo-icon">
+      <div>
+        <span>SGPA</span>
+        <small>Mercado Agrário</small>
+      </div>
+    </a>
+    <form method="get" th:action="@{/comprador/dashboard}" class="mkt-search">
+      <input type="hidden" name="id" th:value="${comprador != null ? comprador.id : ''}"/>
+      <select name="categoria">
+        <option value="">Todas</option>
+        <option value="Frutas"     th:selected="${param.categoria == 'Frutas'}">Frutas</option>
+        <option value="Legumes"    th:selected="${param.categoria == 'Legumes'}">Legumes</option>
+        <option value="Cereais"    th:selected="${param.categoria == 'Cereais'}">Cereais</option>
+        <option value="Tubérculos" th:selected="${param.categoria == 'Tubérculos'}">Tubérculos</option>
+        <option value="Hortícolas" th:selected="${param.categoria == 'Hortícolas'}">Hortícolas</option>
+      </select>
+      <input type="text" name="nome" placeholder="Pesquisar produto agrário..." th:value="${param.nome}"/>
+      <input type="hidden" name="dataInicio" id="hDataInicio" th:value="${param.dataInicio}"/>
+      <input type="hidden" name="dataFim"    id="hDataFim"    th:value="${param.dataFim}"/>
+      <button type="submit"><i class="bi bi-search"></i></button>
+    </form>
+
+    <div class="mkt-user-area">
+      <a th:href="@{/comprador/editar-perfil(id=${comprador != null ? comprador.id : ''})}"
+         class="mkt-user-btn d-none d-md-flex">
+        <div class="mkt-avatar">
+          <img th:if="${comprador != null and comprador.fotoPerfil != null and !#strings.isEmpty(comprador.fotoPerfil)}"
+               th:src="${comprador.fotoPerfil}" alt="Foto"/>
+          <i th:if="${comprador == null or comprador.fotoPerfil == null or #strings.isEmpty(comprador.fotoPerfil)}"
+             class="bi bi-person-fill"></i>
+        </div>
+        <span th:text="${comprador != null ? comprador.nome : 'Conta'}">Conta</span>
+      </a>
+
+      <!-- Botão Pedidos → vai para página dedicada -->
+      <a th:href="@{/comprador/pedidos(id=${comprador != null ? comprador.id : ''})}"
+         class="mkt-cart-btn">
+        <i class="bi bi-bag-fill"></i>
+        <span class="d-none d-sm-inline">Pedidos</span>
+        <span class="badge bg-warning text-dark ms-1 p-1 d-flex align-items-center justify-content-center"
+              style="font-size:.65rem;width:18px;height:18px;border-radius:50%;"
+              th:if="${meusPedidos != null and !#lists.isEmpty(meusPedidos)}"
+              th:text="${#lists.size(meusPedidos)}"></span>
+      </a>
+
+      <!-- Botão Produtor: entra directamente se já for produtor, senão cria conta -->
+      <a th:href="${jaEProdutor} ? @{/comprador/tornar-produtor} : @{/comprador/tornar-produtor}"
+         class="mkt-user-btn d-none d-md-flex"
+         th:title="${jaEProdutor} ? 'Ir para o painel de produtor' : 'Registar-se como produtor'"
+         style="background:linear-gradient(135deg,#2e7d32,#4caf50);color:#fff;border-radius:8px;padding:.4rem .9rem;gap:.4rem;font-weight:700;font-size:.82rem;text-decoration:none;">
+        <i th:classappend="${jaEProdutor} ? 'bi-box-arrow-in-right' : 'bi-shop'" class="bi"></i>
+        <span class="d-none d-lg-inline" th:text="${jaEProdutor} ? 'Painel Produtor' : 'Ser Produtor'">Ser Produtor</span>
+      </a>
+
+      <a th:href="@{/logout}" class="mkt-user-btn" title="Sair">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <nav class="mkt-cats">
+    <div class="mkt-cats-inner">
+      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
+         class="mkt-cat-link"
+         th:classappend="${param.categoria == null or #strings.isEmpty(param.categoria)} ? ' active' : ''">
+        <i class="bi bi-grid-fill"></i> Todos
+      </a>
+      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Frutas')}"
+         class="mkt-cat-link" th:classappend="${param.categoria == 'Frutas'} ? ' active' : ''">
+        <i class="bi bi-apple"></i> Frutas
+      </a>
+      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Legumes')}"
+         class="mkt-cat-link" th:classappend="${param.categoria == 'Legumes'} ? ' active' : ''">
+        <i class="bi bi-leaf"></i> Legumes
+      </a>
+      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Cereais')}"
+         class="mkt-cat-link" th:classappend="${param.categoria == 'Cereais'} ? ' active' : ''">
+        <i class="bi bi-basket2"></i> Cereais
+      </a>
+      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Tubérculos')}"
+         class="mkt-cat-link" th:classappend="${param.categoria == 'Tubérculos'} ? ' active' : ''">
+        <i class="bi bi-circle-fill" style="font-size:.55rem;"></i> Tubérculos
+      </a>
+      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Hortícolas')}"
+         class="mkt-cat-link" th:classappend="${param.categoria == 'Hortícolas'} ? ' active' : ''">
+        <i class="bi bi-flower1"></i> Hortícolas
+      </a>
+    </div>
+  </nav>
+</header>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<div class="mkt-hero" th:if="${param.nome == null and param.categoria == null}">
+  <div class="mkt-hero-inner">
+    <div class="mkt-hero-text">
+      <h1>Produtos Frescos<br>Directamente do Campo</h1>
+      <p>Compre directamente a produtores locais.<br>Qualidade garantida, preços justos.</p>
+      <div class="mkt-hero-badges">
+        <span class="mkt-hero-badge"><i class="bi bi-patch-check-fill"></i> Qualidade Garantida</span>
+        <span class="mkt-hero-badge"><i class="bi bi-geo-alt-fill"></i> Produtores Locais</span>
+        <span class="mkt-hero-badge"><i class="bi bi-truck"></i> Entrega Directa</span>
+      </div>
+    </div>
+    <div class="mkt-hero-stats">
+      <div class="mkt-hero-stat">
+        <strong th:text="${ofertas != null ? #lists.size(ofertas) : 0}">0</strong>
+        <span>Ofertas Activas</span>
+      </div>
+      <div class="mkt-hero-stat"><strong>100%</strong><span>Nacional</span></div>
+      <div class="mkt-hero-stat"><strong>Directo</strong><span>Do Produtor</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ BODY ═══════════════ -->
+<div class="mkt-body">
+
+  <!-- ═══════════════ FILTRO DE DATAS ═══════════════ -->
+  <div class="mkt-date-filter" id="painelDatas">
+    <form method="get" th:action="@{/comprador/dashboard}" id="formDatas">
+      <input type="hidden" name="id"        th:value="${comprador != null ? comprador.id : ''}"/>
+      <input type="hidden" name="nome"      th:value="${param.nome}"/>
+      <input type="hidden" name="categoria" th:value="${param.categoria}"/>
+
+      <div class="mkt-date-filter-title">
+        <i class="bi bi-calendar3-week"></i>
+        <span>Filtrar por data de publicação</span>
+        <span th:if="${param.dataInicio != null or param.dataFim != null}"
+              class="mkt-date-active-badge">Activo</span>
+      </div>
+
+      <div class="mkt-date-filter-body">
+        <!-- Atalhos rápidos -->
+        <div class="mkt-date-shortcuts">
+          <button type="button" class="mkt-shortcut" onclick="aplicarAtalho('hoje')">
+            <i class="bi bi-sun"></i> Hoje
+          </button>
+          <button type="button" class="mkt-shortcut" onclick="aplicarAtalho('ontem')">
+            <i class="bi bi-moon"></i> Ontem
+          </button>
+          <button type="button" class="mkt-shortcut" onclick="aplicarAtalho('semana')">
+            <i class="bi bi-calendar-week"></i> Esta semana
+          </button>
+          <button type="button" class="mkt-shortcut" onclick="aplicarAtalho('mes')">
+            <i class="bi bi-calendar-month"></i> Este mês
+          </button>
+          <button type="button" class="mkt-shortcut" onclick="aplicarAtalho('7dias')">
+            <i class="bi bi-clock-history"></i> Últimos 7 dias
+          </button>
+          <button type="button" class="mkt-shortcut" onclick="aplicarAtalho('30dias')">
+            <i class="bi bi-calendar2-range"></i> Últimos 30 dias
+          </button>
+        </div>
+
+        <!-- Inputs de data -->
+        <div class="mkt-date-inputs">
+          <div class="mkt-date-field">
+            <label>De</label>
+            <input type="date" name="dataInicio" id="inputDataInicio"
+                   th:value="${param.dataInicio}"/>
+          </div>
+          <div class="mkt-date-sep"><i class="bi bi-arrow-right"></i></div>
+          <div class="mkt-date-field">
+            <label>Até</label>
+            <input type="date" name="dataFim" id="inputDataFim"
+                   th:value="${param.dataFim}"/>
+          </div>
+          <button type="submit" class="mkt-date-apply">
+            <i class="bi bi-funnel-fill"></i> Filtrar
+          </button>
+          <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},nome=${param.nome},categoria=${param.categoria})}"
+             class="mkt-date-clear"
+             th:if="${param.dataInicio != null or param.dataFim != null}">
+            <i class="bi bi-x-circle"></i> Limpar datas
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div th:if="${sucesso}" class="mkt-alert mkt-alert-success">
+    <i class="bi bi-check-circle-fill"></i><span th:text="${sucesso}"></span>
+  </div>
+  <div th:if="${erro}" class="mkt-alert mkt-alert-danger">
+    <i class="bi bi-exclamation-triangle-fill"></i><span th:text="${erro}"></span>
+  </div>
+
+  <!-- PRODUTOS -->
+  <div class="mkt-section-title" id="secao-produtos">
+    <h2>
+      <span th:if="${param.nome != null and !#strings.isEmpty(param.nome)}"
+            th:text="'Resultados para: ' + ${param.nome}">Resultados</span>
+      <span th:if="${param.categoria != null and !#strings.isEmpty(param.categoria) and (param.nome == null or #strings.isEmpty(param.nome))}"
+            th:text="${param.categoria}">Categoria</span>
+      <span th:if="${(param.nome == null or #strings.isEmpty(param.nome)) and (param.categoria == null or #strings.isEmpty(param.categoria))}">
+        Ofertas Disponíveis
+      </span>
+    </h2>
+    <div class="d-flex align-items-center gap-2">
+      <span class="mkt-count-badge"
+            th:text="${ofertas != null ? #lists.size(ofertas) : 0} + ' produto(s)'"></span>
+      <a th:if="${param.nome != null or param.categoria != null}"
+         th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
+         style="font-size:.78rem;color:#888;text-decoration:none;">
+        <i class="bi bi-x-circle"></i> Limpar filtro
+      </a>
+    </div>
+  </div>
+
+  <div class="mkt-grid">
+    <div th:each="oferta : ${ofertas}" class="prd-card">
+      <div class="prd-img-wrap">
+        <img th:if="${oferta.imagemPath != null and !#strings.isEmpty(oferta.imagemPath)}"
+             th:src="${oferta.imagemPath}" alt="Foto"
+             th:attr="data-src=${oferta.imagemPath},data-titulo=${oferta.nomeProduto}"
+             onclick="abrirLightbox(this.dataset.src, this.dataset.titulo)"
+             class="prd-img-clicavel" title="Clique para ampliar"/>
+        <div class="prd-no-img"
+             th:if="${oferta.imagemPath == null or #strings.isEmpty(oferta.imagemPath)}">
+          <i class="bi bi-image"></i><span>Sem foto</span>
+        </div>
+        <span class="prd-cat-tag" th:text="${oferta.categoria}">Cat</span>
+        <span class="prd-estado-tag" th:text="${oferta.estado}"
+              th:classappend="${oferta.estado.name() != 'ATIVO'} ? ' inativo' : ''"></span>
+        <span th:if="${oferta.imagemPath != null and !#strings.isEmpty(oferta.imagemPath)}"
+              class="prd-zoom-hint"><i class="bi bi-zoom-in"></i></span>
+      </div>
+
+      <div class="prd-body">
+        <div class="prd-name" th:text="${oferta.nomeProduto}">Produto</div>
+        <div class="prd-desc"
+             th:if="${oferta.descricao != null and !#strings.isEmpty(oferta.descricao)}"
+             th:text="${#strings.abbreviate(oferta.descricao, 70)}"></div>
+        <div class="prd-meta" style="align-items:center;gap:.5rem;">
+          <span th:if="${oferta.produtor != null and oferta.produtor.fotoPerfil != null and !#strings.isEmpty(oferta.produtor.fotoPerfil)}"
+                th:attr="data-foto=${oferta.produtor.fotoPerfil},data-nome=${oferta.produtor.nomeCompleto}"
+                onclick="abrirFotoProdutor(this)"
+                title="Ver foto do produtor"
+                style="cursor:pointer;display:inline-block;width:28px;height:28px;border-radius:50%;overflow:hidden;border:2px solid #e65100;flex-shrink:0;">
+            <img th:src="${oferta.produtor.fotoPerfil}" alt="Produtor"
+                 style="width:100%;height:100%;object-fit:cover;"/>
+          </span>
+          <i th:if="${oferta.produtor == null or oferta.produtor.fotoPerfil == null or #strings.isEmpty(oferta.produtor.fotoPerfil)}"
+             class="bi bi-person-fill"></i>
+          <span th:text="${oferta.produtor != null ? oferta.produtor.nomeCompleto : '—'}"></span>
+        </div>
+        <div class="prd-meta" th:if="${oferta.bairro != null}">
+          <i class="bi bi-geo-alt-fill"></i>
+          <span th:text="${oferta.bairro.nome + (oferta.bairro.distrito != null ? ', ' + oferta.bairro.distrito.nome : '')}"></span>
+        </div>
+        <!-- Data de publicação -->
+        <div class="prd-pub-date" th:if="${oferta.dataPublicacao != null}"
+             th:attr="data-pub=${#temporals.format(oferta.dataPublicacao, 'dd/MM/yyyy HH:mm:ss')}">
+          <i class="bi bi-clock-history"></i>
+          <span class="js-tempo-decorrido"></span>
+        </div>
+        <div class="prd-price-row">
+          <span class="prd-price" th:text="${#numbers.formatDecimal(oferta.preco, 1, 2)}">0</span>
+          <span class="prd-price-unit">MT / <span th:text="${oferta.unidade}">un</span></span>
+          <span class="prd-stock"
+                th:classappend="${oferta.quantidadeRestante != null and oferta.quantidadeRestante.doubleValue() <= 5 ? ' prd-stock-low' : ''}">
+            <i class="bi bi-box-seam"></i>
+            <strong>Disponível:</strong>
+            <span th:text="${oferta.quantidadeRestante != null ? oferta.quantidadeRestante.stripTrailingZeros().toPlainString() : '0'}">0</span>
+            <span th:text="${oferta.unidade}">un</span>
+            <span th:if="${oferta.quantidadeRestante != null and oferta.quantidadeRestante.doubleValue() <= 5 and oferta.quantidadeRestante.doubleValue() > 0}"
+                  class="prd-stock-alerta">&#9888; Pouco stock!</span>
+            <span th:if="${oferta.quantidadeRestante == null or oferta.quantidadeRestante.doubleValue() == 0}"
+                  class="prd-stock-esgotado">&#10006; Esgotado</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="prd-buy">
+        <button class="btn-detalhes"
+                th:attr="data-nome=${oferta.nomeProduto},data-preco=${oferta.preco},
+                         data-quantidade=${oferta.quantidadeRestante},data-unidade=${oferta.unidade},
+                         data-produtor=${oferta.produtor != null ? oferta.produtor.nomeCompleto : ''},
+                         data-descricao=${oferta.descricao},data-imagem=${oferta.imagemPath},
+                         data-foto-produtor=${oferta.produtor != null ? oferta.produtor.fotoPerfil : ''},
+                         data-localizacao=${oferta.bairro != null ? oferta.bairro.nome + (oferta.bairro.distrito != null ? ', ' + oferta.bairro.distrito.nome : '') : ''},
+                         data-publicacao=${oferta.dataPublicacao != null ? #temporals.format(oferta.dataPublicacao, 'dd/MM/yyyy HH:mm:ss') : ''}"
+                onclick="abrirDetalhe(this)"
+                data-bs-toggle="modal" data-bs-target="#modalDetalhe">
+          <i class="bi bi-eye"></i> Ver Detalhes
+        </button>
+        <!--/* eProprio = true se este utilizador é o produtor desta oferta */-->
+        <th:block th:with="eProprio=${produtorDoCompradorId != null and oferta.produtor != null and oferta.produtor.id.equals(produtorDoCompradorId)}">
+
+        <form th:if="${!eProprio}"
+              th:action="@{/comprador/comprar}" method="post"
+              th:data-preco="${oferta.preco}" th:data-unidade="${oferta.unidade}">
+          <input type="hidden" name="ofertaId" th:value="${oferta.id}"/>
+          <input type="hidden" name="compradorId" th:value="${comprador != null ? comprador.id : ''}"/>
+          <div class="prd-qty-row">
+            <input type="number" name="quantidade" class="prd-qty-input"
+                   placeholder="Quantidade..." min="0.01" step="0.01"
+                   th:max="${oferta.quantidadeRestante}" required oninput="calcularTotal(this)"/>
+            <span style="font-size:.75rem;color:#999;white-space:nowrap;" th:text="${oferta.unidade}">un</span>
+          </div>
+          <div class="prd-total"></div>
+          <button type="submit" class="btn-comprar" th:disabled="${oferta.estado.name() != 'ATIVO'}">
+            <i class="bi bi-cart-plus"></i>
+            <span th:if="${oferta.estado.name() == 'ATIVO'}">Encomendar</span>
+            <span th:if="${oferta.estado.name() != 'ATIVO'}">Indisponível</span>
+          </button>
+        </form>
+
+        <!-- Aviso: produto próprio do produtor -->
+        <div th:if="${eProprio}"
+             style="margin-top:.6rem;display:flex;align-items:center;gap:.45rem;
+                    background:#fffbe6;border:1px solid #f5c842;border-radius:8px;
+                    padding:.55rem .75rem;font-size:.8rem;color:#7a5c00;line-height:1.3;">
+          <i class="bi bi-lock-fill" style="font-size:1rem;color:#f5a623;flex-shrink:0;"></i>
+          <span>Este produto foi publicado por <strong>si</strong> enquanto produtor.<br>Não é possível comprar o seu próprio produto.</span>
+        </div>
+
+        </th:block>
+      </div>
+    </div>
+
+    <div class="mkt-empty" style="grid-column:1/-1;"
+         th:if="${ofertas == null or #lists.isEmpty(ofertas)}">
+      <i class="bi bi-basket2"></i>
+      <p>Nenhuma oferta disponível de momento.<br>
+        <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
+           style="color:var(--mkt-verde);font-weight:700;">Ver todas as categorias</a></p>
+    </div>
+  </div>
+
+  <!-- ══ TOGGLE DE PEDIDOS ══ -->
+  <div class="d-flex align-items-center justify-content-between mt-4 mb-2">
+    <div style="font-family:'Lora',serif;font-size:1.15rem;font-weight:700;color:#1c1c1c;
+                display:flex;align-items:center;gap:.6rem;">
+      <span style="width:4px;height:1.2em;background:#e65100;border-radius:2px;display:inline-block;flex-shrink:0;"></span>
+      Os Meus Pedidos
+      <span class="mkt-count-badge"
+            th:text="${meusPedidos != null ? #lists.size(meusPedidos) : 0} + ' pedido(s)'"></span>
+    </div>
+    <div class="d-flex gap-2 flex-wrap" >
+      <button id="btnTogglePedidos"  onclick="togglePedidos()"
+              style="background-color: aquamarine;color:var(--mkt-verde);border:1.5px solid #4caf50;
+	                  border-radius:8px;padding:.45rem 1.1rem;font-size:.85rem;font-weight:700;
+	                  text-decoration:none;display:flex;align-items:center;gap:.4rem;">
+        <i class="bi bi-bag-fill" ></i>
+        <span  id="btnPedidosLabel">Ver Pedidos</span>
+      </button>
+      <a th:href="@{/comprador/pedidos(id=${comprador != null ? comprador.id : ''})}"
+         style="background-color: aquamarine;color:var(--mkt-verde);border:1.5px solid #4caf50;
+                border-radius:8px;padding:.45rem 1.1rem;font-size:.85rem;font-weight:700;
+                text-decoration:none;display:flex;align-items:center;gap:.4rem;">
+        <i class="bi bi-list-check"></i> Página de Pedidos
+      </a>
+    </div>
+  </div>
+
+  <!-- ══ SECÇÃO PEDIDOS (oculta por padrão) ══ -->
+  <div class="mkt-orders" id="secao-pedidos" style="display:none;">
+    <div class="mkt-empty" th:if="${meusPedidos == null or #lists.isEmpty(meusPedidos)}">
+      <i class="bi bi-bag"></i>
+      <p>Ainda não fez nenhum pedido.<br>Explore os produtos acima e faça a sua primeira encomenda!</p>
+    </div>
+    <div class="orders-grid" th:if="${meusPedidos != null and !#lists.isEmpty(meusPedidos)}">
+      <div class="order-card" th:each="pedido : ${meusPedidos}">
+        <div class="order-card-head">
+          <div class="order-prod-name"
+               th:text="${pedido.oferta != null ? pedido.oferta.nomeProduto : '—'}">Produto</div>
+          <span class="order-badge"
+                th:classappend="${pedido.estado.name() == 'ACEITE'} ? ' aceite' : (${pedido.estado.name() == 'REJEITADO'} ? ' rejeitado' : (${pedido.estado.name() == 'AGUARDANDO_PAGAMENTO'} ? ' aguardando' : ' pendente'))"
+                th:text="${pedido.estado.name() == 'PENDENTE'} ? 'Pendente' : (${pedido.estado.name() == 'ACEITE'} ? '✓ Aceite' : (${pedido.estado.name() == 'AGUARDANDO_PAGAMENTO'} ? '💳 Efectuar Pagamento' : '✗ Rejeitado'))">
+          </span>
+        </div>
+        <div class="order-card-body">
+          <div class="order-info-row">
+            <i class="bi bi-person-fill"></i><span>Produtor: </span>
+            <strong th:text="${pedido.oferta != null and pedido.oferta.produtor != null ? pedido.oferta.produtor.nomeCompleto : '—'}"></strong>
+          </div>
+          <div class="order-info-row" th:if="${pedido.quantidade != null}">
+            <i class="bi bi-stack"></i><span>Quantidade: </span>
+            <strong>
+              <span th:text="${pedido.quantidade}"></span>
+              <span th:if="${pedido.oferta != null}" th:text="' ' + ${pedido.oferta.unidade}"></span>
+            </strong>
+          </div>
+          <div class="order-info-row">
+            <i class="bi bi-calendar3"></i><span>Data: </span>
+            <strong th:if="${pedido.dataPedido != null}"
+                    th:text="${#temporals.format(pedido.dataPedido,'dd/MM/yyyy')}">—</strong>
+            <strong th:if="${pedido.dataPedido == null}">—</strong>
+          </div>
+          <div class="order-total"
+               th:if="${pedido.quantidade != null and pedido.oferta != null and pedido.oferta.preco != null}">
+            <i class="bi bi-cash-stack me-1"></i>Total:
+            <span th:text="${#numbers.formatDecimal(pedido.quantidade.multiply(pedido.oferta.preco), 1, 2)} + ' MT'"></span>
+          </div>
+
+          <!-- AGUARDANDO PAGAMENTO: mostrar número e botão de pagar -->
+          <div th:if="${pedido.estado.name() == 'AGUARDANDO_PAGAMENTO'}"
+               style="margin-top:.75rem;background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:.7rem .85rem;">
+            <div style="font-size:.75rem;color:#15803d;font-weight:700;margin-bottom:.25rem;">
+              <i class="bi bi-phone-fill"></i> Número para pagamento:
+            </div>
+            <div style="font-size:1.1rem;font-weight:900;color:#166534;letter-spacing:.05em;"
+                 th:text="${pedido.numeroPagamentoProdutor != null ? pedido.numeroPagamentoProdutor : '—'}">—</div>
+            <a th:href="@{/comprador/pagamento(pedidoId=${pedido.id})}"
+               style="display:inline-flex;align-items:center;gap:.35rem;margin-top:.6rem;background:#16a34a;color:#fff;border-radius:8px;padding:.4rem .9rem;font-size:.82rem;font-weight:700;text-decoration:none;">
+              <i class="bi bi-credit-card-fill"></i> Efectuar Pagamento
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══════════════ MODAL DETALHE ═══════════════ -->
+<div class="modal fade mkt-modal" id="modalDetalhe" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalNome">Detalhes do Produto</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-5">
+            <div class="mkt-modal-img" style="position:relative;">
+              <img id="detImagem" src="" alt="Foto"
+                   onclick="abrirLightbox(this.src, document.getElementById('detNome').textContent)"
+                   style="display:none;cursor:zoom-in;" title="Clique para ampliar"/>
+              <span id="detZoomHint" style="display:none;position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;padding:3px 8px;font-size:.75rem;pointer-events:none;">
+                <i class="bi bi-zoom-in"></i> Ampliar
+              </span>
+              <i id="detSemImagem" class="bi bi-image" style="font-size:3rem;color:#c8e6c9;"></i>
+            </div>
+          </div>
+          <div class="col-md-7">
+            <div class="mkt-modal-detail-row"><span class="label">Produto</span><span class="val" id="detNome">—</span></div>
+            <div class="mkt-modal-detail-row"><span class="label">Preço Unitário</span><span class="val" id="detPreco" style="color:#e65100;">—</span></div>
+            <div class="mkt-modal-detail-row"><span class="label">Disponível</span><span class="val" id="detQtd">—</span></div>
+            <div class="mkt-modal-detail-row" style="align-items:center;">
+              <span class="label">Produtor</span>
+              <span class="val" style="display:flex;align-items:center;gap:.6rem;">
+                <span id="detFotoProdutor" style="display:none;cursor:pointer;" onclick="abrirFotoGrande()" title="Ver foto ampliada">
+                  <img id="detFotoProdulorImg" src="" alt="Produtor"
+                       style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid #e65100;"/>
+                </span>
+                <span id="detProdutor">—</span>
+              </span>
+            </div>
+            <div class="mkt-modal-detail-row"><span class="label">Localização</span><span class="val" id="detLocalizacao">—</span></div>
+            <div class="mkt-modal-detail-row"><span class="label">Descrição</span><span class="val" id="detDescricao" style="font-weight:400;color:#666;">—</span></div>
+            <div class="mkt-modal-detail-row">
+              <span class="label">Publicado em</span>
+              <span class="val" id="detPublicacao" style="color:#888;font-size:.9rem;">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL FOTO PRODUTOR AMPLIADA ═══ -->
+<div class="modal fade" id="modalFotoProdutor" tabindex="-1" style="z-index:1060;">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+    <div class="modal-content" style="background:transparent;border:none;box-shadow:none;">
+      <div style="position:relative;text-align:center;">
+        <button onclick="fecharFotoGrande()" style="position:absolute;top:-14px;right:-14px;width:34px;height:34px;border-radius:50%;background:#333;color:#fff;border:none;font-size:1.1rem;cursor:pointer;z-index:10;">✕</button>
+        <img id="fotoGrandeImg" src="" alt="Foto do Produtor"
+             style="width:100%;max-width:380px;border-radius:16px;object-fit:cover;border:4px solid #fff;box-shadow:0 8px 32px rgba(0,0,0,.45);"/>
+        <div id="fotoGrandeNome"
+             style="margin-top:.75rem;color:#fff;font-weight:700;font-size:1.05rem;text-shadow:0 2px 8px rgba(0,0,0,.6);"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- overlay escuro ao clicar fora -->
+<div id="fotoGrandeOverlay" onclick="fecharFotoGrande()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1055;"></div>
+
+<!-- ═══ LIGHTBOX FOTO PRODUTO ═══ -->
+<div id="lightbox" onclick="fecharLightbox()"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:2000;
+            align-items:center;justify-content:center;flex-direction:column;cursor:zoom-out;">
+  <button onclick="fecharLightbox()" title="Fechar"
+          style="position:fixed;top:18px;right:22px;background:rgba(255,255,255,.15);
+                 color:#fff;border:none;border-radius:50%;width:42px;height:42px;
+                 font-size:1.3rem;cursor:pointer;z-index:2001;backdrop-filter:blur(4px);">✕</button>
+  <img id="lightboxImg" src="" alt=""
+       onclick="event.stopPropagation()"
+       style="max-width:92vw;max-height:82vh;border-radius:12px;
+              box-shadow:0 8px 48px rgba(0,0,0,.6);object-fit:contain;cursor:default;"/>
+  <div id="lightboxTitulo"
+       style="margin-top:1rem;color:#fff;font-weight:700;font-size:1.05rem;
+              text-shadow:0 2px 8px rgba(0,0,0,.6);letter-spacing:.02em;"></div>
+  <div style="color:rgba(255,255,255,.45);font-size:.78rem;margin-top:.3rem;">
+    Clique fora da imagem para fechar
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+var _fotoGrandeAtual = '';
+var _nomeGrandeAtual = '';
+
+function abrirFotoProdutor(el) {
+  // chamado ao clicar no mini-avatar no card
+  _fotoGrandeAtual = el.dataset.foto || '';
+  _nomeGrandeAtual = el.dataset.nome || '';
+  abrirFotoGrande();
+}
+
+function abrirFotoGrande() {
+  if (!_fotoGrandeAtual) return;
+  document.getElementById('fotoGrandeImg').src   = _fotoGrandeAtual;
+  document.getElementById('fotoGrandeNome').textContent = _nomeGrandeAtual;
+  document.getElementById('fotoGrandeOverlay').style.display = 'block';
+  var modal = new bootstrap.Modal(document.getElementById('modalFotoProdutor'));
+  modal.show();
+}
+
+function fecharFotoGrande() {
+  document.getElementById('fotoGrandeOverlay').style.display = 'none';
+  var el = document.getElementById('modalFotoProdutor');
+  var modal = bootstrap.Modal.getInstance(el);
+  if (modal) modal.hide();
+}
+
+function abrirDetalhe(btn) {
+  document.getElementById('modalNome').textContent = btn.dataset.nome || '—';
+  document.getElementById('detNome').textContent   = btn.dataset.nome || '—';
+  document.getElementById('detPreco').textContent  = parseFloat(btn.dataset.preco || 0).toLocaleString('pt-MZ',{minimumFractionDigits:2}) + ' MT / ' + (btn.dataset.unidade || '');
+  document.getElementById('detQtd').textContent    = (btn.dataset.quantidade || '0') + ' ' + (btn.dataset.unidade || '');
+  document.getElementById('detProdutor').textContent  = btn.dataset.produtor || '—';
+  document.getElementById('detDescricao').textContent = btn.dataset.descricao && btn.dataset.descricao !== 'null' ? btn.dataset.descricao : 'Sem descrição';
+  document.getElementById('detLocalizacao').textContent = btn.dataset.localizacao && btn.dataset.localizacao !== 'null' ? btn.dataset.localizacao : '—';
+
+  // Tempo decorrido desde a publicação
+  const pub = btn.dataset.publicacao;
+  const detPub = document.getElementById('detPublicacao');
+  if (pub && pub !== 'null' && pub.trim()) {
+    detPub.textContent = tempoDecorrido(pub);
+    // Actualiza a cada segundo enquanto o modal estiver visível
+    if (window._modalPubInterval) clearInterval(window._modalPubInterval);
+    window._modalPubInterval = setInterval(function() {
+      if (document.getElementById('detPublicacao')) {
+        document.getElementById('detPublicacao').textContent = tempoDecorrido(pub);
+      }
+    }, 1000);
+  } else {
+    detPub.textContent = '—';
+  }
+
+  // Foto do produto
+  const img  = document.getElementById('detImagem');
+  const sem  = document.getElementById('detSemImagem');
+  const hint = document.getElementById('detZoomHint');
+  if (btn.dataset.imagem && btn.dataset.imagem !== 'null' && btn.dataset.imagem.trim()) {
+    img.src = btn.dataset.imagem;
+    img.style.display = 'block';
+    sem.style.display = 'none';
+    if (hint) hint.style.display = 'block';
+  } else {
+    img.style.display = 'none';
+    sem.style.display = 'block';
+    if (hint) hint.style.display = 'none';
+  }
+
+  // Foto do produtor — guarda para o modal de foto grande
+  _fotoGrandeAtual = btn.dataset.fotoProdutor && btn.dataset.fotoProdutor !== 'null' ? btn.dataset.fotoProdutor : '';
+  _nomeGrandeAtual = btn.dataset.produtor || '';
+  const fotoWrap = document.getElementById('detFotoProdutor');
+  const fotoImg  = document.getElementById('detFotoProdulorImg');
+  if (_fotoGrandeAtual) {
+    fotoImg.src = _fotoGrandeAtual;
+    fotoWrap.style.display = 'inline-block';
+  } else {
+    fotoWrap.style.display = 'none';
+  }
+}
+
+function calcularTotal(input) {
+  const form  = input.closest('form');
+  const preco = parseFloat(form.dataset.preco) || 0;
+  const qtd   = parseFloat(input.value) || 0;
+  const el    = form.querySelector('.prd-total');
+  el.textContent = (qtd > 0 && preco > 0)
+    ? 'Total: ' + (preco * qtd).toLocaleString('pt-MZ',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' MT'
+    : '';
+}
+
+// ── LIGHTBOX ──────────────────────────────────────────────
+function abrirLightbox(src, titulo) {
+  if (!src || src === 'null' || !src.trim()) return;
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightboxTitulo').textContent = titulo || '';
+  lb.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  // fechar com Escape
+  document.onkeydown = function(e) { if (e.key === 'Escape') fecharLightbox(); };
+}
+
+function fecharLightbox() {
+  document.getElementById('lightbox').style.display = 'none';
+  document.body.style.overflow = '';
+  document.onkeydown = null;
+}
+
+// ── TEMPO DECORRIDO DESDE A PUBLICAÇÃO ──────────────────
+function parsePubDate(dataStr) {
+  // Aceita "dd/MM/yyyy HH:mm:ss" ou "dd/MM/yyyy HH:mm"
+  const p = dataStr.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2})(?::(\d{2}))?/);
+  if (!p) return null;
+  return new Date(p[3], p[2]-1, p[1], p[4], p[5], p[6] ? p[6] : 0);
+}
+
+function tempoDecorrido(dataStr) {
+  const dt = parsePubDate(dataStr);
+  if (!dt) return '—';
+
+  const diff = Math.floor((Date.now() - dt.getTime()) / 1000); // segundos totais
+
+  if (diff < 60)              return diff + 's';
+  if (diff < 3600)            return Math.floor(diff / 60) + 'min';
+  if (diff < 86400)           return Math.floor(diff / 3600) + 'h';
+  if (diff < 30 * 86400)      return Math.floor(diff / 86400) + 'dias';
+  if (diff < 365 * 86400)     return Math.floor(diff / (30 * 86400)) + 'meses';
+  return Math.floor(diff / (365 * 86400)) + 'anos';
+}
+
+// Mantido por compatibilidade (não utilizado activamente)
+function tempoRelativo(dataStr) { return tempoDecorrido(dataStr); }
+
+// ── PREENCHER E ACTUALIZAR OS CARDS ──────────────────────
+function actualizarCardsData() {
+  document.querySelectorAll('.prd-pub-date[data-pub]').forEach(function(div) {
+    const span = div.querySelector('.js-tempo-decorrido');
+    if (span) span.textContent = tempoDecorrido(div.dataset.pub);
+  });
+}
+document.addEventListener('DOMContentLoaded', function() {
+  actualizarCardsData();
+  setInterval(actualizarCardsData, 1000);
+});
+
+// ── FILTRO DE DATAS – atalhos rápidos ────────────────────
+function aplicarAtalho(tipo) {
+  const hoje = new Date();
+  let ini, fim;
+
+  const fmt = d => d.toISOString().slice(0, 10); // YYYY-MM-DD
+
+  if (tipo === 'hoje') {
+    ini = fim = fmt(hoje);
+  } else if (tipo === 'ontem') {
+    const on = new Date(hoje); on.setDate(on.getDate() - 1);
+    ini = fim = fmt(on);
+  } else if (tipo === 'semana') {
+    const seg = new Date(hoje);
+    seg.setDate(hoje.getDate() - ((hoje.getDay() + 6) % 7)); // segunda-feira
+    ini = fmt(seg); fim = fmt(hoje);
+  } else if (tipo === 'mes') {
+    ini = fmt(new Date(hoje.getFullYear(), hoje.getMonth(), 1));
+    fim = fmt(hoje);
+  } else if (tipo === '7dias') {
+    const d = new Date(hoje); d.setDate(d.getDate() - 6);
+    ini = fmt(d); fim = fmt(hoje);
+  } else if (tipo === '30dias') {
+    const d = new Date(hoje); d.setDate(d.getDate() - 29);
+    ini = fmt(d); fim = fmt(hoje);
+  }
+
+  document.getElementById('inputDataInicio').value = ini;
+  document.getElementById('inputDataFim').value    = fim;
+  document.getElementById('formDatas').submit();
+}
+
+function togglePedidos() {
+  const secao = document.getElementById('secao-pedidos');
+  const label = document.getElementById('btnPedidosLabel');
+  if (secao.style.display === 'none') {
+    secao.style.display = 'block';
+    secao.scrollIntoView({behavior:'smooth', block:'start'});
+    label.textContent = 'Ocultar Pedidos';
+  } else {
+    secao.style.display = 'none';
+    label.textContent = 'Ver Pedidos';
+  }
+}
+</script>
+</body>
+</html>

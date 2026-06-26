@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Publicar Oferta – SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body class="form-body">
+
+<nav class="navbar navbar-dark" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2" th:href="@{/produtor/dashboard(id=${produtorId})}">
+      <i class="bi bi-arrow-left-circle me-1"></i>
+      <img src="/images/logo.png" alt="Logo" class="logo-sm">
+      <span class="brand-text">SGPA</span>
+    </a>
+    <span class="text-light small opacity-75">Nova Oferta</span>
+  </div>
+</nav>
+
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="form-header text-center mb-4">
+        <img src="/images/logo.png" class="logo-form mb-3" alt="logo">
+        <h4 class="form-page-title"><i class="bi bi-plus-circle-fill me-2 text-accent"></i>Publicar Nova Oferta</h4>
+        <p class="text-muted small">Preencha os dados do seu produto e adicione uma foto</p>
+      </div>
+
+      <div class="form-card p-4 p-md-5">
+        <form th:action="@{/produtor/publicar-oferta}"
+              th:object="${oferta}"
+              method="post"
+              enctype="multipart/form-data">
+
+          <input type="hidden" name="produtorId" th:value="${produtorId}"/>
+
+          <!-- PRODUTO -->
+          <div class="form-section-label mb-3">
+            <i class="bi bi-box-seam me-2"></i>Produto
+          </div>
+          <div class="row g-3">
+
+            <!-- CATEGORIA -->
+            <div class="col-md-6">
+              <label class="form-label">Categoria *</label>
+              <select class="form-select" id="categoriaSelect" th:field="*{categoria}" required>
+                <option value="">Selecione a categoria...</option>
+                <option value="Cereais">Cereais</option>
+                <option value="Frutas">Frutas</option>
+                <option value="Legumes">Legumes</option>
+                <option value="Tubérculos">Tubérculos</option>
+                <option value="Hortícolas">Hortícolas</option>
+                <option value="Oleaginosas">Oleaginosas</option>
+              </select>
+            </div>
+
+            <!-- NOME DO PRODUTO (CASCATA) -->
+            <div class="col-md-6">
+              <label class="form-label">Nome do Produto *</label>
+              <select class="form-select"
+                      id="produtoSelect"
+                      name="nomeProduto"
+                      required
+                      disabled>
+                <option value="">— Selecione primeiro a categoria —</option>
+              </select>
+              <div class="form-text text-muted" id="produtoHint" style="font-size:.76rem;">
+                <i class="bi bi-arrow-up-left"></i> Escolha a categoria para ver os produtos disponíveis
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Descrição</label>
+              <textarea class="form-control" th:field="*{descricao}" rows="3" placeholder="Descreva o produto, qualidade, origem..."></textarea>
+            </div>
+          </div>
+
+          <!-- FOTO DO PRODUTO -->
+          <div class="form-section-label mt-4 mb-3">
+            <i class="bi bi-camera-fill me-2"></i>Foto do Produto
+          </div>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Carregar Foto <span class="text-muted small">(opcional, máx. 5MB)</span></label>
+              <div class="foto-upload-area" id="fotoArea" onclick="document.getElementById('imagemFile').click()">
+                <div id="fotoPreviewWrap" class="text-center py-4">
+                  <i class="bi bi-cloud-upload fs-2 text-muted d-block mb-2"></i>
+                  <p class="text-muted small mb-0">Clique para selecionar uma foto do produto</p>
+                  <p class="text-muted" style="font-size:.75rem">JPG, PNG ou WEBP</p>
+                </div>
+                <img id="fotoPreview" src="" alt="Preview" style="display:none; max-height:200px; border-radius:8px; object-fit:cover; width:100%;"/>
+              </div>
+              <input type="file" id="imagemFile" name="imagemFile" accept="image/*" class="d-none" onchange="previewFoto(this)">
+            </div>
+          </div>
+
+          <!-- DETALHES -->
+          <div class="form-section-label mt-4 mb-3">
+            <i class="bi bi-info-circle me-2"></i>Detalhes
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Quantidade *</label>
+              <input type="number" class="form-control" th:field="*{quantidadeTotal}" min="1" step="0.01" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Unidade *</label>
+              <select class="form-select" th:field="*{unidade}" required>
+                <option value="kg">Kg</option>
+                <option value="saco">Saco</option>
+                <option value="caixa">Caixa</option>
+                <option value="unidade">Unidade</option>
+                <option value="tonelada">Tonelada</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Preço (MZN)/ Kg *</label>
+              <div class="input-group">
+                <span class="input-group-text">MZN</span>
+                <input type="number" class="form-control" th:field="*{preco}" min="0" step="0.01" required>
+              </div>
+            </div>
+          </div>
+
+          <!-- LOCALIZAÇÃO -->
+          <div class="form-section-label mt-4 mb-3">
+            <i class="bi bi-geo-alt-fill me-2"></i>Localização da Oferta
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Província *</label>
+              <select class="form-select" id="provinciaC" name="provinciaNome" required>
+                <option value="">Selecione...</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Distrito *</label>
+              <select class="form-select" id="distritoC" name="distritoNome" required disabled>
+                <option value="">Selecione...</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Bairro *</label>
+              <select class="form-select" id="bairroC" name="bairroNome" required disabled>
+                <option value="">Selecione...</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- BOTÃO -->
+          <div class="mt-4 d-grid">
+            <button class="btn btn-accent btn-lg" type="submit">
+              <i class="bi bi-cloud-upload me-2"></i>Publicar Oferta
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/js/geografica.js"></script>
+
+<script th:inline="javascript">
+/*
+ * ================================================================
+ *  CASCATA CATEGORIA → PRODUTO  (CORRECÇÃO)
+ *  Mesmo padrão do geografica.js (Província → Distrito → Bairro).
+ *  Ao mudar a Categoria o select de Produto é limpo e preenchido
+ *  com os nomes correspondentes.
+ * ================================================================
+ */
+
+/* Mapa estático: categoria → lista de produtos agrícolas */
+var PRODUTOS_POR_CATEGORIA = {
+  "Cereais":     [
+    "Milho Branco", "Milho Amarelo", "Arroz", "Trigo",
+    "Sorgo (Mapira)", "Feijão Nhemba", "Feijão Manteiga",
+    "Feijão Borlotti", "Amendoim", "Soja", "Massango (Milhete)"
+  ],
+  "Frutas":      [
+    "Manga", "Banana", "Papaia (Mamão)", "Laranja", "Limão",
+    "Abacate", "Coco", "Ananás", "Maçã", "Melancia", "Melão",
+    "Goiaba", "Maracujá", "Tangerina", "Lichias"
+  ],
+  "Legumes":     [
+    "Tomate", "Cebola", "Alho", "Pimento Verde", "Pimento Vermelho",
+    "Pepino", "Courgette (Abóbora)", "Ervilhas", "Vagem"
+  ],
+  "Tubérculos":  [
+    "Mandioca", "Batata-Doce", "Batata Comum",
+    "Inhame", "Rábano", "Nabo"
+  ],
+  "Hortícolas":  [
+    "Espinafre", "Couve Portuguesa", "Couve Lombarda", "Alface",
+    "Cenoura", "Beterraba", "Repolho", "Acelga",
+    "Agrião", "Coentros", "Salsa"
+  ],
+  "Oleaginosas": [
+    "Girassol", "Sésamo", "Caju (Castanha de Caju)",
+    "Coco (copra)", "Amendoim (para óleo)", "Palma"
+  ]
+};
+
+(function () {
+  var selCategoria = document.getElementById('categoriaSelect');
+  var selProduto   = document.getElementById('produtoSelect');
+  var produtoHint  = document.getElementById('produtoHint');
+
+  function preencherProdutos(categoria) {
+    /* Limpar e desactivar */
+    selProduto.innerHTML = '';
+    selProduto.disabled  = true;
+
+    if (!categoria || !PRODUTOS_POR_CATEGORIA[categoria]) {
+      var ph       = document.createElement('option');
+      ph.value     = '';
+      ph.textContent = '— Selecione primeiro a categoria —';
+      selProduto.appendChild(ph);
+      if (produtoHint) produtoHint.style.display = 'block';
+      return;
+    }
+
+    /* Opção vazia no topo */
+    var placeholder       = document.createElement('option');
+    placeholder.value     = '';
+    placeholder.textContent = 'Selecione o produto...';
+    selProduto.appendChild(placeholder);
+
+    /* Preencher com os produtos da categoria */
+    PRODUTOS_POR_CATEGORIA[categoria].forEach(function (nome) {
+      var opt       = document.createElement('option');
+      opt.value     = nome;
+      opt.textContent = nome;
+      selProduto.appendChild(opt);
+    });
+
+    selProduto.disabled = false;
+    if (produtoHint) produtoHint.style.display = 'none';
+  }
+
+  /* Disparar cascata ao mudar a categoria */
+  selCategoria.addEventListener('change', function () {
+    preencherProdutos(this.value);
+  });
+
+  /*
+   * Se já há valor pré-seleccionado ao carregar a página
+   * (ex: edição de oferta com Thymeleaf th:field já seleccionado),
+   * preencher o dropdown de produtos e restaurar o nomeProduto guardado.
+   */
+  if (selCategoria.value) {
+    preencherProdutos(selCategoria.value);
+
+    /* Valor que o Thymeleaf injectou via th:inline="javascript" */
+    var nomeProdutoInicial = /*[[${oferta.nomeProduto}]]*/ '';
+    if (nomeProdutoInicial) {
+      for (var i = 0; i < selProduto.options.length; i++) {
+        if (selProduto.options[i].value === nomeProdutoInicial) {
+          selProduto.selectedIndex = i;
+          break;
+        }
+      }
+    }
+  }
+})();
+
+/* Preview da foto */
+function previewFoto(input) {
+  var preview = document.getElementById('fotoPreview');
+  var wrap    = document.getElementById('fotoPreviewWrap');
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+      wrap.style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+
+<style>
+.foto-upload-area {
+  border: 2px dashed var(--border-input);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color .2s;
+  padding: 0.5rem;
+  background: #fafbfc;
+}
+.foto-upload-area:hover { border-color: var(--accent); }
+.form-section-label {
+  font-size: .8rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--accent); padding: .5rem 0;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+}
+</style>
+</body>
+</html>

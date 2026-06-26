@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title th:text="'Comprador – ' + ${comprador.nomeCompleto} + ' – SGPA'">Detalhe Comprador</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --ink:#0b0d0f;--ink-2:#12161a;--ink-3:#1a1f26;--panel:#1f252d;
+      --line:rgba(255,255,255,.06);--mid:#6b7584;--soft:#9aa3b0;--cream:#f0ece4;
+      --amber:#e8a838;--amber-d:#c48820;--amber-g:rgba(232,168,56,.15);
+      --green:#3dba7e;--green-g:rgba(61,186,126,.12);
+      --red:#e05555;--red-g:rgba(224,85,85,.12);
+      --blue:#4d9de0;--blue-g:rgba(77,157,224,.12);
+      --ff-head:'DM Serif Display',Georgia,serif;--ff-body:'DM Sans',system-ui,sans-serif;
+    }
+    html,body{height:100%;}
+    body{font-family:var(--ff-body);background:var(--ink);color:var(--cream);display:flex;}
+
+    .sidebar{width:240px;min-height:100vh;background:var(--ink-2);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:28px 0;position:fixed;top:0;left:0;bottom:0;z-index:10;}
+    .sb-brand{display:flex;align-items:center;gap:12px;padding:0 24px 28px;border-bottom:1px solid var(--line);margin-bottom:20px;}
+    .sb-brand-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--amber-d),var(--amber));display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink);}
+    .sb-brand-text{font-family:var(--ff-head);font-size:17px;color:var(--cream);}
+    .sb-brand-badge{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);background:var(--amber-g);border:1px solid rgba(232,168,56,.2);padding:2px 6px;border-radius:3px;}
+    .sb-section{padding:0 12px 8px;}
+    .sb-section-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);padding:0 12px;margin-bottom:6px;}
+    .sb-nav{list-style:none;}
+    .sb-nav li a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:14px;color:var(--soft);text-decoration:none;transition:background 150ms,color 150ms;}
+    .sb-nav li a:hover,.sb-nav li a.active{background:var(--panel);color:var(--cream);}
+    .sb-nav li a.active{color:var(--amber);}
+    .sb-nav li a i{font-size:15px;width:18px;text-align:center;}
+    .sb-footer{margin-top:auto;padding:16px 24px;border-top:1px solid var(--line);}
+    .sb-user{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .sb-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--amber-d),var(--amber));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;flex-shrink:0;}
+    .sb-avatar img{width:100%;height:100%;object-fit:cover;}
+    .sb-user-name{font-size:13px;font-weight:500;color:var(--cream);}
+    .sb-user-role{font-size:11px;color:var(--mid);margin-top:1px;}
+    .sb-logout{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mid);text-decoration:none;padding:8px 10px;border-radius:7px;transition:background 150ms,color 150ms;}
+    .sb-logout:hover{background:var(--panel);color:var(--red);}
+
+    .main{margin-left:240px;flex:1;min-height:100vh;padding:36px 40px;}
+    .topbar{display:flex;align-items:center;gap:14px;margin-bottom:32px;}
+    .btn-back{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:var(--panel);border:1px solid var(--line);border-radius:9px;font-size:13px;color:var(--soft);text-decoration:none;transition:background 150ms,color 150ms;white-space:nowrap;}
+    .btn-back:hover{background:var(--ink-3);color:var(--cream);}
+    .topbar-title{font-family:var(--ff-head);font-size:24px;color:var(--cream);}
+    .topbar-sub{font-size:13px;color:var(--mid);margin-top:3px;}
+
+    .page-grid{display:grid;grid-template-columns:290px 1fr;gap:24px;align-items:start;}
+
+    /* Profile card */
+    .profile-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+    .profile-hero{background:linear-gradient(135deg,#1c4a38,#2d9965);padding:28px 24px;text-align:center;}
+    .profile-ava{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.15);border:3px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff;margin:0 auto 12px;overflow:hidden;}
+    .profile-ava img{width:100%;height:100%;object-fit:cover;}
+    .profile-name{font-family:var(--ff-head);font-size:18px;color:#fff;margin-bottom:4px;}
+    .profile-email{font-size:12px;color:rgba(255,255,255,.7);}
+    .profile-body{padding:20px 22px;}
+    .profile-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 11px;background:var(--green-g);border:1px solid rgba(61,186,126,.2);color:var(--green);border-radius:20px;font-size:11px;font-weight:600;margin-bottom:18px;}
+
+    .mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;}
+    .mini-stat{background:var(--ink-3);border:1px solid var(--line);border-radius:10px;padding:12px 8px;text-align:center;}
+    .mini-stat-num{font-family:var(--ff-head);font-size:20px;color:var(--cream);}
+    .mini-stat-label{font-size:10px;color:var(--mid);margin-top:2px;}
+
+    .acesso-pill{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--blue-g);border:1px solid rgba(77,157,224,.2);border-radius:9px;margin-bottom:16px;}
+    .acesso-pill i{color:var(--blue);font-size:15px;flex-shrink:0;}
+    .acesso-pill-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:2px;}
+    .acesso-pill-value{font-size:12px;color:var(--cream);}
+
+    .field-list{margin-bottom:18px;}
+    .field-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
+    .field-row:last-child{border-bottom:none;}
+    .field-icon{width:28px;height:28px;border-radius:7px;background:var(--ink-3);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--amber);flex-shrink:0;margin-top:1px;}
+    .field-label{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);margin-bottom:2px;}
+    .field-value{font-size:13px;color:var(--cream);}
+    .field-value.missing{color:var(--mid);font-style:italic;}
+    .field-value.mono{font-family:monospace;font-size:12px;}
+
+    .loc-chain{display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-size:12px;color:var(--soft);}
+    .loc-sep{color:var(--mid);font-size:10px;}
+
+    .btn-delete{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:var(--red-g);border:1px solid rgba(224,85,85,.2);color:var(--red);border-radius:9px;font-family:var(--ff-body);font-size:13px;font-weight:600;cursor:pointer;transition:background 150ms;}
+    .btn-delete:hover{background:rgba(224,85,85,.22);}
+
+    /* Right col */
+    .right-col{display:flex;flex-direction:column;gap:20px;}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+    .card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--line);}
+    .card-title{font-family:var(--ff-head);font-size:17px;color:var(--cream);display:flex;align-items:center;gap:8px;}
+    .card-title i{font-size:14px;color:var(--amber);}
+    .card-badge{font-size:11px;font-weight:600;color:var(--amber);background:var(--amber-g);padding:2px 9px;border-radius:20px;}
+    .card-body{padding:18px 22px;}
+
+    .estado-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+    .estado-card{background:var(--ink-3);border:1px solid var(--line);border-radius:12px;padding:16px;text-align:center;}
+    .estado-num{font-family:var(--ff-head);font-size:26px;color:var(--cream);}
+    .estado-label{font-size:11px;color:var(--mid);margin-top:4px;display:flex;align-items:center;justify-content:center;gap:4px;}
+
+    /* Tabela pedidos */
+    .ped-table{width:100%;border-collapse:collapse;}
+    .ped-table thead tr{background:var(--ink-3);}
+    .ped-table thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);}
+    .ped-table tbody tr{border-top:1px solid var(--line);transition:background 120ms;}
+    .ped-table tbody tr:hover{background:rgba(255,255,255,.02);}
+    .ped-table tbody td{padding:12px 14px;font-size:13px;color:var(--soft);}
+    .ped-table tbody td.strong{color:var(--cream);font-weight:500;}
+
+    .badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase;}
+    .badge-pendente{background:var(--amber-g);color:var(--amber);}
+    .badge-aceite{background:var(--green-g);color:var(--green);}
+    .badge-rejeitado{background:var(--red-g);color:var(--red);}
+    .badge-cancelado{background:rgba(107,117,132,.15);color:var(--soft);}
+    .badge-aguardando{background:var(--blue-g);color:var(--blue);}
+
+    .empty{text-align:center;padding:36px;color:var(--mid);font-size:13px;}
+    .empty i{font-size:28px;display:block;margin-bottom:10px;}
+
+    /* Modal */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;align-items:center;justify-content:center;}
+    .overlay.open{display:flex;}
+    .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:32px;max-width:420px;width:90%;animation:fadeUp .22s ease;}
+    .modal-title{font-family:var(--ff-head);font-size:21px;color:var(--cream);margin-bottom:8px;}
+    .modal-text{font-size:14px;color:var(--soft);line-height:1.65;margin-bottom:24px;}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+    .modal-cancel{padding:10px 20px;background:none;border:1.5px solid var(--line);border-radius:9px;color:var(--soft);font-family:var(--ff-body);font-size:14px;cursor:pointer;}
+    .modal-confirm{padding:10px 20px;background:var(--red);border:none;border-radius:9px;color:#fff;font-family:var(--ff-body);font-size:14px;font-weight:600;cursor:pointer;transition:opacity 150ms;}
+    .modal-confirm:hover{opacity:.85;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-icon"><i class="bi bi-shield-fill"></i></div>
+    <div>
+      <div class="sb-brand-text">SGPA</div>
+      <div class="sb-brand-badge">Admin</div>
+    </div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Principal</div>
+    <ul class="sb-nav"><li><a href="/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li></ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Utilizadores</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
+      <li><a href="/admin/compradores" class="active"><i class="bi bi-cart-fill"></i> Compradores</a></li>
+    </ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Transacções</div>
+    <ul class="sb-nav"><li><a href="/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li></ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Conta</div>
+    <ul class="sb-nav"><li><a href="/admin/perfil"><i class="bi bi-person-circle"></i> Editar Perfil</a></li></ul>
+  </div>
+  <div th:if="${isSuperAdmin}" class="sb-section">
+    <div class="sb-section-label">Sistema</div>
+    <ul class="sb-nav"><li><a href="/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li></ul>
+  </div>
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">
+        <img th:if="${adminFoto != null}" th:src="${adminFoto}" alt="Foto"/>
+        <span th:unless="${adminFoto != null}" th:text="${nomeAdmin != null ? nomeAdmin.substring(0,1).toUpperCase() : 'A'}">A</span>
+      </div>
+      <div>
+        <div class="sb-user-name" th:text="${nomeAdmin}">Admin</div>
+        <div class="sb-user-role" th:text="${isSuperAdmin ? 'Super Admin' : 'Admin'}">Admin</div>
+      </div>
+    </div>
+    <a href="/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="topbar">
+    <a href="/admin/compradores" class="btn-back"><i class="bi bi-arrow-left"></i> Compradores</a>
+    <div>
+      <div class="topbar-title">Perfil do Comprador</div>
+      <div class="topbar-sub" th:text="'ID #' + ${comprador.id}">—</div>
+    </div>
+  </div>
+
+  <div class="page-grid">
+
+    <!-- PERFIL -->
+    <div>
+      <div class="profile-card">
+        <div class="profile-hero">
+          <div class="profile-ava">
+            <img th:if="${comprador.fotoPerfil != null}" th:src="${comprador.fotoPerfil}" alt="Foto"/>
+            <span th:unless="${comprador.fotoPerfil != null}" th:text="${comprador.nome.substring(0,1).toUpperCase()}">C</span>
+          </div>
+          <div class="profile-name" th:text="${comprador.nomeCompleto}">Nome</div>
+          <div class="profile-email" th:text="${comprador.email ?: '—'}">email</div>
+        </div>
+        <div class="profile-body">
+          <div class="profile-badge"><i class="bi bi-cart-fill"></i> Comprador</div>
+
+          <div class="mini-stats">
+            <div class="mini-stat">
+              <div class="mini-stat-num" th:text="${totalPedidos}">0</div>
+              <div class="mini-stat-label">Total</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-num" style="color:var(--green)" th:text="${aceites}">0</div>
+              <div class="mini-stat-label">Aceites</div>
+            </div>
+            <div class="mini-stat">
+              <div class="mini-stat-num" style="color:var(--amber)" th:text="${pendentes}">0</div>
+              <div class="mini-stat-label">Pendentes</div>
+            </div>
+          </div>
+
+          <div class="acesso-pill">
+            <i class="bi bi-clock-history"></i>
+            <div>
+              <div class="acesso-pill-label">Último acesso</div>
+              <div class="acesso-pill-value"
+                   th:text="${comprador.ultimoAcesso != null ? #temporals.format(comprador.ultimoAcesso,'dd/MM/yyyy HH:mm') : 'Nunca acedeu'}">—</div>
+            </div>
+          </div>
+
+          <div class="field-list">
+            <div class="field-row">
+              <div class="field-icon"><i class="bi bi-person-fill"></i></div>
+              <div>
+                <div class="field-label">Nome completo</div>
+                <div class="field-value" th:text="${comprador.nomeCompleto}">—</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-icon"><i class="bi bi-envelope-fill"></i></div>
+              <div>
+                <div class="field-label">E-mail</div>
+                <div class="field-value" th:text="${comprador.email ?: 'Não fornecido'}"
+                     th:classappend="${comprador.email == null ? ' missing' : ''}">—</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-icon"><i class="bi bi-telephone-fill"></i></div>
+              <div>
+                <div class="field-label">Telefone</div>
+                <div class="field-value" th:text="${comprador.telefone ?: 'Não fornecido'}"
+                     th:classappend="${comprador.telefone == null ? ' missing' : ''}">—</div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-icon"><i class="bi bi-card-text"></i></div>
+              <div>
+                <div class="field-label">NUIT</div>
+                <div class="field-value mono" th:text="${comprador.nuit ?: 'Não fornecido'}"
+                     th:classappend="${comprador.nuit == null ? ' missing' : ''}">—</div>
+              </div>
+            </div>
+            <div class="field-row" th:if="${comprador.bairros != null}">
+              <div class="field-icon"><i class="bi bi-geo-alt-fill"></i></div>
+              <div>
+                <div class="field-label">Localização</div>
+                <div class="loc-chain">
+                  <span th:if="${comprador.bairros.distrito?.provincia != null}"
+                        th:text="${comprador.bairros.distrito.provincia.nome}"></span>
+                  <span class="loc-sep" th:if="${comprador.bairros.distrito?.provincia != null}"> › </span>
+                  <span th:if="${comprador.bairros.distrito != null}"
+                        th:text="${comprador.bairros.distrito.nome}"></span>
+                  <span class="loc-sep" th:if="${comprador.bairros.distrito != null}"> › </span>
+                  <span th:text="${comprador.bairros.nome}"></span>
+                </div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-icon"><i class="bi bi-hash"></i></div>
+              <div>
+                <div class="field-label">ID interno</div>
+                <div class="field-value mono" th:text="'#' + ${comprador.id}">—</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-delete" onclick="document.getElementById('modalOverlay').classList.add('open')">
+            <i class="bi bi-trash3-fill"></i> Apagar Comprador
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLUNA DIREITA -->
+    <div class="right-col">
+
+      <!-- Resumo -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="bi bi-bar-chart-fill"></i> Resumo de Pedidos</div>
+        </div>
+        <div class="card-body">
+          <div class="estado-grid">
+            <div class="estado-card">
+              <div class="estado-num" th:text="${pendentes}">0</div>
+              <div class="estado-label" style="color:var(--amber)"><i class="bi bi-hourglass-split"></i> Pendentes</div>
+            </div>
+            <div class="estado-card">
+              <div class="estado-num" th:text="${aceites}">0</div>
+              <div class="estado-label" style="color:var(--green)"><i class="bi bi-check-circle-fill"></i> Aceites</div>
+            </div>
+            <div class="estado-card">
+              <div class="estado-num" th:text="${rejeitados}">0</div>
+              <div class="estado-label" style="color:var(--red)"><i class="bi bi-x-circle-fill"></i> Rejeitados</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista pedidos -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="bi bi-receipt"></i> Histórico de Pedidos</div>
+          <span class="card-badge" th:text="${totalPedidos} + ' pedidos'">0 pedidos</span>
+        </div>
+
+        <div th:if="${#lists.isEmpty(pedidos)}" class="empty">
+          <i class="bi bi-inbox"></i>
+          Este comprador ainda não fez nenhum pedido.
+        </div>
+
+        <table class="ped-table" th:if="${!#lists.isEmpty(pedidos)}">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Produto / Oferta</th>
+              <th>Qtd.</th>
+              <th>Data</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="ped : ${pedidos}">
+              <td class="strong mono" th:text="'#' + ${ped.id}">—</td>
+              <td class="strong" th:text="${ped.oferta?.nomeProduto ?: '(oferta removida)'}">—</td>
+              <td th:text="${ped.quantidade != null ? ped.quantidade + ' ' + (ped.oferta?.unidade ?: '') : '—'}">—</td>
+              <td th:text="${ped.dataPedido != null ? #temporals.format(ped.dataPedido,'dd/MM/yyyy HH:mm') : '—'}">—</td>
+              <td>
+                <span class="badge"
+                  th:classappend="${ped.estado?.name() == 'PENDENTE' ? 'badge-pendente' :
+                                   ped.estado?.name() == 'ACEITE' ? 'badge-aceite' :
+                                   ped.estado?.name() == 'REJEITADO' ? 'badge-rejeitado' :
+                                   ped.estado?.name() == 'CANCELADO' ? 'badge-cancelado' : 'badge-aguardando'}"
+                  th:text="${ped.estado?.name() ?: '—'}">—</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">Apagar comprador</div>
+    <p class="modal-text">Tem a certeza que pretende apagar <strong th:text="${comprador.nomeCompleto}"></strong>? Todos os pedidos e dados associados serão removidos permanentemente.</p>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="document.getElementById('modalOverlay').classList.remove('open')">Cancelar</button>
+      <form th:action="@{/admin/compradores/{id}/remover(id=${comprador.id})}" method="post">
+        <button type="submit" class="modal-confirm"><i class="bi bi-trash3"></i> Apagar</button>
+      </form>
+    </div>
+  </div>
+</div>
+<script>document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});</script>
+</body>
+</html>

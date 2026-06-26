@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Administradores – SuperAdmin SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:     #0b0d0f;
+      --ink-2:   #12161a;
+      --ink-3:   #1a1f26;
+      --panel:   #1f252d;
+      --panel-2: #252c36;
+      --line:    rgba(255,255,255,.06);
+      --line-2:  rgba(255,255,255,.10);
+      --mid:     #6b7584;
+      --soft:    #9aa3b0;
+      --cream:   #f0ece4;
+      --amber:   #e8a838;
+      --amber-d: #c48820;
+      --amber-g: rgba(232,168,56,.15);
+      --amber-b: rgba(232,168,56,.08);
+      --green:   #3dba7e;
+      --green-g: rgba(61,186,126,.12);
+      --red:     #e05555;
+      --red-g:   rgba(224,85,85,.12);
+      --purple:  #9b7fe8;
+      --purple-g:rgba(155,127,232,.12);
+      --ff-head: 'DM Serif Display', Georgia, serif;
+      --ff-body: 'DM Sans', system-ui, sans-serif;
+    }
+    html, body { height: 100%; }
+    body { font-family: var(--ff-body); background: var(--ink); color: var(--cream); display: flex; }
+
+    /* ═══ SIDEBAR ═══ */
+    .sidebar { width: 240px; min-height: 100vh; background: var(--ink-2); border-right: 1px solid var(--line); display: flex; flex-direction: column; padding: 28px 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 10; }
+    .sb-brand { display: flex; align-items: center; gap: 12px; padding: 0 24px 28px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+    .sb-brand-icon { width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, var(--amber-d), var(--amber)); display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--ink); }
+    .sb-brand-text { font-family: var(--ff-head); font-size: 17px; color: var(--cream); }
+    .sb-brand-badge { font-size: 9px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--purple); background: var(--purple-g); border: 1px solid rgba(155,127,232,.25); padding: 2px 6px; border-radius: 3px; }
+    .sb-section { padding: 0 12px 8px; }
+    .sb-section-label { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--mid); padding: 0 12px; margin-bottom: 6px; }
+    .sb-nav { list-style: none; }
+    .sb-nav li a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 14px; color: var(--soft); text-decoration: none; transition: background 150ms, color 150ms; }
+    .sb-nav li a:hover, .sb-nav li a.active { background: var(--panel); color: var(--cream); }
+    .sb-nav li a.active { color: var(--amber); }
+    .sb-nav li a i { font-size: 15px; width: 18px; text-align: center; }
+    .sb-footer { margin-top: auto; padding: 16px 24px; border-top: 1px solid var(--line); }
+    .sb-user { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .sb-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--amber-d), var(--amber)); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--ink); overflow: hidden; }
+    .sb-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .sb-user-name { font-size: 13px; font-weight: 500; color: var(--cream); }
+    .sb-user-role { font-size: 11px; color: var(--mid); margin-top: 1px; }
+    .sb-logout { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--mid); text-decoration: none; padding: 8px 10px; border-radius: 7px; transition: background 150ms, color 150ms; }
+    .sb-logout:hover { background: var(--panel); color: var(--red); }
+
+    /* ═══ MAIN ═══ */
+    .main { margin-left: 240px; flex: 1; min-height: 100vh; padding: 40px 48px; }
+
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+    .topbar-title { font-family: var(--ff-head); font-size: 26px; color: var(--cream); }
+    .topbar-sub { font-size: 13px; color: var(--mid); margin-top: 3px; }
+
+    /* Faixa SuperAdmin */
+    .superadmin-banner {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px;
+      background: var(--purple-g);
+      border: 1px solid rgba(155,127,232,.2);
+      border-radius: 12px;
+      margin-bottom: 28px;
+      font-size: 14px; color: var(--purple);
+    }
+    .superadmin-banner i { font-size: 18px; flex-shrink: 0; }
+    .superadmin-banner strong { color: #c4b0f5; }
+
+    /* Flash */
+    .flash { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-radius: 10px; margin-bottom: 24px; font-size: 14px; }
+    .flash.sucesso { background: var(--green-g); border: 1px solid rgba(61,186,126,.2); color: var(--green); }
+    .flash.erro    { background: var(--red-g);   border: 1px solid rgba(224,85,85,.2);  color: var(--red); }
+
+    /* Layout */
+    .layout { display: grid; grid-template-columns: 1fr 380px; gap: 24px; align-items: start; }
+
+    /* ── Tabela de admins ── */
+    .table-wrap { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--line); }
+    .table-title { font-family: var(--ff-head); font-size: 18px; color: var(--cream); display: flex; align-items: center; gap: 8px; }
+    .table-title i { font-size: 15px; color: var(--amber); }
+    .count-badge { font-size: 12px; font-weight: 600; color: var(--amber); background: var(--amber-g); padding: 3px 10px; border-radius: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--ink-3); }
+    thead th { padding: 12px 16px; text-align: left; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--mid); }
+    tbody tr { border-top: 1px solid var(--line); transition: background 150ms; }
+    tbody tr:hover { background: rgba(255,255,255,.02); }
+    tbody td { padding: 14px 16px; font-size: 14px; color: var(--soft); }
+    tbody td.nome { color: var(--cream); font-weight: 500; }
+
+    .avatar-cell { display: flex; align-items: center; gap: 10px; }
+    .avatar-sm {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; flex-shrink: 0;
+      overflow: hidden;
+    }
+    .avatar-sm img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-sm.normal { background: linear-gradient(135deg, #3a4d5e, #4d6b82); color: var(--cream); }
+
+    .nivel-badge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 5px; letter-spacing: .04em; }
+    .nivel-admin      { background: var(--amber-g); color: var(--amber); }
+    .nivel-superadmin { background: var(--purple-g); color: var(--purple); }
+
+    .btn-remover { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: var(--red-g); border: 1px solid rgba(224,85,85,.2); color: var(--red); border-radius: 7px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--ff-body); transition: background 150ms; }
+    .btn-remover:hover { background: rgba(224,85,85,.22); }
+
+    .empty-state { text-align: center; padding: 48px; font-size: 14px; color: var(--mid); }
+    .empty-state i { font-size: 32px; display: block; margin-bottom: 12px; }
+
+    /* ── Formulário criar admin ── */
+    .criar-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      position: sticky; top: 24px;
+    }
+    .criar-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+      background: var(--ink-3);
+    }
+    .criar-title { font-family: var(--ff-head); font-size: 18px; color: var(--cream); display: flex; align-items: center; gap: 8px; }
+    .criar-title i { font-size: 15px; color: var(--green); }
+    .criar-sub { font-size: 12px; color: var(--mid); margin-top: 4px; }
+
+    .criar-body { padding: 24px; }
+
+    .field-group { margin-bottom: 16px; }
+    .field-label { display: block; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--soft); margin-bottom: 7px; }
+    .field { position: relative; }
+    .field-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--mid); pointer-events: none; transition: color 150ms; }
+    .field-input { width: 100%; height: 44px; padding: 0 14px 0 40px; background: var(--ink-3); border: 1.5px solid var(--line-2); border-radius: 9px; font-family: var(--ff-body); font-size: 14px; color: var(--cream); outline: none; transition: border-color 150ms, box-shadow 150ms; }
+    .field-input::placeholder { color: var(--mid); }
+    .field-input:hover { border-color: rgba(255,255,255,.15); }
+    .field-input:focus { border-color: var(--amber-d); box-shadow: 0 0 0 3px var(--amber-b); }
+    .field:focus-within .field-icon { color: var(--amber); }
+    .eye-btn { position: absolute; right: 0; top: 0; height: 44px; width: 42px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; color: var(--mid); transition: color 150ms; }
+    .eye-btn:hover { color: var(--amber); }
+
+    .aviso-box {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 10px 13px;
+      background: rgba(232,168,56,.07);
+      border: 1px solid rgba(232,168,56,.12);
+      border-radius: 8px;
+      font-size: 12px; color: var(--amber); line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .aviso-box i { flex-shrink: 0; margin-top: 1px; }
+
+    .btn-criar { width: 100%; height: 46px; background: linear-gradient(135deg, #29a065, var(--green)); border: none; border-radius: 10px; color: #fff; font-family: var(--ff-body); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px var(--green-g); transition: opacity 150ms, transform 120ms; }
+    .btn-criar:hover { opacity: .88; }
+    .btn-criar:active { transform: translateY(1px); }
+
+    /* Modal confirmação */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 100; align-items: center; justify-content: center; }
+    .overlay.open { display: flex; }
+    .modal { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 32px; max-width: 400px; width: 90%; animation: fadeUp .25s ease; }
+    .modal-icon { width: 52px; height: 52px; border-radius: 50%; background: var(--red-g); display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--red); margin-bottom: 16px; }
+    .modal-title { font-family: var(--ff-head); font-size: 22px; color: var(--cream); margin-bottom: 8px; }
+    .modal-text { font-size: 14px; color: var(--soft); line-height: 1.6; margin-bottom: 24px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .modal-cancel { padding: 10px 20px; background: none; border: 1.5px solid var(--line-2); border-radius: 9px; color: var(--soft); font-family: var(--ff-body); font-size: 14px; cursor: pointer; transition: border-color 150ms; }
+    .modal-cancel:hover { border-color: rgba(255,255,255,.2); }
+    .modal-confirm { padding: 10px 20px; background: var(--red); border: none; border-radius: 9px; color: #fff; font-family: var(--ff-body); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: opacity 150ms; }
+    .modal-confirm:hover { opacity: .85; }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 1100px) { .layout { grid-template-columns: 1fr; } .criar-card { position: static; } }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-icon"><i class="bi bi-shield-fill"></i></div>
+    <div>
+      <div class="sb-brand-text">SGPA</div>
+      <div class="sb-brand-badge">SuperAdmin</div>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Principal</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+    </ul>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Utilizadores</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
+      <li><a href="/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
+    </ul>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Transacções</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
+    </ul>
+  </div>
+
+  <div th:if="${isSuperAdmin}" class="sb-section">
+    <div class="sb-section-label">Sistema</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/administradores" class="active"><i class="bi bi-people-fill"></i> Administradores</a></li>
+    </ul>
+  </div>
+
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">
+        <img th:if="${adminFoto != null}" th:src="${adminFoto}" alt="Foto"/>
+        <span th:unless="${adminFoto != null}"
+              th:text="${nomeAdmin != null ? nomeAdmin.substring(0,1).toUpperCase() : 'A'}">A</span>
+      </div>
+      <div>
+        <div class="sb-user-name" th:text="${nomeAdmin}">Administrador</div>
+        <div class="sb-user-role">Super Admin</div>
+      </div>
+    </div>
+    <a href="/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Gestão de Administradores</div>
+      <div class="topbar-sub">Área exclusiva do Super Administrador — crie e gira contas de administrador</div>
+    </div>
+  </div>
+
+  <!-- Banner superadmin -->
+  <div class="superadmin-banner">
+    <i class="bi bi-shield-lock-fill"></i>
+    <div>
+      Esta página é exclusiva do <strong>Super Administrador</strong>.
+      Os administradores criados aqui têm acesso ao painel mas não podem criar outros admins nem aceder a esta secção.
+    </div>
+  </div>
+
+  <!-- Flash -->
+  <div th:if="${sucesso}" class="flash sucesso">
+    <i class="bi bi-check-circle-fill"></i>
+    <span th:text="${sucesso}"></span>
+  </div>
+  <div th:if="${erro}" class="flash erro">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span th:text="${erro}"></span>
+  </div>
+
+  <div class="layout">
+
+    <!-- ── Tabela de administradores ── -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <div class="table-title"><i class="bi bi-people-fill"></i> Administradores</div>
+        <span class="count-badge" th:text="${admins.size()} + ' administradores'">0 administradores</span>
+      </div>
+
+      <div th:if="${#lists.isEmpty(admins)}" class="empty-state">
+        <i class="bi bi-person-plus"></i>
+        Ainda não há outros administradores.<br>Crie o primeiro usando o formulário ao lado.
+      </div>
+
+      <table th:if="${!#lists.isEmpty(admins)}">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>E-mail</th>
+            <th>Nível</th>
+            <th>Último Acesso</th>
+            <th>Acções</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="a : ${admins}">
+            <td class="nome">
+              <div class="avatar-cell">
+                <div class="avatar-sm normal">
+                  <img th:if="${a.fotoPerfil != null}" th:src="${a.fotoPerfil}" alt="Foto"/>
+                  <span th:unless="${a.fotoPerfil != null}"
+                        th:text="${a.nome.substring(0,1).toUpperCase()}">A</span>
+                </div>
+                <span th:text="${a.nomeCompleto}">Nome</span>
+              </div>
+            </td>
+            <td th:text="${a.email}">email</td>
+            <td>
+              <span class="nivel-badge"
+                    th:classappend="${a.superAdmin} ? 'nivel-superadmin' : 'nivel-admin'"
+                    th:text="${a.superAdmin} ? 'Super Admin' : 'Admin'">Admin</span>
+            </td>
+            <td th:text="${a.ultimoAcesso != null ? #temporals.format(a.ultimoAcesso,'dd/MM/yyyy HH:mm') : 'Nunca'}">—</td>
+            <td>
+              <button th:unless="${a.superAdmin}"
+                      class="btn-remover"
+                      th:onclick="'abrirModal(' + ${a.id} + ', \'' + ${a.nomeCompleto} + '\')'">
+                <i class="bi bi-trash3"></i> Remover
+              </button>
+              <span th:if="${a.superAdmin}" style="font-size:12px;color:var(--mid)">
+                <i class="bi bi-lock-fill"></i> Protegido
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Formulário criar novo admin ── -->
+    <div class="criar-card">
+      <div class="criar-header">
+        <div class="criar-title"><i class="bi bi-person-plus-fill"></i> Novo Administrador</div>
+        <div class="criar-sub">Preencha os dados para criar uma nova conta</div>
+      </div>
+      <div class="criar-body">
+
+        <form th:action="@{/admin/administradores/criar}" method="post" id="criarForm">
+
+          <div class="aviso-box">
+            <i class="bi bi-info-circle"></i>
+            O novo administrador terá acesso ao painel mas não poderá criar outros admins.
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="cNome">Nome</label>
+            <div class="field">
+              <i class="bi bi-person field-icon"></i>
+              <input type="text" id="cNome" name="nome" class="field-input" placeholder="Primeiro nome" required/>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="cApelido">Apelido</label>
+            <div class="field">
+              <i class="bi bi-person field-icon"></i>
+              <input type="text" id="cApelido" name="apelido" class="field-input" placeholder="Último nome" required/>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="cEmail">E-mail</label>
+            <div class="field">
+              <i class="bi bi-envelope field-icon"></i>
+              <input type="email" id="cEmail" name="email" class="field-input" placeholder="email@sgpa.mz" required/>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label" for="cSenha">Senha temporária</label>
+            <div class="field">
+              <i class="bi bi-key field-icon"></i>
+              <input type="password" id="cSenha" name="senha" class="field-input" placeholder="Mínimo 6 caracteres" required/>
+              <button type="button" class="eye-btn" onclick="toggleCriar()">
+                <i class="bi bi-eye" id="eyeCriar"></i>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-criar">
+            <i class="bi bi-person-check-fill"></i>
+            Criar Administrador
+          </button>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal de confirmação de remoção -->
+<div class="overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+    <div class="modal-title">Remover administrador?</div>
+    <p class="modal-text">
+      Tem a certeza que pretende remover o administrador <strong id="modalNome"></strong>?
+      Esta acção revoga imediatamente o acesso ao painel e é irreversível.
+    </p>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="fecharModal()">Cancelar</button>
+      <form id="modalForm" method="post" style="margin:0">
+        <button type="submit" class="modal-confirm">
+          <i class="bi bi-trash3-fill"></i> Remover
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function abrirModal(id, nome) {
+    document.getElementById('modalNome').textContent = nome;
+    document.getElementById('modalForm').action = '/admin/administradores/' + id + '/remover';
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+  function fecharModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+  document.getElementById('modalOverlay').addEventListener('click', function (e) {
+    if (e.target === this) fecharModal();
+  });
+
+  function toggleCriar() {
+    const input = document.getElementById('cSenha');
+    const icon  = document.getElementById('eyeCriar');
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    icon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+  }
+</script>
+</body>
+</html>

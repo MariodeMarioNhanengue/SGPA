@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pedidos Recebidos – SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <style>
+    .pedido-card {
+      background: #fff;
+      border: 1px solid #e8edf2;
+      border-radius: 14px;
+      overflow: hidden;
+      transition: box-shadow .2s;
+    }
+    .pedido-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+
+    .pedido-card-header {
+      background: #f8fafb;
+      border-bottom: 1px solid #e8edf2;
+      padding: .75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+
+    .comprador-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg,#d1fae5,#a7f3d0);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: #16a34a;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+    .comprador-avatar img {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+    }
+
+    .info-row {
+      display: flex; gap: .4rem; align-items: center;
+      font-size: .82rem; color: #6b7280;
+    }
+    .info-row i { color: #16a34a; font-size: .85rem; }
+
+    .total-badge {
+      background: #f0fdf4;
+      border: 1.5px solid #86efac;
+      color: #15803d;
+      font-size: .92rem;
+      font-weight: 700;
+      padding: .35rem .85rem;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .btn-aceitar {
+      background: #16a34a; color: #fff; border: none;
+      padding: .45rem 1.1rem; border-radius: 8px;
+      font-size: .82rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .3rem;
+      transition: background .18s;
+    }
+    .btn-aceitar:hover { background: #15803d; color: #fff; }
+
+    .btn-rejeitar {
+      background: #fff; color: #dc2626;
+      border: 1.5px solid #fca5a5;
+      padding: .45rem 1.1rem; border-radius: 8px;
+      font-size: .82rem; font-weight: 600; cursor: pointer;
+      display: inline-flex; align-items: center; gap: .3rem;
+      transition: all .18s;
+    }
+    .btn-rejeitar:hover { background: #fef2f2; }
+
+    .estado-processado {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .8rem; color: #9ca3af;
+    }
+
+    .filtros-bar {
+      display: flex; gap: .75rem; align-items: center; flex-wrap: wrap;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid #e8edf2;
+      background: #fff;
+    }
+  </style>
+</head>
+
+<body class="dashboard-body">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <img src="/images/logo.png" alt="Logo SGPA" class="logo-sm">
+      <span class="brand-text">SGPA</span>
+    </a>
+  </div>
+
+  <div class="sidebar-user px-3 py-3 border-bottom border-white border-opacity-10">
+    <div class="d-flex align-items-center gap-2">
+      <div class="avatar-circle" style="overflow:hidden;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#d1fae5,#a7f3d0);display:flex;align-items:center;justify-content:center;">
+        <img th:if="${produtor != null and produtor.fotoPerfil != null and !#strings.isEmpty(produtor.fotoPerfil)}"
+             th:src="${produtor.fotoPerfil}" alt="Foto"
+             style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>
+        <i th:if="${produtor == null or produtor.fotoPerfil == null or #strings.isEmpty(produtor.fotoPerfil)}"
+           class="bi bi-person-fill" style="color:#16a34a;"></i>
+      </div>
+      <div>
+        <div class="text-white fw-semibold small"
+             th:text="${produtor != null ? produtor.nomeCompleto : 'Produtor'}"></div>
+        <div class="text-white opacity-50 small">Produtor</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav mt-2">
+    <a th:href="@{/produtor/dashboard}" class="sidebar-link">
+      <i class="bi bi-house-door-fill"></i> Visão Geral
+    </a>
+    <a th:href="@{/produtor/publicar-oferta}" class="sidebar-link">
+      <i class="bi bi-plus-square-fill"></i> Publicar Oferta
+    </a>
+    <a th:href="@{/produtor/minhas-ofertas}" class="sidebar-link">
+      <i class="bi bi-collection-fill"></i> Minhas Ofertas
+    </a>
+    <a th:href="@{/produtor/pedidos}" class="sidebar-link active">
+      <i class="bi bi-clipboard2-check-fill"></i> Pedidos Recebidos
+    </a>
+    <a th:href="@{/produtor/historico}" class="sidebar-link">
+      <i class="bi bi-bar-chart-line-fill"></i> Histórico de Vendas
+    </a>
+    <a th:href="@{/produtor/editar-perfil(id=${produtor != null ? produtor.id : ''})}" class="sidebar-link">
+      <i class="bi bi-person-gear"></i> Editar Perfil
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <a th:href="@{/logout}" class="sidebar-link text-danger-light">
+      <i class="bi bi-box-arrow-left"></i> Sair
+    </a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-content" id="mainContent">
+
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <div class="topbar d-flex align-items-center justify-content-between px-4">
+    <div class="d-flex align-items-center gap-3">
+      <button class="mobile-toggle" onclick="toggleSidebar()" title="Menu"><i class="bi bi-list"></i></button>
+      <h6 class="mb-0 fw-semibold text-dark">
+        <i class="bi bi-clipboard2-check-fill me-2 text-accent"></i>Pedidos Recebidos
+      </h6>
+    </div>
+    <span class="badge" style="background:var(--green-pale);color:var(--green-dark);font-size:.72rem;">Produtor</span>
+  </div>
+
+  <div class="content-area p-4">
+
+    <!-- ALERTAS FLASH -->
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show mb-3">
+      <i class="bi bi-check-circle-fill me-2"></i><span th:text="${sucesso}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show mb-3">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${erro}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="page-card mb-0" style="border-bottom-left-radius:0;border-bottom-right-radius:0;">
+      <div class="filtros-bar">
+        <span class="fw-semibold small text-muted">Filtrar:</span>
+        <button class="btn btn-sm btn-outline-secondary active" onclick="filtrar('')" id="f-todos">Todos</button>
+        <button class="btn btn-sm" onclick="filtrar('PENDENTE')" id="f-pendente"
+                style="background:#fef9c3;color:#854d0e;border:1px solid #fde68a;">Pendentes</button>
+        <button class="btn btn-sm" onclick="filtrar('AGUARDANDO_PAGAMENTO')" id="f-aguardando"
+                style="background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd;">Aguardando Pagamento</button>
+        <button class="btn btn-sm" onclick="filtrar('ACEITE')" id="f-aceite"
+                style="background:#f0fdf4;color:#15803d;border:1px solid #86efac;">Aceites</button>
+        <button class="btn btn-sm" onclick="filtrar('REJEITADO')" id="f-rejeitado"
+                style="background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;">Rejeitados</button>
+
+        <span class="ms-auto text-muted small"
+              id="contagem"
+              th:text="${#lists.size(pedidosRecebidos)} + ' pedido(s) no total'"></span>
+      </div>
+    </div>
+
+    <!-- CARDS DOS PEDIDOS -->
+    <div id="listaPedidos">
+
+      <div th:if="${#lists.isEmpty(pedidosRecebidos)}"
+           class="page-card text-center py-5"
+           style="border-top-left-radius:0;border-top-right-radius:0;">
+        <i class="bi bi-inbox" style="font-size:2.5rem;color:#d1d5db;"></i>
+        <p class="text-muted mt-2 mb-0">Nenhum pedido recebido ainda.</p>
+      </div>
+
+      <div th:each="pedido, iStat : ${pedidosRecebidos}"
+           class="pedido-card mb-3"
+           th:attr="data-estado=${pedido.estado.name()}"
+           th:classappend="${iStat.index == 0} ? ' mt-0' : ''">
+
+        <!-- CABEÇALHO DO CARD -->
+        <div class="pedido-card-header">
+
+          <!-- Comprador info -->
+          <div class="d-flex align-items-center gap-2">
+            <div class="comprador-avatar">
+              <img th:if="${pedido.comprador != null and pedido.comprador.fotoPerfil != null and !#strings.isEmpty(pedido.comprador.fotoPerfil)}"
+                   th:src="${pedido.comprador.fotoPerfil}" alt="Foto"/>
+              <i th:if="${pedido.comprador == null or pedido.comprador.fotoPerfil == null or #strings.isEmpty(pedido.comprador.fotoPerfil)}"
+                 class="bi bi-person-fill"></i>
+            </div>
+            <div>
+              <div class="fw-semibold" style="font-size:.9rem;color:#1a1d23;"
+                   th:text="${pedido.comprador != null ? pedido.comprador.nomeCompleto : '—'}"></div>
+              <div class="info-row">
+                <i class="bi bi-telephone-fill"></i>
+                <span th:text="${pedido.comprador != null and pedido.comprador.telefone != null ? pedido.comprador.telefone : 'Sem telefone'}"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Estado badge + data -->
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <div class="info-row">
+              <i class="bi bi-calendar3"></i>
+              <span th:if="${pedido.dataPedido != null}"
+                    th:text="${#temporals.format(pedido.dataPedido, 'dd/MM/yyyy HH:mm')}"></span>
+              <span th:if="${pedido.dataPedido == null}">Data desconhecida</span>
+            </div>
+            <span th:class="'badge ' + (${pedido.estado.name()} == 'ACEITE' ? 'bg-success' : (${pedido.estado.name()} == 'REJEITADO' ? 'bg-danger' : (${pedido.estado.name()} == 'AGUARDANDO_PAGAMENTO' ? 'bg-primary' : 'bg-warning text-dark')))"
+                  th:text="${pedido.estado.name() == 'PENDENTE' ? 'Pendente' : (pedido.estado.name() == 'ACEITE' ? 'Aceite' : (pedido.estado.name() == 'AGUARDANDO_PAGAMENTO' ? 'Aguardando Pagamento' : 'Rejeitado'))}">
+            </span>
+          </div>
+        </div>
+
+        <!-- CORPO DO CARD -->
+        <div class="p-3 d-flex flex-wrap gap-3 align-items-start">
+
+          <!-- PRODUTO -->
+          <div style="flex:1;min-width:180px;">
+            <div class="info-row mb-1">
+              <i class="bi bi-box-seam-fill"></i>
+              <span class="fw-semibold text-dark" style="font-size:.88rem;">Produto pedido</span>
+            </div>
+            <div class="fw-bold" style="font-size:1rem;color:#1a1d23;"
+                 th:text="${pedido.oferta != null ? pedido.oferta.nomeProduto : '—'}"></div>
+            <div class="text-muted" style="font-size:.78rem;"
+                 th:text="${pedido.oferta != null ? pedido.oferta.categoria : ''}"></div>
+          </div>
+
+          <!-- QUANTIDADE + PREÇO UNITÁRIO -->
+          <div style="flex:1;min-width:160px;">
+            <div class="info-row mb-1">
+              <i class="bi bi-stack"></i>
+              <span class="fw-semibold text-dark" style="font-size:.88rem;">Quantidade & Preço</span>
+            </div>
+            <div style="font-size:.88rem;color:#374151;">
+              <span class="fw-semibold"
+                    th:text="${pedido.quantidade != null ? pedido.quantidade : '—'}"></span>
+              <span th:if="${pedido.oferta != null}"
+                    th:text="' ' + ${pedido.oferta.unidade}"></span>
+              <span class="text-muted"> × </span>
+              <span th:if="${pedido.oferta != null}"
+                    th:text="${#numbers.formatDecimal(pedido.oferta.preco, 1, 2)} + ' MT/' + ${pedido.oferta.unidade}"></span>
+            </div>
+            <!-- Stock remanescente da oferta -->
+            <div th:if="${pedido.oferta != null}" style="margin-top:.4rem;">
+              <span style="font-size:.78rem;font-weight:700;padding:.15rem .5rem;border-radius:20px;display:inline-flex;align-items:center;gap:.25rem;"
+                    th:classappend="${pedido.oferta.quantidadeRestante != null and pedido.oferta.quantidadeRestante.doubleValue() == 0 ? 'bg-danger-subtle text-danger' : (pedido.oferta.quantidadeRestante != null and pedido.oferta.quantidadeRestante.doubleValue() <= 5 ? 'bg-warning-subtle text-warning' : 'bg-success-subtle text-success')}">
+                <i class="bi bi-box-seam"></i>
+                Remanescente:
+                <strong th:text="${pedido.oferta.quantidadeRestante != null ? pedido.oferta.quantidadeRestante.stripTrailingZeros().toPlainString() : '0'}">0</strong>
+                <span th:text="${pedido.oferta.unidade}">un</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- TOTAL A PAGAR / TOTAL PAGO -->
+          <div style="flex:0 0 auto;align-self:center;">
+            <div class="info-row mb-1">
+              <i class="bi bi-cash-stack"></i>
+              <span class="fw-semibold text-dark" style="font-size:.88rem;"
+                    th:text="${pedido.estado.name() == 'ACEITE'} ? 'Total pago' : 'Total a pagar'">Total a pagar</span>
+            </div>
+            <!-- Tem quantidade e preço → calcular -->
+            <span class="total-badge"
+                  th:if="${pedido.quantidade != null and pedido.oferta != null and pedido.oferta.preco != null}"
+                  th:text="${#numbers.formatDecimal(pedido.quantidade.multiply(pedido.oferta.preco), 1, 2)} + ' MT'">
+            </span>
+            <!-- Sem quantidade definida -->
+            <span class="total-badge" style="background:#f9fafb;border-color:#d1d5db;color:#6b7280;"
+                  th:if="${pedido.quantidade == null}">
+              Qtd. não definida
+            </span>
+          </div>
+
+          <!-- BOTÕES ACEITAR / REJEITAR -->
+          <div style="flex:0 0 auto;align-self:center;" class="d-flex gap-2 flex-wrap">
+
+            <!-- Pedido PENDENTE: campo número + botões -->
+            <div th:if="${pedido.estado.name() == 'PENDENTE'}" class="d-flex flex-column gap-2" style="min-width:260px;">
+              <!-- Campo número de pagamento do produtor -->
+              <div>
+                <label style="font-size:.75rem;font-weight:700;color:#374151;margin-bottom:.25rem;display:block;">
+                  <i class="bi bi-phone-fill" style="color:#16a34a;"></i>
+                  Número para o comprador pagar (M-Pesa / e-Mola / Mkesh):
+                </label>
+                <input type="tel"
+                       th:id="'num-' + ${pedido.id}"
+                       th:attr="data-pedido-id=${pedido.id}"
+                       class="form-control form-control-sm numero-tel-input"
+                       placeholder="8X XXX XXXX"
+                       maxlength="12"
+                       autocomplete="off"
+                       style="border:1.5px solid #86efac;border-radius:8px;font-size:.92rem;font-weight:600;letter-spacing:.04em;"/>
+                <div th:id="'num-erro-' + ${pedido.id}"
+                     class="num-erro"
+                     style="font-size:.72rem;color:#dc2626;display:none;margin-top:.2rem;">
+                  Por favor insira o número antes de aceitar.
+                </div>
+              </div>
+              <div class="d-flex gap-2 align-items-center">
+                <button type="button"
+                        th:id="'btn-aceitar-' + ${pedido.id}"
+                        th:attr="data-pedido-id=${pedido.id}"
+                        class="btn-aceitar btn-aceitar-ajax"
+                        onclick="aceitarPedidoAjax(this)">
+                  <i class="bi bi-check-lg"></i> Aceitar
+                </button>
+                <form th:action="@{/produtor/pedido/rejeitar}" method="post" class="d-inline m-0">
+                  <input type="hidden" name="pedidoId" th:value="${pedido.id}"/>
+                  <button type="submit" class="btn-rejeitar">
+                    <i class="bi bi-x-lg"></i> Rejeitar
+                  </button>
+                </form>
+                <!-- Spinner oculto -->
+                <span th:id="'spin-' + ${pedido.id}"
+                      class="spinner-border spinner-border-sm text-success"
+                      style="display:none;" role="status"></span>
+              </div>
+            </div>
+
+            <!-- Pedido AGUARDANDO_PAGAMENTO: mostrar número fornecido -->
+            <div th:if="${pedido.estado.name() == 'AGUARDANDO_PAGAMENTO'}"
+                 style="background:#eff6ff;border:1.5px solid #93c5fd;border-radius:10px;padding:.6rem .9rem;font-size:.82rem;">
+              <div style="color:#1d4ed8;font-weight:700;margin-bottom:.2rem;">
+                <i class="bi bi-clock-history me-1"></i> Aguardando pagamento do comprador
+              </div>
+              <div style="color:#374151;">
+                Número fornecido:
+                <strong th:text="${pedido.numeroPagamentoProdutor != null ? pedido.numeroPagamentoProdutor : '—'}"></strong>
+              </div>
+            </div>
+
+            <!-- Pedido ACEITE: info de pagamento do comprador + data -->
+            <div th:if="${pedido.estado.name() == 'ACEITE'}"
+                 style="display:flex;flex-direction:column;gap:.5rem;align-items:flex-end;">
+
+              <!-- Bloco da transação (método + número do comprador) -->
+              <div th:with="tx=${transacaoPorPedido != null ? transacaoPorPedido[pedido.id] : null}"
+                   th:if="${tx != null}"
+                   style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:.75rem 1rem;font-size:.82rem;min-width:210px;">
+                <div style="color:#15803d;font-weight:800;margin-bottom:.4rem;font-size:.85rem;">
+                  <i class="bi bi-cash-coin me-1"></i> Pagamento confirmado
+                </div>
+                <!-- Frase principal: foi pago pelo número do comprador via método -->
+                <div style="color:#166534;font-size:.84rem;line-height:1.5;background:#dcfce7;border-radius:7px;padding:.4rem .65rem;margin-bottom:.35rem;">
+                  <i class="bi bi-phone-fill me-1"></i>
+                  Foi pago pelo número
+                  <strong th:text="${tx.referencia != null and !#strings.isEmpty(tx.referencia) ? tx.referencia : (pedido.comprador != null and pedido.comprador.telefone != null ? pedido.comprador.telefone : '—')}">—</strong>
+                  via
+                  <strong th:text="${tx.operadora.name() == 'MPESA' ? 'M-Pesa' : (tx.operadora.name() == 'EMOLA' ? 'e-Mola' : (tx.operadora.name() == 'MKESH' ? 'Mkesh' : (tx.operadora.name() == 'OUTROS' ? 'Outros (Banco/Transferência)' : tx.operadora.name())))}">—</strong>
+                </div>
+                <!-- Ícone e nome da operadora -->
+                <div style="color:#374151;display:flex;align-items:center;gap:.4rem;">
+                  <span th:if="${tx.operadora.name() == 'MPESA'}"   style="color:#e30613;font-size:1rem;"><i class="bi bi-phone-fill"></i></span>
+                  <span th:if="${tx.operadora.name() == 'EMOLA'}"   style="color:#f7941d;font-size:1rem;"><i class="bi bi-phone-fill"></i></span>
+                  <span th:if="${tx.operadora.name() == 'MKESH'}"   style="color:#00529b;font-size:1rem;"><i class="bi bi-phone-fill"></i></span>
+                  <span th:if="${tx.operadora.name() == 'OUTROS'}"  style="color:#555;font-size:1rem;"><i class="bi bi-bank2"></i></span>
+                  <span th:if="${tx.operadora.name() != 'MPESA' and tx.operadora.name() != 'EMOLA' and tx.operadora.name() != 'MKESH' and tx.operadora.name() != 'OUTROS'}" style="color:#555;font-size:1rem;"><i class="bi bi-credit-card-fill"></i></span>
+                  <span style="color:#6b7280;font-size:.78rem;">Confirmado pelo comprador</span>
+                </div>
+              </div>
+
+              <!-- Data de processamento -->
+              <div class="estado-processado">
+                <i class="bi bi-check2-all"></i>
+                <span>Aceite em </span>
+                <span th:if="${pedido.dataResposta != null}"
+                      th:text="${#temporals.format(pedido.dataResposta, 'dd/MM/yyyy')}"></span>
+                <span th:if="${pedido.dataResposta == null}">data desconhecida</span>
+              </div>
+            </div>
+
+            <!-- Pedido REJEITADO -->
+            <div th:if="${pedido.estado.name() == 'REJEITADO'}" class="estado-processado">
+              <i class="bi bi-x-circle-fill" style="color:#dc2626;"></i>
+              <span>Rejeitado em </span>
+              <span th:if="${pedido.dataResposta != null}"
+                    th:text="${#temporals.format(pedido.dataResposta, 'dd/MM/yyyy')}"></span>
+              <span th:if="${pedido.dataResposta == null}">data desconhecida</span>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- RODAPÉ: e-mail do comprador e localização -->
+        <div class="px-3 pb-3 pt-0">
+          <div class="d-flex flex-wrap gap-3" style="font-size:.78rem;color:#9ca3af;">
+            <span th:if="${pedido.comprador != null and pedido.comprador.email != null}">
+              <i class="bi bi-envelope me-1" style="color:#16a34a;"></i>
+              <span th:text="${pedido.comprador.email}"></span>
+            </span>
+            <span th:if="${pedido.comprador != null and pedido.comprador.bairros != null}">
+              <i class="bi bi-geo-alt me-1" style="color:#16a34a;"></i>
+              <span th:text="${pedido.comprador.bairros.nome +
+                (pedido.comprador.bairros.distrito != null ? ', ' + pedido.comprador.bairros.distrito.nome : '') +
+                (pedido.comprador.bairros.distrito != null and pedido.comprador.bairros.distrito.provincia != null
+                  ? ', ' + pedido.comprador.bairros.distrito.provincia.nome : '')}"></span>
+            </span>
+            <span th:if="${pedido.oferta != null and pedido.oferta.bairro != null}">
+              <i class="bi bi-pin-map me-1" style="color:#16a34a;"></i>Localização da oferta:
+              <span th:text="${pedido.oferta.bairro.nome}"></span>
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- fim listaPedidos -->
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ─── MÁSCARA DE TELEFONE MOÇAMBICANO ─────────────────────────────────
+// Formato: 8X XXX XXXX  (11 dígitos com espaços, 9 dígitos reais)
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.numero-tel-input').forEach(function (input) {
+    input.addEventListener('input', function (e) {
+      aplicarMascara(this);
+    });
+    input.addEventListener('keydown', function (e) {
+      // Permitir Backspace sem conflito
+      if (e.key === 'Backspace' || e.key === 'Delete') return;
+    });
+  });
+});
+
+function aplicarMascara(input) {
+  // Remover tudo que não seja dígito
+  var digits = input.value.replace(/\D/g, '');
+  // Limitar a 9 dígitos (número moçambicano sem código de país)
+  if (digits.length > 9) digits = digits.slice(0, 9);
+  // Aplicar formato: 8X XXX XXXX
+  var formatted = '';
+  if (digits.length <= 2) {
+    formatted = digits;
+  } else if (digits.length <= 5) {
+    formatted = digits.slice(0, 2) + ' ' + digits.slice(2);
+  } else {
+    formatted = digits.slice(0, 2) + ' ' + digits.slice(2, 5) + ' ' + digits.slice(5);
+  }
+  input.value = formatted;
+  // Esconder erro ao digitar
+  var pedidoId = input.getAttribute('data-pedido-id');
+  if (pedidoId) {
+    var erro = document.getElementById('num-erro-' + pedidoId);
+    if (erro) erro.style.display = 'none';
+    // Highlight verde quando número completo (9 dígitos)
+    if (digits.length === 9) {
+      input.style.borderColor = '#16a34a';
+      input.style.boxShadow = '0 0 0 2px #bbf7d0';
+    } else {
+      input.style.borderColor = '#86efac';
+      input.style.boxShadow = '';
+    }
+  }
+}
+
+// ─── ACEITAR PEDIDO VIA AJAX (sem recarregar a página) ───────────────
+function aceitarPedidoAjax(btn) {
+  var pedidoId = btn.getAttribute('data-pedido-id');
+  var input    = document.getElementById('num-' + pedidoId);
+  var erro     = document.getElementById('num-erro-' + pedidoId);
+  var spinner  = document.getElementById('spin-' + pedidoId);
+
+  // Obter dígitos puros (sem espaços)
+  var digits = input ? input.value.replace(/\D/g, '') : '';
+
+  if (!digits || digits.length < 9) {
+    if (erro) erro.style.display = 'block';
+    if (input) { input.focus(); input.style.borderColor = '#dc2626'; input.style.boxShadow = '0 0 0 2px #fecaca'; }
+    return;
+  }
+  if (erro) erro.style.display = 'none';
+
+  // Desabilitar botão e mostrar spinner
+  btn.disabled = true;
+  if (spinner) spinner.style.display = 'inline-block';
+
+  // Número formatado (com espaços) para enviar
+  var numeroFormatado = input.value.trim();
+
+  var params = new URLSearchParams();
+  params.append('pedidoId', pedidoId);
+  params.append('numeroPagamento', numeroFormatado);
+
+  fetch('/produtor/pedido/aceitar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  })
+  .then(function (res) {
+    if (res.ok || res.redirected) {
+      // Actualizar apenas o card deste pedido visualmente
+      var card = btn.closest('.pedido-card');
+      if (card) {
+        // Actualizar badge do estado no cabeçalho
+        var badge = card.querySelector('.badge');
+        if (badge) {
+          badge.className = 'badge bg-primary';
+          badge.textContent = 'Aguardando Pagamento';
+        }
+        // Substituir a secção de botões pelo bloco informativo
+        var botoesDiv = btn.closest('[class*="d-flex flex-column"]');
+        if (botoesDiv) {
+          botoesDiv.outerHTML =
+            '<div style="background:#eff6ff;border:1.5px solid #93c5fd;border-radius:10px;padding:.6rem .9rem;font-size:.82rem;">' +
+              '<div style="color:#1d4ed8;font-weight:700;margin-bottom:.2rem;">' +
+                '<i class="bi bi-clock-history me-1"></i> Aguardando pagamento do comprador' +
+              '</div>' +
+              '<div style="color:#374151;">Número fornecido: <strong>' + numeroFormatado + '</strong></div>' +
+            '</div>';
+        }
+        // Actualizar data-estado do card para filtro funcionar
+        card.setAttribute('data-estado', 'AGUARDANDO_PAGAMENTO');
+        // Mostrar toast de sucesso
+        mostrarToast('Pedido aceite! O comprador irá receber o número para pagar.');
+      }
+    } else {
+      btn.disabled = false;
+      if (spinner) spinner.style.display = 'none';
+      mostrarToast('Erro ao aceitar o pedido. Tente novamente.', true);
+    }
+  })
+  .catch(function () {
+    btn.disabled = false;
+    if (spinner) spinner.style.display = 'none';
+    mostrarToast('Erro de ligação. Verifique a sua internet.', true);
+  });
+}
+
+// ─── TOAST DE NOTIFICAÇÃO ────────────────────────────────────────────
+function mostrarToast(msg, isErro) {
+  var existing = document.getElementById('toast-aceitar');
+  if (existing) existing.remove();
+  var toast = document.createElement('div');
+  toast.id = 'toast-aceitar';
+  toast.style.cssText =
+    'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;' +
+    'background:' + (isErro ? '#dc2626' : '#16a34a') + ';color:#fff;' +
+    'padding:.75rem 1.25rem;border-radius:12px;font-size:.88rem;font-weight:600;' +
+    'box-shadow:0 4px 20px rgba(0,0,0,.18);display:flex;align-items:center;gap:.5rem;' +
+    'animation:slideIn .25s ease;';
+  toast.innerHTML = '<i class="bi bi-' + (isErro ? 'exclamation-triangle-fill' : 'check-circle-fill') + '"></i> ' + msg;
+  document.body.appendChild(toast);
+  setTimeout(function () { toast.remove(); }, 4000);
+}
+
+// ─── FILTRO ──────────────────────────────────────────────────────────
+function filtrar(estado) {
+  ['todos','pendente','aguardando','aceite','rejeitado'].forEach(function(s) {
+    var b = document.getElementById('f-' + s);
+    if (b) b.classList.remove('active','btn-outline-secondary');
+  });
+  var mapa = {'': 'todos', 'PENDENTE': 'pendente', 'AGUARDANDO_PAGAMENTO': 'aguardando', 'ACEITE': 'aceite', 'REJEITADO': 'rejeitado'};
+  var btn = document.getElementById('f-' + (mapa[estado] || 'todos'));
+  if (btn) btn.classList.add('active');
+  var cards = document.querySelectorAll('#listaPedidos .pedido-card');
+  var visiveis = 0;
+  cards.forEach(function(card) {
+    var mostrar = !estado || card.getAttribute('data-estado') === estado;
+    card.style.display = mostrar ? '' : 'none';
+    if (mostrar) visiveis++;
+  });
+  document.getElementById('contagem').textContent = visiveis + ' pedido(s) visível(is)';
+}
+
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("show");
+  var o = document.getElementById("sidebarOverlay"); if(o) o.classList.toggle("active");
+}
+</script>
+<style>
+@keyframes slideIn { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+</style>
+</body>
+</html>

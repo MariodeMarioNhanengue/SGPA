@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Administração – SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:       #0b0d0f;
+      --ink-2:     #161a1d;
+      --ink-3:     #1f2428;
+      --steel:     #2c3340;
+      --slate:     #3d4654;
+      --mid:       #6b7584;
+      --soft:      #9aa3b0;
+      --line:      rgba(255,255,255,.06);
+      --amber:     #e8a838;
+      --amber-dim: #c48820;
+      --amber-glow:rgba(232,168,56,.18);
+      --red:       #d94f4f;
+      --red-bg:    rgba(217,79,79,.10);
+      --cream:     #f5f1ea;
+      --ff-head: 'DM Serif Display', Georgia, serif;
+      --ff-body: 'DM Sans', system-ui, sans-serif;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: var(--ff-body);
+      background: var(--ink);
+      color: var(--cream);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout ── */
+    .wrap {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 480px;
+    }
+
+    /* ── Painel esquerdo ── */
+    .left {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 56px 64px;
+      background: var(--ink-2);
+      overflow: hidden;
+    }
+
+    /* Fundo geométrico */
+    .left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 80% 20%, rgba(232,168,56,.07) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 60% at -20% 80%, rgba(232,168,56,.04) 0%, transparent 50%);
+    }
+
+    /* Grade de linhas */
+    .left::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 0%, transparent 100%);
+    }
+
+    .left > * { position: relative; z-index: 1; }
+
+    /* Brand */
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--amber-dim), var(--amber));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: var(--ink);
+      box-shadow: 0 4px 20px var(--amber-glow);
+    }
+    .brand-name {
+      font-family: var(--ff-head);
+      font-size: 20px;
+      color: var(--cream);
+      letter-spacing: .04em;
+    }
+    .brand-badge {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--amber);
+      background: var(--amber-glow);
+      border: 1px solid rgba(232,168,56,.25);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* Hero */
+    .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 48px 0; }
+
+    .badge-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 24px;
+    }
+    .badge-tag::before {
+      content: '';
+      width: 20px; height: 1.5px;
+      background: var(--amber);
+    }
+
+    .hero-title {
+      font-family: var(--ff-head);
+      font-size: clamp(36px, 3.5vw, 50px);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--cream);
+      margin-bottom: 20px;
+    }
+    .hero-title em { font-style: italic; color: var(--amber); }
+
+    .hero-desc {
+      font-size: 15px; font-weight: 300; line-height: 1.75;
+      color: var(--soft);
+      max-width: 360px;
+      margin-bottom: 48px;
+    }
+
+    /* Stats */
+    .stats { display: flex; gap: 40px; }
+    .stat-num {
+      font-family: var(--ff-head);
+      font-size: 26px; color: var(--cream); line-height: 1;
+    }
+    .stat-label {
+      font-size: 11px; color: var(--mid); margin-top: 4px; letter-spacing: .04em;
+    }
+    .stat-divider {
+      width: 1px; background: var(--line); align-self: stretch;
+    }
+
+    /* Footer */
+    .left-footer {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--mid);
+    }
+    .left-footer i { color: var(--amber); font-size: 13px; }
+
+    /* ── Painel direito ── */
+    .right {
+      background: var(--ink-3);
+      border-left: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: center;
+      padding: 56px 48px;
+    }
+
+    .form-box { width: 100%; max-width: 360px; }
+
+    /* Cabeçalho do formulário */
+    .form-head { margin-bottom: 36px; }
+    .form-eyebrow {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 14px;
+    }
+    .form-eyebrow i { font-size: 13px; }
+    .form-title {
+      font-family: var(--ff-head);
+      font-size: 30px; color: var(--cream); line-height: 1.2;
+      margin-bottom: 6px;
+    }
+    .form-sub {
+      font-size: 13px; font-weight: 300; color: var(--soft);
+    }
+
+    /* Alerta */
+    .alert {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 12px 14px;
+      background: var(--red-bg);
+      border-left: 3px solid var(--red);
+      border-radius: 6px;
+      color: var(--red); font-size: 13px; line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .alert i { flex-shrink: 0; margin-top: 1px; }
+
+    /* Campo */
+    .field-group { margin-bottom: 18px; }
+    .field-label {
+      display: block;
+      font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--soft);
+      margin-bottom: 8px;
+    }
+    .field { position: relative; }
+    .field-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 14px; color: var(--slate);
+      pointer-events: none; z-index: 1;
+      transition: color 150ms;
+    }
+    .field-input {
+      width: 100%; height: 48px;
+      padding: 0 44px 0 42px;
+      background: var(--ink-2);
+      border: 1.5px solid rgba(255,255,255,.08);
+      border-radius: 10px;
+      font-family: var(--ff-body); font-size: 14px;
+      color: var(--cream); outline: none;
+      transition: border-color 150ms, box-shadow 150ms;
+    }
+    .field-input::placeholder { color: var(--slate); }
+    .field-input:hover { border-color: rgba(255,255,255,.15); }
+    .field-input:focus {
+      border-color: var(--amber-dim);
+      box-shadow: 0 0 0 3px var(--amber-glow);
+    }
+    .field:focus-within .field-icon { color: var(--amber); }
+
+    .eye-btn {
+      position: absolute; right: 0; top: 0;
+      height: 48px; width: 46px;
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: none; cursor: pointer;
+      color: var(--slate); transition: color 150ms;
+    }
+    .eye-btn:hover { color: var(--amber); }
+
+    /* Botão */
+    .submit-btn {
+      width: 100%; height: 50px; margin-top: 8px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: linear-gradient(135deg, var(--amber-dim), var(--amber));
+      color: var(--ink);
+      border: none; border-radius: 10px;
+      font-family: var(--ff-body); font-size: 15px; font-weight: 600;
+      letter-spacing: .02em; cursor: pointer;
+      box-shadow: 0 4px 20px var(--amber-glow);
+      transition: opacity 200ms, transform 120ms;
+    }
+    .submit-btn:hover { opacity: .9; }
+    .submit-btn:active { transform: translateY(1px); }
+    .submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .submit-btn i { font-size: 15px; }
+
+    /* Voltar */
+    .back-link {
+      display: flex; align-items: center; gap: 6px;
+      margin-top: 24px;
+      font-size: 13px; color: var(--mid); text-decoration: none;
+      transition: color 150ms;
+    }
+    .back-link:hover { color: var(--soft); }
+    .back-link i { font-size: 13px; transition: transform 150ms; }
+    .back-link:hover i { transform: translateX(-3px); }
+
+    /* Separador */
+    .separator {
+      display: flex; align-items: center; gap: 12px;
+      margin: 28px 0 0;
+    }
+    .separator::before, .separator::after {
+      content: ''; flex: 1; height: 1px; background: var(--line);
+    }
+    .separator-text {
+      font-size: 11px; color: var(--mid); letter-spacing: .04em;
+    }
+
+    /* Animação */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .form-box > * { animation: fadeUp .45s cubic-bezier(.16,1,.3,1) both; }
+    .form-box > *:nth-child(1) { animation-delay: .05s; }
+    .form-box > *:nth-child(2) { animation-delay: .10s; }
+    .form-box > *:nth-child(3) { animation-delay: .15s; }
+    .form-box > *:nth-child(4) { animation-delay: .20s; }
+    .form-box > *:nth-child(5) { animation-delay: .25s; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { display: inline-block; animation: spin .75s linear infinite; }
+
+    @media (max-width: 860px) {
+      .wrap { grid-template-columns: 1fr; }
+      .left { display: none; }
+      .right { padding: 40px 24px; min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- PAINEL ESQUERDO -->
+  <div class="left">
+    <div class="brand">
+      <div class="brand-icon"><i class="bi bi-shield-fill"></i></div>
+      <span class="brand-name">SGPA</span>
+      <span class="brand-badge">Admin</span>
+    </div>
+
+    <div class="hero">
+      <div class="badge-tag">Painel de Administração</div>
+      <h2 class="hero-title">
+        Controlo total<br>
+        da <em>plataforma</em><br>
+        agrária
+      </h2>
+      <p class="hero-desc">
+        Gira produtores, compradores, ofertas e transacções num único painel seguro e eficiente.
+      </p>
+      <div class="stats">
+        <div>
+          <div class="stat-num">100%</div>
+          <div class="stat-label">Seguro</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div>
+          <div class="stat-num">Real</div>
+          <div class="stat-label">Dados em tempo real</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div>
+          <div class="stat-num">24/7</div>
+          <div class="stat-label">Disponível</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="left-footer">
+      <i class="bi bi-lock-fill"></i>
+      Acesso restrito a administradores
+    </div>
+  </div>
+
+  <!-- PAINEL DIREITO -->
+  <div class="right">
+    <div class="form-box">
+
+      <div class="form-head">
+        <div class="form-eyebrow">
+          <i class="bi bi-shield-lock-fill"></i>
+          Área Restrita
+        </div>
+        <h1 class="form-title">Acesso de<br>Administrador</h1>
+        <p class="form-sub">Introduza as suas credenciais de administrador</p>
+      </div>
+
+      <div th:if="${erro}" class="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <span th:text="${erro}"></span>
+      </div>
+
+      <form th:action="@{/admin/login}" method="post" id="adminForm" novalidate>
+
+        <div class="field-group">
+          <label class="field-label" for="emailInput">E-mail de administrador</label>
+          <div class="field">
+            <i class="bi bi-envelope-fill field-icon"></i>
+            <input type="email" id="emailInput" name="email"
+                   class="field-input"
+                   placeholder="admin@sgpa.mz"
+                   required autocomplete="username" autofocus/>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="senhaInput">Senha</label>
+          <div class="field">
+            <i class="bi bi-key-fill field-icon"></i>
+            <input type="password" id="senhaInput" name="senha"
+                   class="field-input"
+                   placeholder="••••••••"
+                   required autocomplete="current-password"/>
+            <button type="button" class="eye-btn" onclick="toggleSenha()" aria-label="Mostrar senha">
+              <i class="bi bi-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <i class="bi bi-shield-lock"></i>
+          <span>Entrar no painel</span>
+        </button>
+
+      </form>
+
+      <div class="separator">
+        <span class="separator-text">Acesso de utilizadores normais</span>
+      </div>
+
+      <a href="/login" class="back-link">
+        <i class="bi bi-arrow-left"></i>
+        Ir para login de Produtor / Comprador
+      </a>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggleSenha() {
+    const input = document.getElementById('senhaInput');
+    const icon  = document.getElementById('eyeIcon');
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    icon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+  }
+  document.getElementById('adminForm').addEventListener('submit', function () {
+    const btn = document.getElementById('submitBtn');
+    btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> <span>A verificar...</span>';
+    btn.disabled = true;
+  });
+</script>
+</body>
+</html>

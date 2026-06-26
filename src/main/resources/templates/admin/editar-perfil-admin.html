@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Editar Perfil – Administração SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:     #0b0d0f;
+      --ink-2:   #12161a;
+      --ink-3:   #1a1f26;
+      --panel:   #1f252d;
+      --panel-2: #252c36;
+      --line:    rgba(255,255,255,.06);
+      --line-2:  rgba(255,255,255,.10);
+      --mid:     #6b7584;
+      --soft:    #9aa3b0;
+      --cream:   #f0ece4;
+      --amber:   #e8a838;
+      --amber-d: #c48820;
+      --amber-g: rgba(232,168,56,.15);
+      --amber-b: rgba(232,168,56,.08);
+      --green:   #3dba7e;
+      --green-g: rgba(61,186,126,.12);
+      --red:     #e05555;
+      --red-g:   rgba(224,85,85,.12);
+      --blue:    #4d9de0;
+      --blue-g:  rgba(77,157,224,.12);
+      --ff-head: 'DM Serif Display', Georgia, serif;
+      --ff-body: 'DM Sans', system-ui, sans-serif;
+    }
+    html, body { height: 100%; }
+    body { font-family: var(--ff-body); background: var(--ink); color: var(--cream); display: flex; }
+
+    /* ═══ SIDEBAR ═══ */
+    .sidebar {
+      width: 240px; min-height: 100vh;
+      background: var(--ink-2);
+      border-right: 1px solid var(--line);
+      display: flex; flex-direction: column;
+      padding: 28px 0;
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 10;
+    }
+    .sb-brand { display: flex; align-items: center; gap: 12px; padding: 0 24px 28px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+    .sb-brand-icon { width: 36px; height: 36px; border-radius: 9px; background: linear-gradient(135deg, var(--amber-d), var(--amber)); display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--ink); }
+    .sb-brand-text { font-family: var(--ff-head); font-size: 17px; color: var(--cream); }
+    .sb-brand-badge { font-size: 9px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--amber); background: var(--amber-g); border: 1px solid rgba(232,168,56,.2); padding: 2px 6px; border-radius: 3px; }
+    .sb-section { padding: 0 12px 8px; }
+    .sb-section-label { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--mid); padding: 0 12px; margin-bottom: 6px; }
+    .sb-nav { list-style: none; }
+    .sb-nav li a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 14px; color: var(--soft); text-decoration: none; transition: background 150ms, color 150ms; }
+    .sb-nav li a:hover, .sb-nav li a.active { background: var(--panel); color: var(--cream); }
+    .sb-nav li a.active { color: var(--amber); }
+    .sb-nav li a i { font-size: 15px; width: 18px; text-align: center; }
+    .sb-footer { margin-top: auto; padding: 16px 24px; border-top: 1px solid var(--line); }
+    .sb-user { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .sb-avatar-wrap { position: relative; flex-shrink: 0; }
+    .sb-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--amber-d), var(--amber)); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--ink); overflow: hidden; }
+    .sb-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .sb-user-name { font-size: 13px; font-weight: 500; color: var(--cream); }
+    .sb-user-role { font-size: 11px; color: var(--mid); margin-top: 1px; }
+    .sb-logout { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--mid); text-decoration: none; padding: 8px 10px; border-radius: 7px; transition: background 150ms, color 150ms; }
+    .sb-logout:hover { background: var(--panel); color: var(--red); }
+
+    /* ═══ MAIN ═══ */
+    .main { margin-left: 240px; flex: 1; min-height: 100vh; padding: 40px 48px; max-width: calc(100vw - 240px); }
+
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 36px; }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .back-btn {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--mid); text-decoration: none;
+      padding: 7px 12px; border-radius: 8px;
+      border: 1.5px solid var(--line);
+      transition: color 150ms, border-color 150ms;
+    }
+    .back-btn:hover { color: var(--cream); border-color: var(--line-2); }
+    .topbar-title { font-family: var(--ff-head); font-size: 26px; color: var(--cream); }
+    .topbar-sub { font-size: 13px; color: var(--mid); margin-top: 3px; }
+
+    /* Flash */
+    .flash { display: flex; align-items: center; gap: 10px; padding: 13px 16px; border-radius: 10px; margin-bottom: 28px; font-size: 14px; }
+    .flash.sucesso { background: var(--green-g); border: 1px solid rgba(61,186,126,.2); color: var(--green); }
+    .flash.erro    { background: var(--red-g);   border: 1px solid rgba(224,85,85,.2);  color: var(--red);   }
+
+    /* Layout de 2 colunas */
+    .layout { display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: start; }
+
+    /* ── Card de foto ── */
+    .foto-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 32px 24px;
+      display: flex; flex-direction: column; align-items: center; gap: 0;
+      text-align: center;
+    }
+
+    .foto-wrap {
+      position: relative;
+      width: 120px; height: 120px;
+      margin-bottom: 20px;
+    }
+    .foto-circle {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--amber-d), var(--amber));
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--ff-head); font-size: 42px; color: var(--ink);
+      overflow: hidden;
+      border: 3px solid rgba(232,168,56,.3);
+      box-shadow: 0 0 0 6px rgba(232,168,56,.08);
+    }
+    .foto-circle img { width: 100%; height: 100%; object-fit: cover; }
+    .foto-edit-btn {
+      position: absolute; bottom: 0; right: 0;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--amber-d), var(--amber));
+      border: 2px solid var(--panel);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 14px; color: var(--ink);
+      transition: transform 150ms, box-shadow 150ms;
+    }
+    .foto-edit-btn:hover { transform: scale(1.08); box-shadow: 0 4px 12px var(--amber-g); }
+
+    .foto-name { font-family: var(--ff-head); font-size: 22px; color: var(--cream); margin-bottom: 4px; }
+    .foto-role {
+      font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--amber);
+      background: var(--amber-g); border: 1px solid rgba(232,168,56,.2);
+      padding: 3px 10px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .foto-email { font-size: 13px; color: var(--mid); margin-bottom: 24px; }
+
+    .foto-info-row {
+      width: 100%;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; border-top: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .foto-info-row:first-of-type { border-top: none; }
+    .foto-info-label { color: var(--mid); }
+    .foto-info-value { color: var(--cream); font-weight: 500; }
+
+    /* ── Card de formulário ── */
+    .form-card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .form-section {
+      padding: 28px 32px;
+      border-bottom: 1px solid var(--line);
+    }
+    .form-section:last-child { border-bottom: none; }
+    .form-section-title {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--ff-head); font-size: 18px; color: var(--cream);
+      margin-bottom: 6px;
+    }
+    .form-section-title i { font-size: 16px; color: var(--amber); }
+    .form-section-sub { font-size: 13px; color: var(--mid); margin-bottom: 24px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid.single { grid-template-columns: 1fr; }
+
+    .field-group { display: flex; flex-direction: column; gap: 7px; }
+    .field-group.full { grid-column: 1 / -1; }
+    .field-label {
+      font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--soft);
+    }
+    .field { position: relative; }
+    .field-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--mid); pointer-events: none; transition: color 150ms; }
+    .field-input {
+      width: 100%; height: 46px;
+      padding: 0 16px 0 42px;
+      background: var(--ink-3);
+      border: 1.5px solid var(--line-2);
+      border-radius: 10px;
+      font-family: var(--ff-body); font-size: 14px;
+      color: var(--cream); outline: none;
+      transition: border-color 150ms, box-shadow 150ms;
+    }
+    .field-input::placeholder { color: var(--mid); }
+    .field-input:hover { border-color: rgba(255,255,255,.15); }
+    .field-input:focus { border-color: var(--amber-d); box-shadow: 0 0 0 3px var(--amber-b); }
+    .field:focus-within .field-icon { color: var(--amber); }
+
+    .eye-btn { position: absolute; right: 0; top: 0; height: 46px; width: 44px; display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer; color: var(--mid); transition: color 150ms; }
+    .eye-btn:hover { color: var(--amber); }
+
+    /* Nota de info */
+    .info-note {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 10px 14px;
+      background: var(--blue-g);
+      border: 1px solid rgba(77,157,224,.15);
+      border-radius: 8px;
+      font-size: 13px; color: var(--blue); line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .info-note i { flex-shrink: 0; margin-top: 1px; }
+
+    /* Botões */
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 8px; }
+    .btn-cancel {
+      padding: 11px 22px;
+      background: none;
+      border: 1.5px solid var(--line-2);
+      border-radius: 10px;
+      color: var(--soft); font-family: var(--ff-body); font-size: 14px;
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: border-color 150ms, color 150ms;
+    }
+    .btn-cancel:hover { border-color: rgba(255,255,255,.2); color: var(--cream); }
+    .btn-save {
+      padding: 11px 24px;
+      background: linear-gradient(135deg, var(--amber-d), var(--amber));
+      border: none; border-radius: 10px;
+      color: var(--ink); font-family: var(--ff-body); font-size: 14px; font-weight: 600;
+      cursor: pointer;
+      display: inline-flex; align-items: center; gap: 7px;
+      box-shadow: 0 4px 16px var(--amber-g);
+      transition: opacity 150ms, transform 120ms;
+    }
+    .btn-save:hover { opacity: .88; }
+    .btn-save:active { transform: translateY(1px); }
+
+    /* Input de ficheiro escondido */
+    #fotoInput { display: none; }
+
+    /* Preview dinâmico */
+    #previewImg { width: 100%; height: 100%; object-fit: cover; display: none; }
+    #avatarLetter { font-family: var(--ff-head); font-size: 42px; color: var(--ink); }
+
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .foto-card { flex-direction: row; align-items: center; text-align: left; gap: 24px; flex-wrap: wrap; }
+    }
+    @media (max-width: 720px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .main { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-icon"><i class="bi bi-shield-fill"></i></div>
+    <div>
+      <div class="sb-brand-text">SGPA</div>
+      <div class="sb-brand-badge" th:text="${isSuperAdmin} ? 'SuperAdmin' : 'Admin'">Admin</div>
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Principal</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+    </ul>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Utilizadores</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
+      <li><a href="/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
+    </ul>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Transacções</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
+    </ul>
+  </div>
+
+  <div th:if="${isSuperAdmin}" class="sb-section">
+    <div class="sb-section-label">Sistema</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li>
+    </ul>
+  </div>
+
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">
+        <img th:if="${adminFoto != null}" th:src="${adminFoto}" alt="Foto"/>
+        <span th:unless="${adminFoto != null}"
+              th:text="${nomeAdmin != null ? nomeAdmin.substring(0,1).toUpperCase() : 'A'}">A</span>
+      </div>
+      <div>
+        <div class="sb-user-name" th:text="${nomeAdmin}">Administrador</div>
+        <div class="sb-user-role" th:text="${isSuperAdmin} ? 'Super Admin' : 'Administrador'">Admin</div>
+      </div>
+    </div>
+    <a href="/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <a href="/admin/dashboard" class="back-btn"><i class="bi bi-arrow-left"></i> Voltar</a>
+      <div>
+        <div class="topbar-title">Editar Perfil</div>
+        <div class="topbar-sub">Actualize os seus dados pessoais e definições de conta</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensagens flash -->
+  <div th:if="${sucesso}" class="flash sucesso">
+    <i class="bi bi-check-circle-fill"></i>
+    <span th:text="${sucesso}"></span>
+  </div>
+  <div th:if="${erro}" class="flash erro">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <span th:text="${erro}"></span>
+  </div>
+
+  <!-- Layout 2 colunas -->
+  <div class="layout">
+
+    <!-- ── Cartão de foto / resumo ── -->
+    <div class="foto-card">
+      <div class="foto-wrap">
+        <div class="foto-circle" id="fotoCircle">
+          <img th:if="${admin.fotoPerfil != null}" th:src="${admin.fotoPerfil}" id="previewImg" style="display:block" alt="Foto"/>
+          <span id="avatarLetter"
+                th:unless="${admin.fotoPerfil != null}"
+                th:text="${admin.nome.substring(0,1).toUpperCase()}">A</span>
+        </div>
+        <label for="fotoInput" class="foto-edit-btn" title="Alterar foto">
+          <i class="bi bi-camera-fill"></i>
+        </label>
+      </div>
+
+      <div class="foto-name" th:text="${admin.nomeCompleto}">Nome Admin</div>
+      <div class="foto-role" th:text="${admin.superAdmin} ? 'Super Administrador' : 'Administrador'">Admin</div>
+      <div class="foto-email" th:text="${admin.email}">email@sgpa.mz</div>
+
+      <div class="foto-info-row" style="border-top: 1px solid var(--line); padding-top: 16px; width:100%">
+        <span class="foto-info-label"><i class="bi bi-person-fill"></i> Nome</span>
+        <span class="foto-info-value" th:text="${admin.nome}">Nome</span>
+      </div>
+      <div class="foto-info-row">
+        <span class="foto-info-label"><i class="bi bi-person"></i> Apelido</span>
+        <span class="foto-info-value" th:text="${admin.apelido}">Apelido</span>
+      </div>
+      <div class="foto-info-row">
+        <span class="foto-info-label"><i class="bi bi-shield-fill"></i> Nível</span>
+        <span class="foto-info-value" th:text="${admin.superAdmin} ? 'Super Admin' : 'Admin'">Admin</span>
+      </div>
+    </div>
+
+    <!-- ── Formulário ── -->
+    <div class="form-card">
+      <form th:action="@{/admin/perfil}" method="post" enctype="multipart/form-data" id="perfilForm">
+
+        <!-- Input de foto escondido -->
+        <input type="file" id="fotoInput" name="fotoPerfilFile" accept="image/*"/>
+
+        <!-- SECÇÃO 1: Dados pessoais -->
+        <div class="form-section">
+          <div class="form-section-title">
+            <i class="bi bi-person-vcard"></i> Dados Pessoais
+          </div>
+          <div class="form-section-sub">Actualize o seu nome e endereço de e-mail.</div>
+
+          <div class="form-grid">
+            <div class="field-group">
+              <label class="field-label" for="nome">Nome</label>
+              <div class="field">
+                <i class="bi bi-person field-icon"></i>
+                <input type="text" id="nome" name="nome" class="field-input"
+                       placeholder="Primeiro nome"
+                       th:value="${admin.nome}" required/>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="apelido">Apelido</label>
+              <div class="field">
+                <i class="bi bi-person field-icon"></i>
+                <input type="text" id="apelido" name="apelido" class="field-input"
+                       placeholder="Último nome"
+                       th:value="${admin.apelido}" required/>
+              </div>
+            </div>
+            <div class="field-group full">
+              <label class="field-label" for="email">E-mail</label>
+              <div class="field">
+                <i class="bi bi-envelope field-icon"></i>
+                <input type="email" id="email" name="email" class="field-input"
+                       placeholder="email@sgpa.mz"
+                       th:value="${admin.email}" required/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECÇÃO 2: Alterar senha -->
+        <div class="form-section">
+          <div class="form-section-title">
+            <i class="bi bi-key-fill"></i> Alterar Senha
+          </div>
+          <div class="form-section-sub">Deixe em branco para manter a senha actual.</div>
+
+          <div class="info-note">
+            <i class="bi bi-info-circle-fill"></i>
+            Para alterar a senha, preencha os 3 campos abaixo. A senha actual é obrigatória por segurança.
+          </div>
+
+          <div class="form-grid">
+            <div class="field-group full">
+              <label class="field-label" for="senhaAtual">Senha actual</label>
+              <div class="field">
+                <i class="bi bi-lock field-icon"></i>
+                <input type="password" id="senhaAtual" name="senhaAtual" class="field-input"
+                       placeholder="A sua senha actual" autocomplete="current-password"/>
+                <button type="button" class="eye-btn" onclick="togglePass('senhaAtual','eye1')">
+                  <i class="bi bi-eye" id="eye1"></i>
+                </button>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="novaSenha">Nova senha</label>
+              <div class="field">
+                <i class="bi bi-lock-fill field-icon"></i>
+                <input type="password" id="novaSenha" name="novaSenha" class="field-input"
+                       placeholder="Mínimo 6 caracteres" autocomplete="new-password"/>
+                <button type="button" class="eye-btn" onclick="togglePass('novaSenha','eye2')">
+                  <i class="bi bi-eye" id="eye2"></i>
+                </button>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="confirmarSenha">Confirmar nova senha</label>
+              <div class="field">
+                <i class="bi bi-lock-fill field-icon"></i>
+                <input type="password" id="confirmarSenha" name="confirmarSenha" class="field-input"
+                       placeholder="Repita a nova senha" autocomplete="new-password"/>
+                <button type="button" class="eye-btn" onclick="togglePass('confirmarSenha','eye3')">
+                  <i class="bi bi-eye" id="eye3"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECÇÃO 3: Acções -->
+        <div class="form-section" style="border-bottom:none">
+          <div class="form-actions">
+            <a href="/admin/dashboard" class="btn-cancel">
+              <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            <button type="submit" class="btn-save">
+              <i class="bi bi-floppy-fill"></i> Guardar alterações
+            </button>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // Pré-visualização de foto
+  document.getElementById('fotoInput').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const img = document.getElementById('previewImg');
+      const letter = document.getElementById('avatarLetter');
+      img.src = e.target.result;
+      img.style.display = 'block';
+      if (letter) letter.style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Mostrar/ocultar senha
+  function togglePass(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon  = document.getElementById(iconId);
+    const show  = input.type === 'password';
+    input.type  = show ? 'text' : 'password';
+    icon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+  }
+</script>
+</body>
+</html>

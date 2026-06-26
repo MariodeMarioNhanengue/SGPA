@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Minhas Ofertas – SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<body class="dashboard-body">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <img src="/images/logo.png" alt="Logo SGPA" class="logo-sm">
+      <span class="brand-text">SGPA</span>
+    </a>
+  </div>
+  <div class="sidebar-user px-3 py-3 border-bottom border-white border-opacity-10">
+    <div class="d-flex align-items-center gap-2">
+      <div class="avatar-circle" style="overflow:hidden;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#d1fae5,#a7f3d0);display:flex;align-items:center;justify-content:center;">
+        <img th:if="${produtor != null and produtor.fotoPerfil != null and !#strings.isEmpty(produtor.fotoPerfil)}"
+             th:src="${produtor.fotoPerfil}" alt="Foto"
+             style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>
+        <i th:if="${produtor == null or produtor.fotoPerfil == null or #strings.isEmpty(produtor.fotoPerfil)}"
+           class="bi bi-person-fill" style="color:#16a34a;"></i>
+      </div>
+      <div>
+        <div class="text-white fw-semibold small" th:text="${produtor != null ? produtor.nomeCompleto : 'Produtor'}"></div>
+        <div class="text-white opacity-50 small">Produtor</div>
+      </div>
+    </div>
+  </div>
+  <nav class="sidebar-nav mt-2">
+    <a th:href="@{/produtor/dashboard}" class="sidebar-link"><i class="bi bi-house-door-fill"></i> Visão Geral</a>
+    <a th:href="@{/produtor/publicar-oferta}" class="sidebar-link"><i class="bi bi-plus-square-fill"></i> Publicar Oferta</a>
+    <a th:href="@{/produtor/minhas-ofertas}" class="sidebar-link active"><i class="bi bi-collection-fill"></i> Minhas Ofertas</a>
+    <a th:href="@{/produtor/pedidos}" class="sidebar-link"><i class="bi bi-clipboard2-check-fill"></i> Pedidos Recebidos</a>
+    <a th:href="@{/produtor/historico}" class="sidebar-link"><i class="bi bi-bar-chart-line-fill"></i> Histórico de Vendas</a>
+    <a th:href="@{/produtor/editar-perfil(id=${produtor != null ? produtor.id : ''})}" class="sidebar-link"><i class="bi bi-person-gear"></i> Editar Perfil</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a th:href="@{/logout}" class="sidebar-link text-danger-light"><i class="bi bi-box-arrow-left"></i> Sair</a>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- MAIN -->
+<div class="main-content" id="mainContent">
+
+  <!-- TOPBAR -->
+  <div class="topbar d-flex align-items-center justify-content-between px-4">
+    <div class="d-flex align-items-center gap-3">
+      <button class="mobile-toggle" onclick="toggleSidebar()" title="Menu"><i class="bi bi-list"></i></button>
+      <h6 class="mb-0 fw-semibold text-dark"><i class="bi bi-collection-fill me-2 text-accent"></i>Minhas Ofertas</h6>
+    </div>
+    <a th:href="@{/produtor/publicar-oferta}" class="btn-nova d-inline-flex align-items-center gap-1">
+      <i class="bi bi-plus-lg"></i> Nova Oferta
+    </a>
+  </div>
+
+  <div class="content-area p-4">
+
+    <div class="page-card">
+      <!-- CABEÇALHO -->
+      <div class="page-card-header">
+        <h5><i class="bi bi-table me-2"></i>Lista de Ofertas Publicadas</h5>
+        <span class="badge" style="background:rgba(255,255,255,.2);color:#fff;font-size:.75rem;border-radius:20px;padding:4px 12px;"
+              th:text="${#lists.size(minhasOfertas)} + ' oferta(s)'"></span>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="filter-bar">
+        <div class="filter-search-wrap">
+          <span class="search-icon"><i class="bi bi-search"></i></span>
+          <input type="text" id="searchInput" oninput="filterTable()" placeholder="Pesquisar produto..."/>
+        </div>
+        <select class="form-select" style="width:auto;" id="filterEstado" onchange="filterTable()">
+          <option value="">Todos os estados</option>
+          <option value="ATIVO">Ativo</option>
+          <option value="INATIVO">Inativo</option>
+          <option value="EXPIRADO">Expirado</option>
+        </select>
+        <select class="form-select" style="width:auto;" id="filterCategoria" onchange="filterTable()">
+          <option value="">Todas as categorias</option>
+          <option value="Cereais">Cereais</option>
+          <option value="Frutas">Frutas</option>
+          <option value="Legumes">Legumes</option>
+          <option value="Tubérculos">Tubérculos</option>
+          <option value="Hortícolas">Hortícolas</option>
+        </select>
+      </div>
+
+      <!-- TABELA -->
+      <div class="table-wrapper">
+        <table class="table" id="tabelaOfertas">
+          <thead>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Produto</th>
+              <th>Foto</th>
+              <th>Categoria</th>
+              <th>Preço (MZN)</th>
+              <th style="min-width:130px">Quantidade</th>
+              <th>Unidade</th>
+              <th>Publicado em</th>
+              <th>Validade</th>
+              <th>Estado</th>
+              <th style="min-width:130px">Acções</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="oferta, iStat : ${minhasOfertas}"
+                th:attr="data-produto=${oferta.nomeProduto},data-estado=${oferta.estado},data-categoria=${oferta.categoria}">
+
+              <td style="color:#9ca3af;" th:text="${iStat.count}"></td>
+
+              <td>
+                <div class="prod-name" th:text="${oferta.nomeProduto}"></div>
+                <div class="prod-sub" th:text="${oferta.descricao != null and !#strings.isEmpty(oferta.descricao) ? oferta.descricao : ''}"></div>
+              </td>
+
+              <!-- FOTO -->
+              <td>
+                <button th:if="${oferta.imagemPath != null and !#strings.isEmpty(oferta.imagemPath)}"
+                        type="button"
+                        class="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1"
+                        style="border-radius:8px;font-size:.75rem;padding:4px 10px;"
+                        th:attr="data-imagem=${oferta.imagemPath},data-nome=${oferta.nomeProduto}"
+                        onclick="abrirFoto(this)"
+                        data-bs-toggle="modal" data-bs-target="#modalFoto">
+                  <i class="bi bi-image me-1"></i>Ver Foto
+                </button>
+                <span th:if="${oferta.imagemPath == null or #strings.isEmpty(oferta.imagemPath)}"
+                      class="text-muted small">Sem foto</span>
+              </td>
+
+              <td><span class="cat-pill" th:text="${oferta.categoria}"></span></td>
+
+              <td class="price" th:text="${'MT ' + #numbers.formatDecimal(oferta.preco,1,'POINT',2,'COMMA')}"></td>
+
+              <td>
+                <div class="qty-label" th:text="${oferta.quantidadeRestante} + ' / ' + ${oferta.quantidadeTotal}"></div>
+                <div class="qty-bar">
+                  <div class="qty-fill"
+                       th:style="'width:' + (${oferta.quantidadeTotal != null and oferta.quantidadeTotal.doubleValue() > 0} ? ${#numbers.formatDecimal(oferta.quantidadeRestante.doubleValue() / oferta.quantidadeTotal.doubleValue() * 100,1,0)} : 0) + '%'">
+                  </div>
+                </div>
+              </td>
+
+              <td th:text="${oferta.unidade}"></td>
+              <td th:text="${oferta.dataPublicacao != null ? #temporals.format(oferta.dataPublicacao,'dd/MM/yyyy') : '--'}"></td>
+              <td th:text="${oferta.dataValidade != null ? #temporals.format(oferta.dataValidade,'dd/MM/yyyy') : '--'}"></td>
+
+              <td>
+                <span th:class="'badge-estado ' + (${oferta.estado.name()} == 'ATIVO' ? 'badge-ativo' : (${oferta.estado.name()} == 'INATIVO' ? 'badge-inativo' : 'badge-expirado'))">
+                  <span class="dot"></span>
+                  <span th:text="${oferta.estado.name() == 'ATIVO' ? 'Ativo' : (oferta.estado.name() == 'INATIVO' ? 'Inativo' : 'Expirado')}"></span>
+                </span>
+              </td>
+
+              <!-- ACÇÕES: EDITAR / APAGAR -->
+              <td>
+                <div class="d-flex gap-1 flex-wrap">
+                  <a th:href="@{/produtor/editar-oferta/{id}(id=${oferta.id},produtorId=${produtorId})}"
+                     class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+                     style="border-radius:7px;font-size:.75rem;padding:3px 9px;">
+                    <i class="bi bi-pencil-fill"></i> Editar
+                  </a>
+                  <form th:action="@{/produtor/apagar-oferta/{id}(id=${oferta.id})}" method="post" class="d-inline m-0"
+                        onsubmit="return confirm('Tem a certeza que deseja apagar esta oferta?');">
+                    <input type="hidden" name="produtorId" th:value="${produtorId}"/>
+                    <button type="submit"
+                            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
+                            style="border-radius:7px;font-size:.75rem;padding:3px 9px;">
+                      <i class="bi bi-trash3-fill"></i> Apagar
+                    </button>
+                  </form>
+                </div>
+              </td>
+
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(minhasOfertas)}">
+              <td colspan="11">
+                <div class="empty-state">
+                  <i class="bi bi-box-seam"></i>
+                  Ainda não publicou nenhuma oferta.<br/>
+                  <a th:href="@{/produtor/publicar-oferta}" class="btn-nova d-inline-flex align-items-center gap-1 mt-3">
+                    <i class="bi bi-plus-lg"></i> Publicar Agora
+                  </a>
+                </div>
+              </td>
+            </tr>
+            <tr id="emptyFilter" style="display:none;">
+              <td colspan="11">
+                <div class="empty-state"><i class="bi bi-funnel"></i> Nenhuma oferta corresponde aos filtros aplicados.</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- RODAPÉ -->
+      <div class="table-footer">
+        <span id="totalInfo"></span>
+        <a th:href="@{/produtor/dashboard}" class="btn-voltar">
+          <i class="bi bi-arrow-left me-1"></i> Voltar ao Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FOTO DO PRODUTO -->
+<div class="modal fade" id="modalFoto" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold d-flex align-items-center gap-2">
+          <i class="bi bi-image"></i>
+          <span id="modalFotoNome">Foto do Produto</span>
+        </h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center p-4">
+        <img id="modalFotoImg" src="" alt="Foto do produto"
+             style="max-height:420px;max-width:100%;border-radius:14px;object-fit:contain;box-shadow:0 4px 20px rgba(0,0,0,0.12);">
+      </div>
+      <div class="modal-footer border-0 justify-content-center">
+        <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/minhas-ofertas.js}"></script>
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('show');
+  var o = document.getElementById('sidebarOverlay'); if(o) o.classList.toggle('active');
+}
+function abrirFoto(btn) {
+  document.getElementById('modalFotoNome').textContent = btn.dataset.nome || 'Foto do Produto';
+  document.getElementById('modalFotoImg').src = btn.dataset.imagem || '';
+}
+</script>
+</body>
+</html>

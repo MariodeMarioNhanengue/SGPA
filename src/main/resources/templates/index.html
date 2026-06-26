@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SGPA – Sistema de Gestão de Produtos Agrários</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  
+</head>
+
+<body class="home-body" style="font-family:'DM Sans',sans-serif;">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark sticky-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+        <img src="/images/logo.png" alt="Logo SGPA" class="logo-sm">
+        <span class="brand-text">SGPA</span>
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto gap-2 align-items-center">
+          <li class="nav-item">
+            <a class="nav-link fw-500" href="/como-funciona">Como Funciona</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link fw-500" href="#secRegisto">Registar</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-light btn-sm px-4 fw-semibold text-success" href="/login">
+              <i class="bi bi-box-arrow-in-right me-1"></i>Entrar
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO COM SLIDER -->
+  <section id="heroCarousel" class="carousel slide carousel-fade hero-section" data-bs-ride="carousel" data-bs-interval="5500">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+      <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3"></button>
+    </div>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img class="d-block w-100 hero-img" src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=1600&q=80" alt="Milho">
+        <div class="hero-overlay"></div>
+        <div class="hero-content text-white">
+          <div class="hero-badges">
+            <span class="hero-badge"><i class="bi bi-patch-check-fill"></i>100% Local</span>
+            <span class="hero-badge"><i class="bi bi-lightning-charge-fill"></i>Directo do Campo</span>
+          </div>
+          <h1 class="hero-title">Produção de Milho</h1>
+          <p class="hero-sub">Conectando produtores directamente ao mercado de Moçambique</p>
+          <div class="hero-cta-group">
+            <a href="/login" class="btn-hero-primary"><i class="bi bi-box-arrow-in-right me-2"></i>Entrar na Plataforma</a>
+            <a href="#secRegisto" class="btn-hero-outline"><i class="bi bi-person-plus me-2"></i>Registar-se</a>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img class="d-block w-100 hero-img" src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=1600&q=80" alt="Hortícolas">
+        <div class="hero-overlay"></div>
+        <div class="hero-content text-white">
+          <div class="hero-badges">
+            <span class="hero-badge"><i class="bi bi-geo-alt-fill"></i>Moçambique</span>
+            <span class="hero-badge"><i class="bi bi-heart-fill"></i>Produtos Frescos</span>
+          </div>
+          <h1 class="hero-title">Hortícolas Frescas</h1>
+          <p class="hero-sub">Tomate, cebola e vegetais do campo — qualidade garantida</p>
+          <div class="hero-cta-group">
+            <a href="/login" class="btn-hero-primary"><i class="bi bi-shop me-2"></i>Ver Mercado</a>
+            <a href="/sobre" class="btn-hero-outline"><i class="bi bi-info-circle me-2"></i>Sobre</a>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img class="d-block w-100 hero-img" src="https://images.unsplash.com/photo-1472141521881-95d0e87e2e39?auto=format&fit=crop&w=1600&q=80" alt="Agricultura">
+        <div class="hero-overlay"></div>
+        <div class="hero-content text-white">
+          <div class="hero-badges">
+            <span class="hero-badge"><i class="bi bi-tree-fill"></i>Sustentável</span>
+            <span class="hero-badge"><i class="bi bi-award-fill"></i>Qualidade</span>
+          </div>
+          <h1 class="hero-title">Colheitas Sustentáveis</h1>
+          <p class="hero-sub">Agricultura moderna, responsável e lucrativa para todos</p>
+          <div class="hero-cta-group">
+            <a href="/produtor/criar" class="btn-hero-primary"><i class="bi bi-tree me-2"></i>Sou Produtor</a>
+            <a href="/comprador/criar" class="btn-hero-outline"><i class="bi bi-bag me-2"></i>Sou Comprador</a>
+          </div>
+        </div>
+      </div>
+      <div class="carousel-item">
+        <img class="d-block w-100 hero-img" src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80" alt="Campos">
+        <div class="hero-overlay"></div>
+        <div class="hero-content text-white">
+          <div class="hero-badges">
+            <span class="hero-badge"><i class="bi bi-handshake-fill"></i>Sem Intermediários</span>
+            <span class="hero-badge"><i class="bi bi-currency-dollar"></i>Preços Justos</span>
+          </div>
+          <h1 class="hero-title">Campos Verdes</h1>
+          <p class="hero-sub">Produção agrícola em grande escala, vendas directas e preços justos</p>
+          <div class="hero-cta-group">
+            <a href="/login" class="btn-hero-primary"><i class="bi bi-box-arrow-in-right me-2"></i>Entrar na Plataforma</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+    <div class="scroll-down" onclick="document.getElementById('statsBar').scrollIntoView({behavior:'smooth'})">
+      <i class="bi bi-chevron-double-down"></i>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar" id="statsBar">
+    <div class="container">
+      <div class="row g-3 align-items-center justify-content-center">
+        <div class="col-6 col-md-3">
+          <div class="stat-item">
+            <div class="stat-num" id="cntProdutores" th:data-target="${totalProdutores}">0</div>
+            <div class="stat-lbl">Produtores</div>
+          </div>
+        </div>
+        <div class="col-auto d-none d-md-block stat-divider"></div>
+        <div class="col-6 col-md-3">
+          <div class="stat-item">
+            <div class="stat-num" id="cntCompradores" th:data-target="${totalCompradores}">0</div>
+            <div class="stat-lbl	">Compradores</div>
+          </div>
+        </div>
+        <div class="col-auto d-none d-md-block stat-divider"></div>
+        <div class="col-6 col-md-3">
+          <div class="stat-item">
+            <div class="stat-num" id="cntOfertas" th:data-target="${totalOfertas}">0</div>
+            <div class="stat-lbl">Ofertas Activas</div>
+          </div>
+        </div>
+        <div class="col-auto d-none d-md-block stat-divider"></div>
+        <div class="col-6 col-md-3">
+          <div class="stat-item">
+            <div class="stat-num">11</div>
+            <div class="stat-lbl">Províncias</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- REGISTO -->
+  <section class="cta-section" id="secRegisto">
+    <div class="container">
+      <div class="text-center mb-5 reveal">
+        <h2 class="section-title">Crie a sua <span style="color:var(--verde)">Conta</span></h2>
+        <p class="text-muted">Escolha o seu perfil e junte-se à plataforma agrícola de Moçambique</p>
+      </div>
+      <div class="row justify-content-center g-4">
+        <div class="col-md-5 reveal reveal-delay-1">
+          <div class="reg-card h-100">
+             <span class="reg-card-icon">
+    <i class="bi bi-person-workspace"></i>
+</span>
+            <h5>Sou Produtor</h5>
+            <p class="text-muted small mb-4">Publico as minhas colheitas com foto e preço para que compradores de todo Moçambique vejam e comprem</p>
+            <ul class="text-start text-muted small mb-4" style="list-style:none;padding:0;">
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>Publica ofertas com fotos</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>Gere as encomendas</li>
+              <li><i class="bi bi-check-circle-fill text-success me-2"></i>Alcança mais compradores</li>
+            </ul>
+            <a href="/produtor/criar" class="btn-reg-produtor">
+              <i class="bi bi-tree-fill"></i>Registar como Produtor
+            </a>
+          </div>
+        </div>
+        <div class="col-md-5 reveal reveal-delay-2">
+          <div class="reg-card h-100">
+            <span class="reg-card-icon">
+    <i class="bi bi-cart-fill"></i>
+</span>
+            <h5>Sou Comprador</h5>
+            <p class="text-muted small mb-4">Procuro produtos agrícolas frescos directamente dos produtores locais, sem intermediários e a preços justos</p>
+            <ul class="text-start text-muted small mb-4" style="list-style:none;padding:0;">
+              <li><i class="bi bi-check-circle-fill text-primary me-2"></i>Acede a produtos frescos</li>
+              <li><i class="bi bi-check-circle-fill text-primary me-2"></i>Compra directamente</li>
+              <li><i class="bi bi-check-circle-fill text-primary me-2"></i>Preços justos e transparentes</li>
+            </ul>
+            <a href="/comprador/criar" class="btn-reg-comprador">
+              <i class="bi bi-bag-check-fill"></i>Registar como Comprador
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-4">
+        <p class="text-muted small">
+          Já tem conta? <a href="/login" style="color:var(--verde);font-weight:700;">Clique aqui para entrar</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row align-items-center g-3">
+        <div class="col-md-6">
+          <div class="footer-logo mb-1"><i class="bi bi-tree-fill me-2"></i>SGPA</div>
+          <p class="mb-0 small" style="color:#aaa;">Sistema de Gestão de Produtos Agrários · Moçambique</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+          <p class="mb-0 small" style="color:#666;">&copy; 2026 SGPA · Todos os direitos reservados</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+      document.getElementById('mainNav').classList.toggle('scrolled', window.scrollY > 30);
+    });
+
+    // Reveal on scroll
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Contador animado
+    function animateCount(el, target, duration) {
+      let start = 0;
+      const step = Math.ceil(target / (duration / 30));
+      const timer = setInterval(() => {
+        start = Math.min(start + step, target);
+        el.textContent = start;
+        if (start >= target) clearInterval(timer);
+      }, 30);
+    }
+    // Trigger counts when stats bar comes into view
+    const statsBar = document.getElementById('statsBar');
+    let counted = false;
+    new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !counted) {
+        counted = true;
+        const elP = document.getElementById('cntProdutores'); animateCount(elP, parseInt(elP.dataset.target) || 0, 1200);
+        const elC = document.getElementById('cntCompradores'); animateCount(elC, parseInt(elC.dataset.target) || 0, 1400);
+        const elO = document.getElementById('cntOfertas'); animateCount(elO, parseInt(elO.dataset.target) || 0, 1600);
+      }
+    }, { threshold: 0.5 }).observe(statsBar);
+  </script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Produtor – SGPA</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+
+<body class="dashboard-body">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+
+  <div class="sidebar-brand">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+        <img src="/images/logo.png" alt="Logo SGPA" class="logo-sm">
+        <span class="brand-text">SGPA</span>
+      </a>
+  </div>
+
+  <div class="sidebar-user px-3 py-3 border-bottom border-white border-opacity-10">
+    <div class="d-flex align-items-center gap-2">
+
+      <div class="avatar-circle" style="overflow:hidden;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#d1fae5,#a7f3d0);display:flex;align-items:center;justify-content:center;">
+        <img th:if="${produtor != null and produtor.fotoPerfil != null and !#strings.isEmpty(produtor.fotoPerfil)}"
+             th:src="${produtor.fotoPerfil}" alt="Foto"
+             style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>
+        <i th:if="${produtor == null or produtor.fotoPerfil == null or #strings.isEmpty(produtor.fotoPerfil)}"
+           class="bi bi-person-fill" style="color:#16a34a;"></i>
+      </div>
+
+      <div>
+		<div class="text-white fw-semibold small"
+		     th:text="${produtor != null ? produtor.nomeCompleto : 'Produtor'}">
+		</div>
+
+        <div class="text-white opacity-50 small">
+          Produtor
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <nav class="sidebar-nav mt-2">
+    <a th:href="@{/produtor/dashboard}" class="sidebar-link"
+       th:classappend="${activePage == 'dashboard'} ? 'active'">
+      <i class="bi bi-house-door-fill"></i> Visão Geral
+    </a>
+
+    <a th:href="@{/produtor/publicar-oferta}" class="sidebar-link"
+       th:classappend="${activePage == 'publicar'} ? 'active'">
+      <i class="bi bi-plus-square-fill"></i> Publicar Oferta
+    </a>
+
+    <a th:href="@{/produtor/minhas-ofertas}" class="sidebar-link"
+       th:classappend="${activePage == 'ofertas'} ? 'active'">
+      <i class="bi bi-collection-fill"></i> Minhas Ofertas
+    </a>
+
+    <a th:href="@{/produtor/pedidos}" class="sidebar-link"
+       th:classappend="${activePage == 'pedidos'} ? 'active'">
+      <i class="bi bi-clipboard2-check-fill"></i> Pedidos Recebidos
+    </a>
+
+    <a th:href="@{/produtor/historico}" class="sidebar-link"
+       th:classappend="${activePage == 'historico'} ? 'active'">
+      <i class="bi bi-bar-chart-line-fill"></i> Histórico de Vendas
+    </a>
+    <a th:href="@{/produtor/editar-perfil(id=${produtor != null ? produtor.id : ''})}" class="sidebar-link">
+      <i class="bi bi-person-gear"></i> Editar Perfil
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <!-- Botão Comprador: entra directamente se já for comprador, senão cria conta -->
+    <a th:href="@{/produtor/tornar-comprador}"
+       class="sidebar-link"
+       th:title="${jaEComprador} ? 'Ir para o painel de comprador' : 'Registar-se como comprador'"
+       style="color:#a7f3d0;font-weight:700;">
+      <i th:classappend="${jaEComprador} ? 'bi-box-arrow-in-right' : 'bi-cart-fill'" class="bi"></i>
+      <span th:text="${jaEComprador} ? 'Painel Comprador' : 'Ser Comprador'">Ser Comprador</span>
+    </a>
+    <a th:href="@{/logout}" class="sidebar-link text-danger-light">
+      <i class="bi bi-box-arrow-left"></i> Sair
+    </a>
+  </div>
+
+</div>
+
+<!-- MAIN -->
+<div class="main-content" id="mainContent">
+
+  <!-- TOPBAR -->
+  <div class="topbar d-flex align-items-center justify-content-between px-4">
+    <div class="d-flex align-items-center gap-3">
+      <button class="mobile-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <h6 class="mb-0 fw-semibold text-dark">Visão Geral</h6>
+    </div>
+    <span class="badge" style="background:var(--green-pale);color:var(--green-dark);font-size:.72rem;">Produtor</span>
+  </div>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <div class="content-area p-4">
+
+    <!-- ALERTAS FLASH (aceitar/rejeitar pedido) -->
+    <div th:if="${sucesso}" class="alert alert-success alert-dismissible fade show mb-3">
+      <i class="bi bi-check-circle-fill me-2"></i><span th:text="${sucesso}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show mb-3">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${erro}"></span>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- CARDS -->
+    <div class="row g-4 mb-4">
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-widget">
+          <div class="stat-w-num" th:text="${totalOfertas ?: 0}">0</div>
+          <div class="stat-w-label">Ofertas Activas</div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-widget">
+          <div class="stat-w-num" th:text="${totalPedidos ?: 0}">0</div>
+          <div class="stat-w-label">Pedidos</div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-widget">
+          <div class="stat-w-num" th:text="${pedidosPendentes ?: 0}">0</div>
+          <div class="stat-w-label">Pendentes</div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-widget">
+          <div class="stat-w-num" th:text="${pedidosAceites ?: 0}">0</div>
+          <div class="stat-w-label">Concluídos</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row g-4">
+
+      <!-- OFERTAS -->
+      <div class="col-lg-6">
+        <div class="dashboard-card p-4">
+
+          <h6 class="fw-semibold mb-3">
+            <i class="bi bi-clock-history me-2 text-accent"></i>Últimas Ofertas
+          </h6>
+
+          <div th:if="${#lists.isEmpty(ultimasOfertas)}" class="text-muted small">
+            Nenhuma oferta ainda.
+          </div>
+
+          <div th:each="oferta : ${ultimasOfertas}"
+               class="d-flex justify-content-between border-bottom py-2">
+
+            <div>
+              <div class="fw-semibold small" th:text="${oferta.nomeProduto}"></div>
+              <div class="text-muted x-small" th:text="${oferta.categoria}"></div>
+            </div>
+
+            <span class="badge"
+                  th:text="${oferta.estado}">
+            </span>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PEDIDOS -->
+      <div class="col-lg-6">
+        <div class="dashboard-card p-4">
+
+          <h6 class="fw-semibold mb-3">
+            <i class="bi bi-list-check me-2 text-accent"></i>Pedidos Recentes
+          </h6>
+
+          <div th:if="${#lists.isEmpty(ultimosPedidos)}" class="text-muted small">
+            Nenhum pedido ainda.
+          </div>
+
+          <div th:each="pedido : ${ultimosPedidos}"
+               class="d-flex justify-content-between align-items-center border-bottom py-2 gap-2">
+
+            <div>
+              <div class="fw-semibold small" th:text="${pedido.comprador != null ? pedido.comprador.nomeCompleto : '—'}"></div>
+              <div class="text-muted x-small" th:text="${pedido.oferta != null ? pedido.oferta.nomeProduto : '—'}"></div>
+            </div>
+
+            <div class="d-flex align-items-center gap-1 flex-shrink-0">
+              <span class="badge"
+                    th:classappend="${pedido.estado.name() == 'ACEITE'} ? 'bg-success' : (${pedido.estado.name() == 'REJEITADO'} ? 'bg-danger' : (${pedido.estado.name() == 'CANCELADO'} ? 'bg-secondary' : 'bg-warning text-dark'))"
+                    th:text="${pedido.estado.name() == 'PENDENTE'} ? 'Pendente' : (${pedido.estado.name() == 'ACEITE'} ? 'Aceite' : (${pedido.estado.name() == 'REJEITADO'} ? 'Rejeitado' : '⊘ Cancelado pelo comprador'))">
+              </span>
+              <!-- Botões aceitar/rejeitar apenas para pedidos PENDENTES -->
+              <div th:if="${pedido.estado.name() == 'PENDENTE'}" class="d-flex gap-1">
+                <form th:action="@{/produtor/pedido/aceitar}" method="post" class="d-inline m-0">
+                  <input type="hidden" name="pedidoId" th:value="${pedido.id}"/>
+                  <input type="hidden" name="from" value="dashboard"/>
+                  <button type="submit" class="btn btn-success btn-sm py-0 px-2" title="Aceitar pedido">
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                </form>
+                <button type="button"
+                        class="btn btn-danger btn-sm py-0 px-2"
+                        title="Rejeitar pedido"
+                        th:attr="data-pedido-id=${pedido.id}"
+                        onclick="abrirModalRejeicao(this)">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ═══════════════ MODAL DE JUSTIFICAÇÃO DE REJEIÇÃO ═══════════════ -->
+<div id="modalRejeicao"
+     style="display:none;position:fixed;inset:0;z-index:9999;
+            background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:14px;padding:2rem;width:min(460px,90vw);
+              box-shadow:0 8px 32px rgba(0,0,0,.22);position:relative;">
+    <h5 style="margin:0 0 .4rem;font-weight:700;color:#b71c1c;">
+      <i class="bi bi-x-circle-fill" style="margin-right:.4rem;"></i>Rejeitar Pedido
+    </h5>
+    <p style="font-size:.88rem;color:#555;margin-bottom:1.1rem;">
+      Indique o motivo da rejeição. Esta justificação será visível para o comprador.
+    </p>
+    <form id="formRejeicao" th:action="@{/produtor/pedido/rejeitar}" method="post">
+      <input type="hidden" name="pedidoId" id="rejeicaoPedidoId"/>
+      <input type="hidden" name="from" value="dashboard"/>
+      <div style="margin-bottom:1rem;">
+        <label for="motivoRejeicao"
+               style="font-size:.82rem;font-weight:600;color:#333;display:block;margin-bottom:.35rem;">
+          Motivo da rejeição <span style="color:#b71c1c;">*</span>
+        </label>
+        <textarea id="motivoRejeicao" name="motivoRejeicao" rows="4" required
+                  placeholder="Ex: Stock esgotado, produto não disponível na quantidade pedida..."
+                  style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;
+                         padding:.65rem .8rem;font-size:.9rem;resize:vertical;
+                         font-family:inherit;outline:none;"
+                  onfocus="this.style.borderColor='#2e7d32'"
+                  onblur="this.style.borderColor='#e0e0e0'"></textarea>
+      </div>
+      <div style="display:flex;gap:.7rem;justify-content:flex-end;">
+        <button type="button" onclick="fecharModalRejeicao()"
+                style="padding:.5rem 1.2rem;border:1.5px solid #ccc;border-radius:8px;
+                       background:#fff;cursor:pointer;font-size:.9rem;font-weight:600;color:#555;">
+          Cancelar
+        </button>
+        <button type="submit"
+                style="padding:.5rem 1.4rem;border:none;border-radius:8px;
+                       background:#b71c1c;color:#fff;cursor:pointer;font-size:.9rem;font-weight:700;">
+          <i class="bi bi-x-lg" style="margin-right:.3rem;"></i>Confirmar Rejeição
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function abrirModalRejeicao(btn) {
+  document.getElementById('rejeicaoPedidoId').value = btn.getAttribute('data-pedido-id');
+  document.getElementById('motivoRejeicao').value = '';
+  const modal = document.getElementById('modalRejeicao');
+  modal.style.display = 'flex';
+  setTimeout(() => document.getElementById('motivoRejeicao').focus(), 80);
+}
+function fecharModalRejeicao() {
+  document.getElementById('modalRejeicao').style.display = 'none';
+}
+document.getElementById('modalRejeicao').addEventListener('click', function(e) {
+  if (e.target === this) fecharModalRejeicao();
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("show");
+  var overlay = document.getElementById("sidebarOverlay");
+  if(overlay) overlay.classList.toggle("active");
+}
+</script>
+</body>
+</html>

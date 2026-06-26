@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vendas – Administração SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:#0b0d0f; --ink-2:#12161a; --ink-3:#1a1f26; --panel:#1f252d;
+      --line:rgba(255,255,255,.06); --mid:#6b7584; --soft:#9aa3b0; --cream:#f0ece4;
+      --amber:#e8a838; --amber-d:#c48820; --amber-g:rgba(232,168,56,.15);
+      --green:#3dba7e; --green-g:rgba(61,186,126,.12);
+      --blue:#4d9de0; --blue-g:rgba(77,157,224,.12);
+      --red:#e05555; --red-g:rgba(224,85,85,.12);
+      --ff-head:'DM Serif Display',Georgia,serif; --ff-body:'DM Sans',system-ui,sans-serif;
+    }
+    html,body{height:100%;} body{font-family:var(--ff-body);background:var(--ink);color:var(--cream);display:flex;}
+    .sidebar{width:240px;min-height:100vh;background:var(--ink-2);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:28px 0;position:fixed;top:0;left:0;bottom:0;z-index:10;}
+    .sb-brand{display:flex;align-items:center;gap:12px;padding:0 24px 28px;border-bottom:1px solid var(--line);margin-bottom:20px;}
+    .sb-brand-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--amber-d),var(--amber));display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--ink);}
+    .sb-brand-text{font-family:var(--ff-head);font-size:17px;color:var(--cream);}
+    .sb-brand-badge{font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);background:var(--amber-g);border:1px solid rgba(232,168,56,.2);padding:2px 6px;border-radius:3px;}
+    .sb-section{padding:0 12px 8px;}
+    .sb-section-label{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mid);padding:0 12px;margin-bottom:6px;}
+    .sb-nav{list-style:none;}
+    .sb-nav li a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;font-size:14px;color:var(--soft);text-decoration:none;transition:background 150ms,color 150ms;}
+    .sb-nav li a:hover,.sb-nav li a.active{background:var(--panel);color:var(--cream);}
+    .sb-nav li a.active{color:var(--amber);}
+    .sb-nav li a i{font-size:15px;width:18px;text-align:center;}
+    .sb-footer{margin-top:auto;padding:16px 24px;border-top:1px solid var(--line);}
+    .sb-user{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+    .sb-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--amber-d),var(--amber));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--ink);overflow:hidden;flex-shrink:0;}
+    .sb-avatar img{width:100%;height:100%;object-fit:cover;}
+    .sb-user-name{font-size:13px;font-weight:500;color:var(--cream);}
+    .sb-user-role{font-size:11px;color:var(--mid);margin-top:1px;}
+    .sb-logout{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mid);text-decoration:none;padding:8px 10px;border-radius:7px;transition:background 150ms,color 150ms;}
+    .sb-logout:hover{background:var(--panel);color:var(--red);}
+
+    .main{margin-left:240px;flex:1;min-height:100vh;padding:36px 40px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
+    .topbar-title{font-family:var(--ff-head);font-size:26px;color:var(--cream);}
+    .topbar-sub{font-size:13px;color:var(--mid);margin-top:4px;}
+
+    /* Filtros */
+    .filter-bar{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;}
+    .filter-btn{padding:8px 16px;border-radius:8px;font-family:var(--ff-body);font-size:13px;font-weight:500;cursor:pointer;text-decoration:none;border:1.5px solid var(--line);color:var(--soft);background:var(--panel);transition:background 150ms,color 150ms,border-color 150ms;}
+    .filter-btn:hover,.filter-btn.active{border-color:var(--amber-d);color:var(--amber);background:var(--amber-g);}
+
+    /* Table */
+    .table-wrap{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+    .table-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--line);}
+    .table-title{font-family:var(--ff-head);font-size:18px;color:var(--cream);display:flex;align-items:center;gap:8px;}
+    .table-title i{font-size:15px;color:var(--amber);}
+    .count-badge{font-size:12px;font-weight:600;color:var(--amber);background:var(--amber-g);padding:3px 10px;border-radius:20px;}
+    table{width:100%;border-collapse:collapse;}
+    thead tr{background:var(--ink-3);}
+    thead th{padding:12px 16px;text-align:left;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mid);}
+    tbody tr{border-top:1px solid var(--line);transition:background 150ms;}
+    tbody tr:hover{background:rgba(255,255,255,.02);}
+    tbody td{padding:14px 16px;font-size:14px;color:var(--soft);}
+    tbody td.nome{color:var(--cream);font-weight:500;}
+
+    .pedido-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:5px;letter-spacing:.04em;}
+    .badge-PENDENTE{background:var(--amber-g);color:var(--amber);}
+    .badge-ACEITE{background:var(--green-g);color:var(--green);}
+    .badge-REJEITADO{background:var(--red-g);color:var(--red);}
+    .badge-CANCELADO{background:rgba(107,117,132,.15);color:var(--soft);}
+    .badge-AGUARDANDO_PAGAMENTO,.badge-AGUARDANDO_APROVACAO{background:var(--blue-g);color:var(--blue);}
+
+    .empty-state{text-align:center;padding:48px;font-size:14px;color:var(--mid);}
+    .empty-state i{font-size:32px;display:block;margin-bottom:12px;}
+  </style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-icon"><i class="bi bi-shield-fill"></i></div>
+    <div>
+      <div class="sb-brand-text">SGPA</div>
+      <div class="sb-brand-badge">Admin</div>
+    </div>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Principal</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+    </ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Utilizadores</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
+      <li><a href="/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
+    </ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Transacções</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/vendas" class="active"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
+    </ul>
+  </div>
+  <div class="sb-section">
+    <div class="sb-section-label">Conta</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/perfil"><i class="bi bi-person-circle"></i> Editar Perfil</a></li>
+      <li><a href="/admin/historico"><i class="bi bi-clock-history"></i> Histórico</a></li>
+    </ul>
+  </div>
+
+  <div th:if="${isSuperAdmin}" class="sb-section">
+    <div class="sb-section-label">Sistema</div>
+    <ul class="sb-nav">
+      <li><a href="/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li>
+    </ul>
+  </div>
+
+  <div class="sb-footer">
+    <div class="sb-user">
+      <div class="sb-avatar">
+        <img th:if="${adminFoto != null}" th:src="${adminFoto}" alt="Foto"/>
+        <span th:unless="${adminFoto != null}" th:text="${nomeAdmin != null ? nomeAdmin.substring(0,1).toUpperCase() : 'A'}">A</span>
+      </div>
+      <div>
+        <div class="sb-user-name" th:text="${nomeAdmin}">Administrador</div>
+        <div class="sb-user-role">Super Admin</div>
+      </div>
+    </div>
+    <a href="/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">Vendas e Pedidos</div>
+      <div class="topbar-sub">Todos os pedidos realizados na plataforma</div>
+    </div>
+  </div>
+
+  <!-- Filtros por estado -->
+  <div class="filter-bar">
+    <a href="/admin/vendas" th:classappend="${estadoFiltro == null || estadoFiltro == ''} ? 'active' : ''" class="filter-btn">
+      <i class="bi bi-list-ul"></i> Todos
+    </a>
+    <a href="/admin/vendas?estado=PENDENTE" th:classappend="${estadoFiltro == 'PENDENTE'} ? 'active' : ''" class="filter-btn">
+      <i class="bi bi-hourglass-split"></i> Pendentes
+    </a>
+    <a href="/admin/vendas?estado=ACEITE" th:classappend="${estadoFiltro == 'ACEITE'} ? 'active' : ''" class="filter-btn">
+      <i class="bi bi-check-circle"></i> Aceites
+    </a>
+    <a href="/admin/vendas?estado=AGUARDANDO_PAGAMENTO" th:classappend="${estadoFiltro == 'AGUARDANDO_PAGAMENTO'} ? 'active' : ''" class="filter-btn">
+      <i class="bi bi-credit-card"></i> Aguardando Pagamento
+    </a>
+    <a href="/admin/vendas?estado=REJEITADO" th:classappend="${estadoFiltro == 'REJEITADO'} ? 'active' : ''" class="filter-btn">
+      <i class="bi bi-x-circle"></i> Rejeitados
+    </a>
+    <a href="/admin/vendas?estado=CANCELADO" th:classappend="${estadoFiltro == 'CANCELADO'} ? 'active' : ''" class="filter-btn">
+      <i class="bi bi-slash-circle"></i> Cancelados
+    </a>
+  </div>
+
+  <div class="table-wrap">
+    <div class="table-header">
+      <div class="table-title"><i class="bi bi-receipt-cutoff"></i> Pedidos</div>
+      <span class="count-badge" th:text="${pedidos.size()} + ' pedidos'">0 pedidos</span>
+    </div>
+
+    <div th:if="${#lists.isEmpty(pedidos)}" class="empty-state">
+      <i class="bi bi-inbox"></i>
+      Nenhum pedido encontrado para este filtro.
+    </div>
+
+    <table th:if="${!#lists.isEmpty(pedidos)}">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Comprador</th>
+          <th>Produto (Oferta)</th>
+          <th>Produtor</th>
+          <th>Quantidade</th>
+          <th>Data</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="pedido : ${pedidos}">
+          <td th:text="${pedido.id}">#</td>
+          <td class="nome" th:text="${pedido.comprador?.nomeCompleto ?: '-'}">Comprador</td>
+          <td th:text="${pedido.oferta?.nomeProduto ?: '-'}">Produto</td>
+          <td th:text="${pedido.oferta?.produtor?.nomeCompleto ?: '-'}">Produtor</td>
+          <td th:text="${pedido.quantidade != null ? pedido.quantidade + ' ' + (pedido.oferta?.unidade ?: '') : '-'}">Qtd</td>
+          <td th:text="${pedido.dataPedido != null ? #temporals.format(pedido.dataPedido,'dd/MM/yyyy') : '-'}">Data</td>
+          <td>
+            <span class="pedido-badge"
+                  th:classappend="'badge-' + ${pedido.estado?.name() ?: 'PENDENTE'}"
+                  th:text="${pedido.estado?.name() ?: '-'}">Estado</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+</body>
+</html>

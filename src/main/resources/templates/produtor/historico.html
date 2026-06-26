@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Histórico de Vendas – SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/style.css}"/>
+  <style>
+    /* ── BOTÃO VER DETALHES ── */
+    .btn-detalhes {
+      background: #f0fdf4;
+      color: #15803d;
+      border: 1.5px solid #86efac;
+      padding: .3rem .85rem;
+      border-radius: 8px;
+      font-size: .78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      transition: all .18s;
+      white-space: nowrap;
+    }
+    .btn-detalhes:hover { background: #dcfce7; border-color: #16a34a; color: #166534; }
+
+    /* ── MODAL DETALHES ── */
+    .modal-detalhes-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 1050;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-detalhes-overlay.aberto { display: flex; }
+    .modal-detalhes-box {
+      background: #fff;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 8px 40px rgba(0,0,0,.22);
+      animation: modalEntra .22s ease;
+    }
+    @keyframes modalEntra { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+    .modal-header-det {
+      background: linear-gradient(135deg, #16a34a, #166534);
+      color: #fff;
+      padding: 1.1rem 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .modal-header-det h6 { margin: 0; font-size: 1rem; font-weight: 800; display: flex; align-items: center; gap: .5rem; }
+    .modal-close {
+      background: rgba(255,255,255,.18);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background .15s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,.35); }
+
+    .modal-body-det { padding: 1.3rem 1.4rem; }
+
+    .det-section { margin-bottom: 1.1rem; }
+    .det-section-title {
+      font-size: .72rem;
+      font-weight: 800;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: .55rem;
+      padding-bottom: .3rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .det-row {
+      display: flex;
+      align-items: flex-start;
+      gap: .5rem;
+      padding: .35rem 0;
+      font-size: .87rem;
+    }
+    .det-row i { color: #16a34a; font-size: .95rem; flex-shrink: 0; margin-top: .05rem; }
+    .det-label { color: #6b7280; min-width: 130px; flex-shrink: 0; }
+    .det-val { color: #1a1d23; font-weight: 700; word-break: break-all; }
+
+    .pagamento-box {
+      background: #f0fdf4;
+      border: 1.5px solid #86efac;
+      border-radius: 12px;
+      padding: .85rem 1rem;
+      margin-top: .3rem;
+    }
+    .pagamento-box-title {
+      font-size: .78rem;
+      font-weight: 800;
+      color: #15803d;
+      margin-bottom: .5rem;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .pagamento-frase {
+      background: #dcfce7;
+      border-radius: 8px;
+      padding: .45rem .75rem;
+      font-size: .85rem;
+      color: #166534;
+      font-weight: 700;
+      margin-bottom: .5rem;
+      line-height: 1.5;
+    }
+    .sem-pagamento {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: .7rem 1rem;
+      font-size: .83rem;
+      color: #9ca3af;
+      text-align: center;
+      margin-top: .3rem;
+    }
+  </style>
+</head>
+<body class="dashboard-body">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+      <img src="/images/logo.png" alt="Logo SGPA" class="logo-sm">
+      <span class="brand-text">SGPA</span>
+    </a>
+  </div>
+  <div class="sidebar-user px-3 py-3 border-bottom border-white border-opacity-10">
+    <div class="d-flex align-items-center gap-2">
+      <div class="avatar-circle" style="overflow:hidden;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#d1fae5,#a7f3d0);display:flex;align-items:center;justify-content:center;">
+        <img th:if="${produtor != null and produtor.fotoPerfil != null and !#strings.isEmpty(produtor.fotoPerfil)}"
+             th:src="${produtor.fotoPerfil}" alt="Foto"
+             style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>
+        <i th:if="${produtor == null or produtor.fotoPerfil == null or #strings.isEmpty(produtor.fotoPerfil)}"
+           class="bi bi-person-fill" style="color:#16a34a;"></i>
+      </div>
+      <div>
+        <div class="text-white fw-semibold small" th:text="${produtor != null ? produtor.nomeCompleto : 'Produtor'}"></div>
+        <div class="text-white opacity-50 small">Produtor</div>
+      </div>
+    </div>
+  </div>
+  <nav class="sidebar-nav mt-2">
+    <a th:href="@{/produtor/dashboard}" class="sidebar-link"><i class="bi bi-house-door-fill"></i> Visão Geral</a>
+    <a th:href="@{/produtor/publicar-oferta}" class="sidebar-link"><i class="bi bi-plus-square-fill"></i> Publicar Oferta</a>
+    <a th:href="@{/produtor/minhas-ofertas}" class="sidebar-link"><i class="bi bi-collection-fill"></i> Minhas Ofertas</a>
+    <a th:href="@{/produtor/pedidos}" class="sidebar-link"><i class="bi bi-clipboard2-check-fill"></i> Pedidos Recebidos</a>
+    <a th:href="@{/produtor/historico}" class="sidebar-link active"><i class="bi bi-bar-chart-line-fill"></i> Histórico de Vendas</a>
+    <a th:href="@{/produtor/editar-perfil(id=${produtor != null ? produtor.id : ''})}" class="sidebar-link"><i class="bi bi-person-gear"></i> Editar Perfil</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a th:href="@{/logout}" class="sidebar-link text-danger-light"><i class="bi bi-box-arrow-left"></i> Sair</a>
+  </div>
+</div>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<!-- MAIN -->
+<div class="main-content" id="mainContent">
+  <div class="topbar d-flex align-items-center justify-content-between px-4">
+    <div class="d-flex align-items-center gap-3">
+      <button class="mobile-toggle" onclick="toggleSidebar()" title="Menu"><i class="bi bi-list"></i></button>
+      <h6 class="mb-0 fw-semibold text-dark"><i class="bi bi-bar-chart-line-fill me-2 text-accent"></i>Histórico de Vendas</h6>
+    </div>
+    <span class="badge" style="background:var(--green-pale);color:var(--green-dark);font-size:.72rem;">Produtor</span>
+  </div>
+
+  <div class="content-area p-4">
+    <div class="page-card">
+      <div class="page-card-header">
+        <h5><i class="bi bi-clock-history me-2"></i>Todas as Vendas</h5>
+        <span class="badge" style="background:rgba(255,255,255,.2);color:#fff;font-size:.75rem;border-radius:20px;padding:4px 12px;"
+              th:text="${historicoVendas != null ? #lists.size(historicoVendas) : 0} + ' registo(s)'"></span>
+      </div>
+      <div class="filter-bar">
+        <div class="filter-search-wrap">
+          <span class="search-icon"><i class="bi bi-search"></i></span>
+          <input type="text" id="searchInput" oninput="filterTable()" placeholder="Pesquisar produto ou comprador..."/>
+        </div>
+        <select class="form-select" style="width:auto;" id="filterEstado" onchange="filterTable()">
+          <option value="">Todos os estados</option>
+          <option value="ACEITE">Aceite</option>
+          <option value="PENDENTE">Pendente</option>
+          <option value="REJEITADO">Rejeitado</option>
+          <option value="CANCELADO">Cancelado</option>
+        </select>
+      </div>
+      <div class="table-wrapper">
+        <table class="table" id="tabelaHistorico">
+          <thead>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Produto</th>
+              <th>Comprador</th>
+              <th>Quantidade</th>
+              <th>Valor Total</th>
+              <th>Data</th>
+              <th>Estado</th>
+              <th style="width:130px"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="pedido, iStat : ${historicoVendas}"
+                th:with="tx=${transacaoPorPedido != null ? transacaoPorPedido[pedido.id] : null}"
+                th:attr="data-produto=${pedido.oferta != null ? pedido.oferta.nomeProduto : ''},data-comprador=${pedido.comprador != null ? pedido.comprador.nomeCompleto : ''},data-estado=${pedido.estado}">
+
+              <td style="color:#9ca3af;" th:text="${iStat.count}"></td>
+              <td><div class="prod-name" th:text="${pedido.oferta != null ? pedido.oferta.nomeProduto : '—'}"></div></td>
+              <td th:text="${pedido.comprador != null ? pedido.comprador.nomeCompleto : '—'}"></td>
+              <td>
+                <span th:if="${pedido.quantidade != null}" th:text="${pedido.quantidade}"></span>
+                <span th:if="${pedido.oferta != null}" class="text-muted small" th:text="' ' + ${pedido.oferta.unidade}"></span>
+                <span th:if="${pedido.quantidade == null}">—</span>
+              </td>
+              <td class="price">
+                <span th:if="${pedido.quantidade != null and pedido.oferta != null and pedido.oferta.preco != null}"
+                      th:text="'MT ' + ${#numbers.formatDecimal(pedido.quantidade.multiply(pedido.oferta.preco),1,'POINT',2,'COMMA')}"></span>
+                <span th:if="${pedido.quantidade == null or pedido.oferta == null or pedido.oferta.preco == null}">—</span>
+              </td>
+              <td>
+                <span th:if="${pedido.dataPedido != null}" th:text="${#temporals.format(pedido.dataPedido,'dd/MM/yyyy')}"></span>
+                <span th:if="${pedido.dataPedido == null}">—</span>
+              </td>
+              <td>
+                <span th:class="${pedido.estado != null and pedido.estado.name() == 'ACEITE'} ? 'badge bg-success' : (${pedido.estado != null and pedido.estado.name() == 'REJEITADO'} ? 'badge bg-danger' : (${pedido.estado != null and pedido.estado.name() == 'CANCELADO'} ? 'badge bg-secondary' : 'badge bg-warning text-dark'))"
+                      th:text="${pedido.estado != null ? (pedido.estado.name() == 'CANCELADO' ? '⊘ Cancelado' : pedido.estado) : 'SEM ESTADO'}"></span>
+              </td>
+
+              <!-- BOTÃO VER DETALHES -->
+              <td>
+                <button class="btn-detalhes"
+                  th:data-nome="${pedido.comprador != null ? pedido.comprador.nomeCompleto : '—'}"
+                  th:data-telefone="${pedido.comprador != null and pedido.comprador.telefone != null ? pedido.comprador.telefone : '—'}"
+                  th:data-email="${pedido.comprador != null and pedido.comprador.email != null ? pedido.comprador.email : '—'}"
+                  th:data-local="${pedido.comprador != null and pedido.comprador.bairros != null ? pedido.comprador.bairros.nome : '—'}"
+                  th:data-produto="${pedido.oferta != null ? pedido.oferta.nomeProduto : '—'}"
+                  th:data-categoria="${pedido.oferta != null ? pedido.oferta.categoria : '—'}"
+                  th:data-quantidade="${pedido.quantidade != null ? pedido.quantidade : '—'}"
+                  th:data-unidade="${pedido.oferta != null ? pedido.oferta.unidade : ''}"
+                  th:data-total="${pedido.quantidade != null and pedido.oferta != null and pedido.oferta.preco != null ? #numbers.formatDecimal(pedido.quantidade.multiply(pedido.oferta.preco),1,2) : '—'}"
+                  th:data-data="${pedido.dataPedido != null ? #temporals.format(pedido.dataPedido,'dd/MM/yyyy HH:mm') : '—'}"
+                  th:data-dataresposta="${pedido.dataResposta != null ? #temporals.format(pedido.dataResposta,'dd/MM/yyyy HH:mm') : '—'}"
+                  th:data-estado="${pedido.estado != null ? pedido.estado.name() : '—'}"
+                  th:data-operadora="${tx != null ? tx.operadora.name() : ''}"
+                  th:data-referencia="${tx != null and tx.referencia != null ? tx.referencia : '—'}"
+                  th:data-motivo="${pedido.motivoRejeicao != null ? pedido.motivoRejeicao : ''}"
+                  onclick="abrirDetalhes(this)">
+                  <i class="bi bi-eye-fill"></i> Ver Detalhes
+                </button>
+              </td>
+            </tr>
+
+            <tr th:if="${historicoVendas == null or #lists.isEmpty(historicoVendas)}">
+              <td colspan="8">
+                <div class="empty-state"><i class="bi bi-graph-up"></i> Nenhuma venda registada ainda.</div>
+              </td>
+            </tr>
+            <tr id="emptyFilter" style="display:none;">
+              <td colspan="8">
+                <div class="empty-state"><i class="bi bi-funnel"></i> Nenhum resultado para os filtros aplicados.</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-footer">
+        <span id="totalInfo" class="text-muted small"></span>
+        <a th:href="@{/produtor/dashboard}" class="btn-voltar"><i class="bi bi-arrow-left me-1"></i> Voltar ao Dashboard</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL DETALHES ═══════════════ -->
+<div class="modal-detalhes-overlay" id="modalDetalhes" onclick="fecharModalFora(event)">
+  <div class="modal-detalhes-box">
+
+    <div class="modal-header-det">
+      <h6><i class="bi bi-receipt-cutoff"></i> Detalhes da Venda</h6>
+      <button class="modal-close" onclick="fecharModal()"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <div class="modal-body-det">
+
+      <!-- DADOS DO COMPRADOR -->
+      <div class="det-section">
+        <div class="det-section-title"><i class="bi bi-person-fill me-1"></i> Dados do Comprador</div>
+        <div class="det-row">
+          <i class="bi bi-person-fill"></i>
+          <span class="det-label">Nome completo</span>
+          <span class="det-val" id="d-nome">—</span>
+        </div>
+        <div class="det-row">
+          <i class="bi bi-telephone-fill"></i>
+          <span class="det-label">Telefone</span>
+          <span class="det-val" id="d-telefone">—</span>
+        </div>
+        <div class="det-row">
+          <i class="bi bi-envelope-fill"></i>
+          <span class="det-label">Email</span>
+          <span class="det-val" id="d-email">—</span>
+        </div>
+        <div class="det-row">
+          <i class="bi bi-geo-alt-fill"></i>
+          <span class="det-label">Localização</span>
+          <span class="det-val" id="d-local">—</span>
+        </div>
+      </div>
+
+      <!-- DADOS DO PEDIDO -->
+      <div class="det-section">
+        <div class="det-section-title"><i class="bi bi-box-seam me-1"></i> Dados do Pedido</div>
+        <div class="det-row">
+          <i class="bi bi-box-seam-fill"></i>
+          <span class="det-label">Produto</span>
+          <span class="det-val" id="d-produto">—</span>
+        </div>
+        <div class="det-row">
+          <i class="bi bi-tag-fill"></i>
+          <span class="det-label">Categoria</span>
+          <span class="det-val" id="d-categoria">—</span>
+        </div>
+        <div class="det-row">
+          <i class="bi bi-stack"></i>
+          <span class="det-label">Quantidade</span>
+          <span class="det-val" id="d-quantidade">—</span>
+        </div>
+        <div class="det-row">
+          <i class="bi bi-cash-stack"></i>
+          <span class="det-label">Total pago</span>
+          <span class="det-val" id="d-total">—</span>
+        </div>
+        <div class="det-row">
+          <i class="bi bi-calendar3"></i>
+          <span class="det-label">Data do pedido</span>
+          <span class="det-val" id="d-data">—</span>
+        </div>
+        <div class="det-row">
+          <i class="bi bi-calendar-check-fill"></i>
+          <span class="det-label">Data de resposta</span>
+          <span class="det-val" id="d-dataResposta">—</span>
+        </div>
+        <div class="det-row">
+          <i class="bi bi-flag-fill"></i>
+          <span class="det-label">Estado</span>
+          <span id="d-estado-badge">—</span>
+        </div>
+      </div>
+
+      <!-- PAGAMENTO -->
+      <div class="det-section">
+        <div class="det-section-title"><i class="bi bi-credit-card-fill me-1"></i> Pagamento</div>
+        <div id="pagamento-content"></div>
+      </div>
+
+      <!-- REJEIÇÃO -->
+      <div class="det-section" id="secao-rejeicao" style="display:none;">
+        <div class="det-section-title" style="color:#dc2626;"><i class="bi bi-x-circle-fill me-1"></i> Motivo da Rejeição</div>
+        <div id="d-motivo" style="font-size:.87rem;color:#5a0000;background:#fff3f3;border-radius:8px;padding:.6rem .9rem;"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('show');
+  var o = document.getElementById('sidebarOverlay'); if(o) o.classList.toggle('active');
+}
+
+function filterTable() {
+  var s = (document.getElementById('searchInput').value||'').toLowerCase();
+  var e = (document.getElementById('filterEstado').value||'').toUpperCase();
+  var rows = document.querySelectorAll('#tabelaHistorico tbody tr[data-produto]');
+  var v = 0;
+  rows.forEach(function(r){
+    var show = (!s||(r.dataset.produto||'').toLowerCase().includes(s)||(r.dataset.comprador||'').toLowerCase().includes(s)) && (!e||(r.dataset.estado||'').toUpperCase()===e);
+    r.style.display = show?'':'none'; if(show) v++;
+  });
+  var ef=document.getElementById('emptyFilter'); if(ef) ef.style.display=(v===0&&rows.length>0)?'':'none';
+  var ti=document.getElementById('totalInfo'); if(ti) ti.textContent=v+' registo(s) encontrado(s)';
+}
+
+// ── MODAL DETALHES (lê os data-* do botão) ────────────────────────────
+function abrirDetalhes(btn) {
+  var d = btn.dataset;
+
+  setText('d-nome',         d.nome);
+  setText('d-telefone',     d.telefone);
+  setText('d-email',        d.email);
+  setText('d-local',        d.local);
+  setText('d-produto',      d.produto);
+  setText('d-categoria',    d.categoria);
+  setText('d-quantidade',   d.quantidade + (d.unidade ? ' ' + d.unidade : ''));
+  setText('d-total',        d.total !== '—' ? d.total + ' MT' : '—');
+  setText('d-data',         d.data);
+  setText('d-dataResposta', d.dataresposta !== '—' ? d.dataresposta : 'Sem resposta ainda');
+
+  // Badge de estado
+  var badgeEl  = document.getElementById('d-estado-badge');
+  var badgeCls = { ACEITE:'badge bg-success', REJEITADO:'badge bg-danger',
+                   CANCELADO:'badge bg-secondary', PENDENTE:'badge bg-warning text-dark',
+                   AGUARDANDO_PAGAMENTO:'badge bg-primary' };
+  var badgeTxt = { ACEITE:'✓ Aceite', REJEITADO:'✗ Rejeitado',
+                   CANCELADO:'⊘ Cancelado', PENDENTE:'Pendente',
+                   AGUARDANDO_PAGAMENTO:'Aguardando Pagamento' };
+  var estado = d.estado || '—';
+  badgeEl.className   = badgeCls[estado] || 'badge bg-secondary';
+  badgeEl.textContent = badgeTxt[estado] || estado;
+
+  // Secção de pagamento
+  var pagDiv   = document.getElementById('pagamento-content');
+  var operadora = d.operadora || '';
+  var referencia = d.referencia || '—';
+
+  if (operadora) {
+    var nomeOp = { MPESA:'M-Pesa', EMOLA:'e-Mola', MKESH:'Mkesh',
+                   OUTROS:'Outros (Banco/Transferência)' }[operadora] || operadora;
+    var iconeOp = { MPESA:'<i class="bi bi-phone-fill" style="color:#e30613;"></i>',
+                    EMOLA:'<i class="bi bi-phone-fill" style="color:#f7941d;"></i>',
+                    MKESH:'<i class="bi bi-phone-fill" style="color:#00529b;"></i>',
+                    OUTROS:'<i class="bi bi-bank2" style="color:#555;"></i>' }[operadora]
+                    || '<i class="bi bi-credit-card-fill"></i>';
+
+    pagDiv.innerHTML =
+      '<div class="pagamento-box">' +
+        '<div class="pagamento-box-title">' + iconeOp + ' Pagamento confirmado pelo comprador</div>' +
+        '<div class="pagamento-frase">' +
+          '<i class="bi bi-phone-fill me-1"></i>' +
+          'Foi pago pelo número <strong>' + referencia + '</strong> via <strong>' + nomeOp + '</strong>' +
+        '</div>' +
+        '<div class="det-row" style="padding:.25rem 0;">' +
+          '<i class="bi bi-phone-fill" style="color:#16a34a;"></i>' +
+          '<span class="det-label">Número usado</span>' +
+          '<span class="det-val">' + referencia + '</span>' +
+        '</div>' +
+        '<div class="det-row" style="padding:.25rem 0;">' +
+          '<i class="bi bi-credit-card-fill" style="color:#16a34a;"></i>' +
+          '<span class="det-label">Método</span>' +
+          '<span class="det-val">' + nomeOp + '</span>' +
+        '</div>' +
+      '</div>';
+  } else {
+    var msgSem = estado === 'ACEITE'               ? 'Sem registo de transação associado.' :
+                 estado === 'PENDENTE'              ? 'Pedido ainda pendente de resposta.' :
+                 estado === 'AGUARDANDO_PAGAMENTO'  ? 'Aguardando confirmação de pagamento pelo comprador.' :
+                 estado === 'REJEITADO'             ? 'Pedido rejeitado, sem pagamento.' :
+                                                     'Sem dados de pagamento.';
+    pagDiv.innerHTML =
+      '<div class="sem-pagamento"><i class="bi bi-clock me-1"></i>' + msgSem + '</div>';
+  }
+
+  // Motivo de rejeição
+  var secRej = document.getElementById('secao-rejeicao');
+  if (estado === 'REJEITADO' && d.motivo && d.motivo.trim() !== '') {
+    secRej.style.display = '';
+    setText('d-motivo', d.motivo);
+  } else {
+    secRej.style.display = 'none';
+  }
+
+  document.getElementById('modalDetalhes').classList.add('aberto');
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharModal() {
+  document.getElementById('modalDetalhes').classList.remove('aberto');
+  document.body.style.overflow = '';
+}
+
+function fecharModalFora(e) {
+  if (e.target === document.getElementById('modalDetalhes')) fecharModal();
+}
+
+function setText(id, val) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = (val && val !== 'null') ? val : '—';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') fecharModal();
+});
+</script>
+</body>
+</html>
