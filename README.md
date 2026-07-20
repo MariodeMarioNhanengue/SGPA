@@ -112,7 +112,7 @@ spring.datasource.password=SUA_SENHA_AQUI
 server.port=8010
 
 
-> ⚠️ **Importante:** Não envie as suas credenciais reais para um repositório público. Use variáveis de ambiente em produção.
+
 
 ### 4. Executar o projecto
 bash
