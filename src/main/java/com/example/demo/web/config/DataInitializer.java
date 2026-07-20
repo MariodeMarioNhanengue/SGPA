@@ -11,6 +11,7 @@ import com.example.demo.web.repository.AdminRepository;
 import com.example.demo.web.repository.BairroRepository;
 import com.example.demo.web.repository.DistritoRepository;
 import com.example.demo.web.repository.ProvinciaRepository;
+import com.example.demo.web.service.PasswordEncoderService;
 
 /**
  * Popula automaticamente a base de dados com os dados geográficos
@@ -24,15 +25,18 @@ public class DataInitializer implements CommandLineRunner {
     private final DistritoRepository distritoRepo;
     private final BairroRepository bairroRepo;
     private final AdminRepository adminRepo;
+    private final PasswordEncoderService passwordEncoderService;
 
     public DataInitializer(ProvinciaRepository provinciaRepo,
                            DistritoRepository distritoRepo,
                            BairroRepository bairroRepo,
-                           AdminRepository adminRepo) {
+                           AdminRepository adminRepo,
+                           PasswordEncoderService passwordEncoderService) {
         this.provinciaRepo = provinciaRepo;
         this.distritoRepo  = distritoRepo;
         this.bairroRepo    = bairroRepo;
         this.adminRepo     = adminRepo;
+        this.passwordEncoderService = passwordEncoderService;
     }
 
     @Override
@@ -45,7 +49,7 @@ public class DataInitializer implements CommandLineRunner {
             admin.setNome("Super");
             admin.setApelido("Admin");
             admin.setEmail("admin@sgpa.mz");
-            admin.setSenha("admin123");
+            admin.setSenha(passwordEncoderService.encode("admin123"));
             admin.setSuperAdmin(true);
             adminRepo.save(admin);
             System.out.println(">>> [DataInitializer] SuperAdmin padrão criado: admin@sgpa.mz / admin123");

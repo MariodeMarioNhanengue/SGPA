@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recuperar senha – SGPA</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-900: #0a1f14; --green-700: #1a3d28; --green-500: #2d6a4f;
+      --green-300: #52b788; --cream: #f5f0e8; --warm-white:#fdfcf9;
+      --text-dark: #0e1e16; --text-mid: #3d5a47; --text-soft: #7a9a85;
+      --gold: #c9a84c; --error: #c0392b; --error-bg: #fff0ee;
+      --success: #1a3d28; --success-bg: #e9f5ee;
+      --ff-display: 'Cormorant Garamond', Georgia, serif;
+      --ff-body: 'Outfit', system-ui, sans-serif;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--ff-body);
+      background: radial-gradient(ellipse 120% 80% at -10% 110%, rgba(82,183,136,.25) 0%, transparent 55%),
+                  radial-gradient(ellipse 80% 60% at 110% -10%, rgba(201,168,76,.12) 0%, transparent 50%),
+                  linear-gradient(160deg, var(--green-900) 0%, var(--green-700) 100%);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: var(--warm-white);
+      border-radius: 20px;
+      padding: 44px 40px;
+      max-width: 420px; width: 100%;
+      box-shadow: 0 30px 60px rgba(0,0,0,.35);
+    }
+    .back { display:inline-flex; align-items:center; gap:6px; color: var(--text-soft); text-decoration:none; font-size:.85rem; margin-bottom: 24px; }
+    .back:hover { color: var(--green-500); }
+    h1 { font-family: var(--ff-display); font-weight: 600; font-size: 1.9rem; color: var(--text-dark); margin-bottom: 8px; }
+    p.sub { color: var(--text-mid); font-size: .92rem; margin-bottom: 28px; line-height: 1.5; }
+    label { display:block; font-size: .82rem; font-weight: 600; color: var(--text-mid); margin-bottom: 6px; }
+    .field { position:relative; margin-bottom: 22px; }
+    .field i { position:absolute; left:14px; top:50%; transform:translateY(-50%); color: var(--text-soft); }
+    input {
+      width:100%; padding: 12px 14px 12px 40px; border-radius: 10px;
+      border: 1.5px solid #e3ddd0; font-family: var(--ff-body); font-size: .95rem;
+      background: var(--cream); color: var(--text-dark); outline: none;
+      transition: border-color .2s;
+    }
+    input:focus { border-color: var(--green-500); }
+    button {
+      width:100%; padding: 13px; border:none; border-radius: 10px;
+      background: linear-gradient(135deg, var(--green-500), var(--green-700));
+      color:#fff; font-family: var(--ff-body); font-weight: 600; font-size: .95rem;
+      cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+    }
+    button:hover { filter: brightness(1.08); }
+    .alert { display:flex; gap:10px; align-items:flex-start; padding: 12px 14px; border-radius: 10px; font-size: .85rem; margin-bottom: 20px; }
+    .alert-erro { background: var(--error-bg); color: var(--error); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <a href="/login" class="back"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
+    <h1>Esqueceu-se da senha?</h1>
+    <p class="sub">Indique o email da sua conta. Se existir uma conta registada com esse email, enviamos-lhe um link para escolher uma nova senha.</p>
+
+    <div th:if="${erro}" class="alert alert-erro">
+      <i class="bi bi-exclamation-circle-fill"></i>
+      <span th:text="${erro}"></span>
+    </div>
+
+    <form th:action="@{/recuperar-senha}" method="post">
+      <div class="field">
+        <label for="emailInput">Email</label>
+        <i class="bi bi-envelope"></i>
+        <input type="email" id="emailInput" name="email" placeholder="seuemail@exemplo.com" required autofocus/>
+      </div>
+      <button type="submit"><i class="bi bi-send"></i> Enviar link de recuperação</button>
+    </form>
+  </div>
+</body>
+</html>

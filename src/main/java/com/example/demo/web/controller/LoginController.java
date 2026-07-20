@@ -6,24 +6,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.demo.web.domain.Comprador;
-import com.example.demo.web.domain.Produtor;
-import com.example.demo.web.repository.CompradorRepository;
-import com.example.demo.web.repository.ProdutorRepository;
+import com.example.demo.web.service.AuthService;
+import com.example.demo.web.service.AuthService.ResultadoLogin;
 
 import jakarta.servlet.http.HttpSession;
-import java.time.LocalDateTime;
 
 @Controller
 public class LoginController {
 
-    private final ProdutorRepository produtorRepository;
-    private final CompradorRepository compradorRepository;
+    private final AuthService authService;
 
-    public LoginController(ProdutorRepository produtorRepository,
-                           CompradorRepository compradorRepository) {
-        this.produtorRepository = produtorRepository;
-        this.compradorRepository = compradorRepository;
+    public LoginController(AuthService authService) {
+        this.authService = authService;
     }
 
     @GetMapping("/login")
@@ -40,32 +34,26 @@ public class LoginController {
             HttpSession session,
             Model model) {
 
-        // Tentar login como Produtor
-        var produtor = produtorRepository.findByEmail(email);
-        if (produtor.isPresent()) {
-            Produtor p = produtor.get();
-            if (p.getSenha() != null && p.getSenha().equals(senha)) {
-                p.setUltimoAcesso(LocalDateTime.now());
-                produtorRepository.save(p);
-                session.setAttribute("loggedInType", "PRODUTOR");
-                session.setAttribute("loggedInId", p.getId());
-                session.setAttribute("loggedInNome", p.getNomeCompleto());
-                return "redirect:/produtor/dashboard?id=" + p.getId();
-            }
+        ResultadoLogin resultado = authService.autenticar(email, senha, session);
+
+        if (resultado.sucesso()) {
+            return switch (resultado.tipo()) {
+                case PRODUTOR -> "redirect:/produtor/dashboard?id=" + resultado.id();
+                case COMPRADOR -> "redirect:/comprador/dashboard?id=" + resultado.id();
+            };
         }
 
-        // Tentar login como Comprador
-        var comprador = compradorRepository.findByEmail(email);
-        if (comprador.isPresent()) {
-            Comprador c = comprador.get();
-            if (c.getSenha() != null && c.getSenha().equals(senha)) {
-                c.setUltimoAcesso(LocalDateTime.now());
-                compradorRepository.save(c);
-                session.setAttribute("loggedInType", "COMPRADOR");
-                session.setAttribute("loggedInId", c.getId());
-                session.setAttribute("loggedInNome", c.getNomeCompleto());
-                return "redirect:/comprador/dashboard?id=" + c.getId();
-            }
+        if (resultado.bloqueado()) {
+            model.addAttribute("erro", "Demasiadas tentativas falhadas. Tente novamente dentro de "
+                + resultado.minutosRestantes() + " minuto(s).");
+            model.addAttribute("emailValue", email);
+            return "login";
+        }
+
+        if (resultado.emailPorConfirmar()) {
+            model.addAttribute("emailPorConfirmar", true);
+            model.addAttribute("emailValue", resultado.emailNaoConfirmado());
+            return "login";
         }
 
         model.addAttribute("erro", "Email ou senha incorrectos. Verifique os seus dados.");
@@ -75,7 +63,7 @@ public class LoginController {
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate();
+        authService.logout(session);
         return "redirect:/";
     }
 }

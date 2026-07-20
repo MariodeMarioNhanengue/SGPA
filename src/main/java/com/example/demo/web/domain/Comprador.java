@@ -34,6 +34,9 @@ public class Comprador extends AbstractEntity<Long> {
     @Column(length = 100)
     private String senha;
 
+    @Column(name = "email_verificado")
+    private Boolean emailVerificado;
+
     @Column(length = 20, unique = true, nullable = true)
     private String nuit;
 
@@ -115,6 +118,14 @@ public class Comprador extends AbstractEntity<Long> {
 
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public Boolean getEmailVerificado() {
+        return emailVerificado;
+    }
+
+    public void setEmailVerificado(Boolean emailVerificado) {
+        this.emailVerificado = emailVerificado;
     }
 
     public String getFotoPerfil() {

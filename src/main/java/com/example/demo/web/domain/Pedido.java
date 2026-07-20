@@ -50,6 +50,12 @@ public class Pedido extends AbstractEntity<Long> {
     private String motivoRejeicao;
 
     // ======================
+    // JUSTIFICAÇÃO DE CANCELAMENTO (pelo comprador)
+    // ======================
+    @Column(name = "motivo_cancelamento", columnDefinition = "TEXT")
+    private String motivoCancelamento;
+
+    // ======================
     // NÚMERO DE PAGAMENTO DO PRODUTOR
     // (número que o produtor fornece ao comprador para efectuar a transação)
     // ======================
@@ -121,6 +127,14 @@ public enum EstadoPedido {
 
     public void setMotivoRejeicao(String motivoRejeicao) {
         this.motivoRejeicao = motivoRejeicao;
+    }
+
+    public String getMotivoCancelamento() {
+        return motivoCancelamento;
+    }
+
+    public void setMotivoCancelamento(String motivoCancelamento) {
+        this.motivoCancelamento = motivoCancelamento;
     }
 
     public String getNumeroPagamentoProdutor() {

@@ -232,6 +232,41 @@
 
     .lp-alert i { flex-shrink: 0; margin-top: 1px; }
 
+    .lp-alert-sucesso {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 12px 14px;
+      background: #e9f5ee;
+      border-left: 3px solid var(--green-500);
+      border-radius: 6px;
+      color: var(--green-700); font-size: 13px; line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .lp-forgot {
+      display: block; text-align: right;
+      font-size: 12.5px; color: var(--text-soft);
+      text-decoration: none; margin-top: -10px; margin-bottom: 22px;
+    }
+    .lp-forgot:hover { color: var(--green-500); text-decoration: underline; }
+
+    .lp-alert-aviso {
+      padding: 14px 16px;
+      background: #fff8e6;
+      border-left: 3px solid var(--gold);
+      border-radius: 6px;
+      color: #6b5416; font-size: 13px; line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .lp-alert-aviso strong { display: flex; align-items:center; gap: 8px; margin-bottom: 6px; }
+    .lp-resend-form { display: flex; gap: 8px; margin-top: 10px; }
+    .lp-resend-form input[type=hidden] { display:none; }
+    .lp-resend-btn {
+      border: none; background: var(--green-500); color:#fff;
+      font-size: 12px; font-weight: 600; padding: 7px 12px; border-radius: 6px;
+      cursor: pointer;
+    }
+    .lp-resend-btn:hover { background: var(--green-700); }
+
     .lp-field-group { margin-bottom: 18px; }
     .lp-field-group:last-of-type { margin-bottom: 28px; }
 
@@ -464,6 +499,20 @@
         <span th:text="${erro}"></span>
       </div>
 
+      <div th:if="${sucesso}" class="lp-alert-sucesso">
+        <i class="bi bi-check-circle-fill"></i>
+        <span th:text="${sucesso}"></span>
+      </div>
+
+      <div th:if="${emailPorConfirmar}" class="lp-alert-aviso">
+        <strong><i class="bi bi-envelope-exclamation-fill"></i> Confirme o seu email</strong>
+        A sua conta ainda não foi activada. Enviámos um link de confirmação para <span th:text="${emailValue}"></span> quando se registou.
+        <form th:action="@{/reenviar-confirmacao}" method="post" class="lp-resend-form">
+          <input type="hidden" name="email" th:value="${emailValue}"/>
+          <button type="submit" class="lp-resend-btn">Reenviar email de confirmação</button>
+        </form>
+      </div>
+
       <form th:action="@{/login}" method="post" id="loginForm" novalidate>
 
         <div class="lp-field-group">
@@ -492,6 +541,8 @@
             </button>
           </div>
         </div>
+
+        <a href="/recuperar-senha" class="lp-forgot">Esqueceu-se da senha?</a>
 
         <button type="submit" class="lp-btn" id="submitBtn">
           <i class="bi bi-box-arrow-in-right"></i>

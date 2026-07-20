@@ -252,19 +252,55 @@
           <div style="font-size:.82rem;color:#555;" th:if="${pedido.dataResposta != null}">
             Cancelado em <span th:text="${#temporals.format(pedido.dataResposta,'dd/MM/yyyy HH:mm')}"></span>
           </div>
+          <div style="font-size:.82rem;color:#5a0056;margin-top:.4rem;"
+               th:if="${pedido.motivoCancelamento != null and !#strings.isEmpty(pedido.motivoCancelamento)}">
+            <strong>Justificativa:</strong> <span th:text="${pedido.motivoCancelamento}"></span>
+          </div>
         </div>
 
         <!-- Botão de cancelar — só para pedidos PENDENTES -->
         <div th:if="${pedido.estado.name() == 'PENDENTE'}" style="margin-top:1rem;">
-          <form th:action="@{/comprador/cancelar-pedido/{id}(id=${pedido.id})}" method="post"
-                onsubmit="return confirm('Tem a certeza que quer cancelar este pedido?');">
-            <button type="submit"
-                    style="background:#6a1b9a;color:#fff;border:none;border-radius:8px;
-                           padding:.45rem 1.1rem;font-size:.82rem;font-weight:700;
-                           cursor:pointer;display:flex;align-items:center;gap:.4rem;">
-              <i class="bi bi-slash-circle"></i> Cancelar Pedido
-            </button>
-          </form>
+          <button type="button"
+                  data-bs-toggle="modal"
+                  th:data-bs-target="'#modalCancelar' + ${pedido.id}"
+                  style="background:#6a1b9a;color:#fff;border:none;border-radius:8px;
+                         padding:.45rem 1.1rem;font-size:.82rem;font-weight:700;
+                         cursor:pointer;display:flex;align-items:center;gap:.4rem;">
+            <i class="bi bi-slash-circle"></i> Cancelar Pedido
+          </button>
+
+          <!-- Modal de justificativa de cancelamento -->
+          <div class="modal fade" th:id="'modalCancelar' + ${pedido.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <div class="modal-content" style="border-radius:14px;">
+                <form th:action="@{/comprador/cancelar-pedido/{id}(id=${pedido.id})}" method="post">
+                  <div class="modal-header">
+                    <h5 class="modal-title" style="font-weight:800;color:#6a1b9a;">
+                      <i class="bi bi-slash-circle me-1"></i> Cancelar Pedido
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p style="font-size:.9rem;color:#555;">Tem a certeza que quer cancelar este pedido?
+                      Por favor, indique o motivo do cancelamento.</p>
+                    <label class="form-label" style="font-weight:700;font-size:.85rem;">
+                      Justificativa <span style="color:#c0392b;">*</span>
+                    </label>
+                    <textarea name="justificativa" class="form-control" rows="3" required
+                              minlength="5" maxlength="500"
+                              placeholder="Ex.: Encontrei um preço melhor noutra oferta, mudei de ideias, etc."></textarea>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Voltar</button>
+                    <button type="submit" class="btn"
+                            style="background:#6a1b9a;color:#fff;font-weight:700;">
+                      Confirmar Cancelamento
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- AGUARDANDO PAGAMENTO: mostrar número do produtor e botão de pagar -->

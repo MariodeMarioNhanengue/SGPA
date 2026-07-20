@@ -27,6 +27,11 @@ public class Produtor extends AbstractEntity<Long> {
  
     @Column(length = 100)
     private String senha;
+
+    // Null = conta criada antes desta funcionalidade (não é bloqueada).
+    // false = conta nova, aguarda confirmação. true = email confirmado.
+    @Column(name = "email_verificado")
+    private Boolean emailVerificado;
  
     @Column(length = 20, unique = true, nullable = true)
     private String nuit;
@@ -100,6 +105,14 @@ public class Produtor extends AbstractEntity<Long> {
  
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+
+    public Boolean getEmailVerificado() {
+        return emailVerificado;
+    }
+
+    public void setEmailVerificado(Boolean emailVerificado) {
+        this.emailVerificado = emailVerificado;
     }
 
     public String getFotoPerfil() {
