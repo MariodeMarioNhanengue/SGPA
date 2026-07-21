@@ -206,3 +206,12 @@ $('#pageOverlay').on('click', function (e) {
     $(this).removeClass('active');
   }
 });
+
+/* Hide the global page overlay when any Bootstrap modal is shown so the modal
+   receives clicks. Restore overlay when modal hides. */
+$(document).on('show.bs.modal', function () {
+  $('#pageOverlay').addClass('overlay-hidden');
+});
+$(document).on('hidden.bs.modal', function () {
+  $('#pageOverlay').removeClass('overlay-hidden');
+});

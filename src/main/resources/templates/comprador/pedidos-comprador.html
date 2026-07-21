@@ -8,6 +8,27 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Lora:wght@700&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="/css/comprador.css"/>
+  <style>
+    .btn-comprovativo-compra {
+      margin-top: .7rem;
+      width: 100%;
+      background: linear-gradient(135deg, #1b5e20, #2e7d32);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: .55rem 1.1rem;
+      font-size: .82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .45rem;
+      transition: filter .15s, transform .15s;
+    }
+    .btn-comprovativo-compra:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-comprovativo-compra:disabled { opacity: .65; cursor: wait; }
+  </style>
 </head>
 
 <body style="font-family:'Nunito',sans-serif;background:#f5f5f5;color:#1c1c1c;">
@@ -165,7 +186,8 @@
   </div>
 
   <div class="orders-grid" th:if="${meusPedidos != null and !#lists.isEmpty(meusPedidos)}">
-    <div class="order-card" th:each="pedido : ${meusPedidos}">
+    <th:block th:each="pedido : ${meusPedidos}" th:with="tx=${transacaoPorPedido != null ? transacaoPorPedido[pedido.id] : null}">
+    <div class="order-card">
 
       <div class="order-card-head">
         <div class="order-prod-name"
@@ -268,39 +290,6 @@
                          cursor:pointer;display:flex;align-items:center;gap:.4rem;">
             <i class="bi bi-slash-circle"></i> Cancelar Pedido
           </button>
-
-          <!-- Modal de justificativa de cancelamento -->
-          <div class="modal fade" th:id="'modalCancelar' + ${pedido.id}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-              <div class="modal-content" style="border-radius:14px;">
-                <form th:action="@{/comprador/cancelar-pedido/{id}(id=${pedido.id})}" method="post">
-                  <div class="modal-header">
-                    <h5 class="modal-title" style="font-weight:800;color:#6a1b9a;">
-                      <i class="bi bi-slash-circle me-1"></i> Cancelar Pedido
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-                  </div>
-                  <div class="modal-body">
-                    <p style="font-size:.9rem;color:#555;">Tem a certeza que quer cancelar este pedido?
-                      Por favor, indique o motivo do cancelamento.</p>
-                    <label class="form-label" style="font-weight:700;font-size:.85rem;">
-                      Justificativa <span style="color:#c0392b;">*</span>
-                    </label>
-                    <textarea name="justificativa" class="form-control" rows="3" required
-                              minlength="5" maxlength="500"
-                              placeholder="Ex.: Encontrei um preço melhor noutra oferta, mudei de ideias, etc."></textarea>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Voltar</button>
-                    <button type="submit" class="btn"
-                            style="background:#6a1b9a;color:#fff;font-weight:700;">
-                      Confirmar Cancelamento
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
         </div>
 
         <!-- AGUARDANDO PAGAMENTO: mostrar número do produtor e botão de pagar -->
@@ -323,12 +312,242 @@
             <i class="bi bi-credit-card-fill"></i> Ir para Pagamento
           </a>
         </div>
+
+        <!-- Botão de baixar comprovativo de compra em PDF — apenas para pedidos ACEITES -->
+        <button type="button" class="btn-comprovativo-compra"
+                th:if="${pedido.estado.name() == 'ACEITE'}"
+                th:data-id="${pedido.id}"
+                th:data-produto="${pedido.oferta != null ? pedido.oferta.nomeProduto : '—'}"
+                th:data-categoria="${pedido.oferta != null ? pedido.oferta.categoria : '—'}"
+                th:data-produtor="${pedido.oferta != null and pedido.oferta.produtor != null ? pedido.oferta.produtor.nomeCompleto : '—'}"
+                th:data-quantidade="${pedido.quantidade != null ? pedido.quantidade : '—'}"
+                th:data-unidade="${pedido.oferta != null ? pedido.oferta.unidade : ''}"
+                th:data-precounit="${pedido.oferta != null and pedido.oferta.preco != null ? #numbers.formatDecimal(pedido.oferta.preco,1,2) : '—'}"
+                th:data-total="${pedido.quantidade != null and pedido.oferta != null and pedido.oferta.preco != null ? #numbers.formatDecimal(pedido.quantidade.multiply(pedido.oferta.preco),1,2) : '—'}"
+                th:data-data="${pedido.dataPedido != null ? #temporals.format(pedido.dataPedido,'dd/MM/yyyy HH:mm') : '—'}"
+                th:data-dataresposta="${pedido.dataResposta != null ? #temporals.format(pedido.dataResposta,'dd/MM/yyyy HH:mm') : '—'}"
+                th:data-estado="${pedido.estado != null ? pedido.estado.name() : '—'}"
+                th:data-operadora="${tx != null ? tx.operadora.name() : ''}"
+                th:data-referencia="${tx != null and tx.referencia != null ? tx.referencia : '—'}"
+                th:data-motivo="${pedido.estado.name() == 'REJEITADO' and pedido.motivoRejeicao != null ? pedido.motivoRejeicao : ''}"
+                onclick="baixarComprovativoCompra(this)">
+          <i class="bi bi-file-earmark-arrow-down-fill"></i> Baixar Comprovativo (PDF)
+        </button>
       </div>
     </div>
+
+    <!-- Modal de confirmação de cancelamento — colocado FORA do .order-card
+         de propósito: o .order-card tem "transform" no :hover, e um ancestral
+         com transform quebra o position:fixed do modal/backdrop do Bootstrap,
+         fazendo o overlay ficar preso/desalinhado e impossível de clicar. -->
+    <div class="modal fade" th:if="${pedido.estado.name() == 'PENDENTE'}"
+         th:id="'modalCancelar' + ${pedido.id}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:14px;">
+          <form th:action="@{/comprador/cancelar-pedido/{id}(id=${pedido.id})}" method="post">
+            <div class="modal-header">
+              <h5 class="modal-title" style="font-weight:800;color:#6a1b9a;">
+                <i class="bi bi-slash-circle me-1"></i> Cancelar Pedido
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+              <p style="font-size:.95rem;color:#555;line-height:1.5;">
+                Tem a certeza que quer cancelar este pedido? Esta ação não pode ser desfeita.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Voltar</button>
+              <button type="button" class="btn"
+                      style="background:#6a1b9a;color:#fff;font-weight:700;"
+                      onclick="this.closest('form').submit();">
+                Confirmar Cancelamento
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    </th:block>
   </div>
 
 </div>
 
+<script th:inline="javascript">
+/*<![CDATA[*/
+var COMPRADOR_NOME = /*[[${comprador != null ? comprador.nomeCompleto : 'Comprador'}]]*/ 'Comprador';
+var COMPRADOR_TEL   = /*[[${comprador != null and comprador.telefone != null ? comprador.telefone : '—'}]]*/ '—';
+var COMPRADOR_EMAIL = /*[[${comprador != null and comprador.email != null ? comprador.email : '—'}]]*/ '—';
+var LOGO_URL = /*[[@{/images/logo.png}]]*/ '/images/logo.png';
+/*]]>*/
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+function imagemParaBase64(url) {
+  return new Promise(function(resolve, reject) {
+    var img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      try { resolve(canvas.toDataURL('image/png')); } catch (err) { reject(err); }
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+function nomeOperadoraCompra(cod) {
+  return { MPESA: 'M-Pesa', EMOLA: 'e-Mola', MKESH: 'Mkesh',
+           OUTROS: 'Outros (Banco/Transferência)' }[cod] || cod || '—';
+}
+
+function nomeEstadoCompra(cod) {
+  return { ACEITE: 'Aceite', REJEITADO: 'Rejeitado', CANCELADO: 'Cancelado',
+           PENDENTE: 'Pendente', AGUARDANDO_PAGAMENTO: 'Aguardando Pagamento' }[cod] || (cod || '—');
+}
+
+async function baixarComprovativoCompra(btn) {
+  var d = btn.dataset;
+  var textoOriginal = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> A gerar PDF...';
+
+  try {
+    var jsPDFLib = window.jspdf.jsPDF;
+    var doc = new jsPDFLib({ unit: 'pt', format: 'a4' });
+
+    var pageW = doc.internal.pageSize.getWidth();
+    var marginX = 48;
+    var y = 50;
+
+    // ── LOGO ──
+    try {
+      var logoBase64 = await imagemParaBase64(LOGO_URL);
+      doc.addImage(logoBase64, 'PNG', marginX, y - 10, 42, 42);
+    } catch (e) { /* segue sem logo se falhar a carregar */ }
+
+    // ── CABEÇALHO ──
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(22, 101, 52);
+    doc.text('SGPA', marginX + 54, y + 12);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(110, 110, 110);
+    doc.text('Sistema de Gestão de Produtos Agrícolas', marginX + 54, y + 28);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(30, 30, 30);
+    doc.text('Comprovativo de Compra', pageW - marginX, y + 4, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(120, 120, 120);
+    var idTexto = d.id ? ('Pedido #' + d.id) : '';
+    doc.text(idTexto, pageW - marginX, y + 18, { align: 'right' });
+    doc.text('Emitido em ' + new Date().toLocaleString('pt-PT'), pageW - marginX, y + 31, { align: 'right' });
+
+    y += 60;
+    doc.setDrawColor(200, 230, 210);
+    doc.setLineWidth(1);
+    doc.line(marginX, y, pageW - marginX, y);
+    y += 26;
+
+    function secao(titulo) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.setTextColor(22, 101, 52);
+      doc.text(titulo.toUpperCase(), marginX, y);
+      y += 6;
+      doc.setDrawColor(230, 230, 230);
+      doc.line(marginX, y, pageW - marginX, y);
+      y += 18;
+    }
+
+    function linha(rotulo, valor) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(110, 110, 110);
+      doc.text(rotulo, marginX, y);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(25, 25, 25);
+      doc.text(String(valor || '—'), marginX + 150, y);
+      y += 18;
+    }
+
+    // ── COMPRADOR (você) ──
+    secao('Comprador');
+    linha('Nome:', COMPRADOR_NOME);
+    linha('Telefone:', COMPRADOR_TEL);
+    linha('Email:', COMPRADOR_EMAIL);
+    y += 6;
+
+    // ── VENDEDOR ──
+    secao('Vendedor (Produtor)');
+    linha('Nome:', d.produtor);
+    y += 6;
+
+    // ── PEDIDO ──
+    secao('Dados do Pedido');
+    linha('Produto:', d.produto);
+    linha('Categoria:', d.categoria);
+    linha('Quantidade:', (d.quantidade || '—') + (d.unidade ? ' ' + d.unidade : ''));
+    linha('Preço unit.:', d.precounit && d.precounit !== '—' ? d.precounit + ' MT/' + (d.unidade || '') : '—');
+    linha('Total:', d.total && d.total !== '—' ? d.total + ' MT' : '—');
+    linha('Data do pedido:', d.data);
+    linha('Data de resposta:', d.dataresposta && d.dataresposta !== '—' ? d.dataresposta : 'Sem resposta ainda');
+    linha('Estado:', nomeEstadoCompra(d.estado));
+    y += 6;
+
+    // ── PAGAMENTO ──
+    secao('Pagamento');
+    if (d.operadora) {
+      linha('Confirmado por:', 'Si (comprador)');
+      linha('Número usado:', d.referencia && d.referencia !== '—' ? d.referencia : '—');
+      linha('Método:', nomeOperadoraCompra(d.operadora));
+    } else {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(150, 150, 150);
+      doc.text('Sem dados de pagamento registados para este pedido.', marginX, y);
+      y += 18;
+    }
+
+    // ── MOTIVO DE REJEIÇÃO ──
+    if (d.estado === 'REJEITADO' && d.motivo && d.motivo.trim() !== '') {
+      y += 6;
+      secao('Motivo da Rejeição');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(90, 0, 0);
+      var linhasMotivo = doc.splitTextToSize(d.motivo, pageW - marginX * 2);
+      doc.text(linhasMotivo, marginX, y);
+      y += linhasMotivo.length * 14;
+    }
+
+    // ── RODAPÉ ──
+    var pageH = doc.internal.pageSize.getHeight();
+    doc.setDrawColor(230, 230, 230);
+    doc.line(marginX, pageH - 60, pageW - marginX, pageH - 60);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Documento gerado automaticamente pelo SGPA – Mercado Agrário.', marginX, pageH - 42);
+    doc.text('Este comprovativo reflecte os dados registados no sistema à data de emissão.', marginX, pageH - 30);
+
+    var nomeArquivo = 'comprovativo-compra' + (d.id ? '-' + d.id : '') + '.pdf';
+    doc.save(nomeArquivo);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = textoOriginal;
+  }
+}
+</script>
 </body>
 </html>

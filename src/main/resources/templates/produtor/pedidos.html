@@ -338,12 +338,12 @@
                         onclick="aceitarPedidoAjax(this)">
                   <i class="bi bi-check-lg"></i> Aceitar
                 </button>
-                <form th:action="@{/produtor/pedido/rejeitar}" method="post" class="d-inline m-0">
-                  <input type="hidden" name="pedidoId" th:value="${pedido.id}"/>
-                  <button type="submit" class="btn-rejeitar">
-                    <i class="bi bi-x-lg"></i> Rejeitar
-                  </button>
-                </form>
+                <button type="button"
+                        class="btn-rejeitar"
+                        th:attr="data-pedido-id=${pedido.id}"
+                        onclick="abrirModalRejeicao(this)">
+                  <i class="bi bi-x-lg"></i> Rejeitar
+                </button>
                 <!-- Spinner oculto -->
                 <span th:id="'spin-' + ${pedido.id}"
                       class="spinner-border spinner-border-sm text-success"
@@ -441,6 +441,53 @@
     </div>
     <!-- fim listaPedidos -->
 
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL DE JUSTIFICAÇÃO DE REJEIÇÃO ═══════════════ -->
+<div id="modalRejeicao"
+     style="display:none;position:fixed;inset:0;z-index:9999;
+            background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:14px;padding:2rem;width:min(460px,90vw);
+              box-shadow:0 8px 32px rgba(0,0,0,.22);position:relative;">
+    <h5 style="margin:0 0 .4rem;font-weight:700;color:#b71c1c;">
+      <i class="bi bi-x-circle-fill" style="margin-right:.4rem;"></i>Rejeitar Pedido
+    </h5>
+    <p style="font-size:.88rem;color:#555;margin-bottom:1.1rem;">
+      Indique o motivo da rejeição. Esta justificação será visível para o comprador.
+    </p>
+    <form id="formRejeicao" th:action="@{/produtor/pedido/rejeitar}" method="post">
+      <input type="hidden" name="pedidoId" id="rejeicaoPedidoId"/>
+      <input type="hidden" name="from" value="pedidos"/>
+      <div style="margin-bottom:1rem;">
+        <label for="motivoRejeicao"
+               style="font-size:.82rem;font-weight:600;color:#333;display:block;margin-bottom:.35rem;">
+          Motivo da rejeição <span style="color:#b71c1c;">*</span>
+        </label>
+        <textarea id="motivoRejeicao" name="motivoRejeicao" rows="4" required
+                  placeholder="Ex: Stock esgotado, produto não disponível na quantidade pedida..."
+                  style="width:100%;border:1.5px solid #e0e0e0;border-radius:8px;
+                         padding:.65rem .8rem;font-size:.9rem;resize:vertical;
+                         font-family:inherit;outline:none;"
+                  onfocus="this.style.borderColor='#2e7d32'"
+                  onblur="this.style.borderColor='#e0e0e0'"></textarea>
+        <div id="motivoRejeicaoErro" style="display:none;font-size:.76rem;color:#b71c1c;margin-top:.3rem;">
+          Por favor, indique o motivo antes de confirmar.
+        </div>
+      </div>
+      <div style="display:flex;gap:.7rem;justify-content:flex-end;">
+        <button type="button" onclick="fecharModalRejeicao()"
+                style="padding:.5rem 1.2rem;border:1.5px solid #ccc;border-radius:8px;
+                       background:#fff;cursor:pointer;font-size:.9rem;font-weight:600;color:#555;">
+          Cancelar
+        </button>
+        <button type="submit"
+                style="padding:.5rem 1.4rem;border:none;border-radius:8px;
+                       background:#b71c1c;color:#fff;cursor:pointer;font-size:.9rem;font-weight:700;">
+          <i class="bi bi-x-lg" style="margin-right:.3rem;"></i>Confirmar Rejeição
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -604,9 +651,37 @@ function toggleSidebar() {
   document.getElementById("sidebar").classList.toggle("show");
   var o = document.getElementById("sidebarOverlay"); if(o) o.classList.toggle("active");
 }
+
+// ─── MODAL DE JUSTIFICAÇÃO DE REJEIÇÃO ────────────────────────────────
+function abrirModalRejeicao(btn) {
+  document.getElementById('rejeicaoPedidoId').value = btn.getAttribute('data-pedido-id');
+  document.getElementById('motivoRejeicao').value = '';
+  document.getElementById('motivoRejeicaoErro').style.display = 'none';
+  var modal = document.getElementById('modalRejeicao');
+  modal.style.display = 'flex';
+  setTimeout(function() { document.getElementById('motivoRejeicao').focus(); }, 80);
+}
+function fecharModalRejeicao() {
+  document.getElementById('modalRejeicao').style.display = 'none';
+}
+document.getElementById('modalRejeicao').addEventListener('click', function(e) {
+  if (e.target === this) fecharModalRejeicao();
+});
+document.getElementById('formRejeicao').addEventListener('submit', function(e) {
+  var motivo = document.getElementById('motivoRejeicao').value.trim();
+  if (!motivo) {
+    e.preventDefault();
+    document.getElementById('motivoRejeicaoErro').style.display = 'block';
+    document.getElementById('motivoRejeicao').focus();
+  }
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') fecharModalRejeicao();
+});
 </script>
 <style>
 @keyframes slideIn { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
 </style>
+
 </body>
 </html>

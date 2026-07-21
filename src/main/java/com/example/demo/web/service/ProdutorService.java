@@ -283,22 +283,23 @@ public class ProdutorService {
 
     /** Rejeita um pedido: cancela a transação associada e restaura o stock da oferta. */
     public void rejeitarPedido(Long pedidoId, String motivoRejeicao, Long produtorId) {
+        if (motivoRejeicao == null || motivoRejeicao.isBlank()) {
+            throw new RegraNegocioException("Por favor, indique o motivo da rejeição antes de continuar.");
+        }
         Pedido pedido = pedidoRepository.findById(pedidoId)
             .orElseThrow(() -> new RecursoNaoEncontradoException("Pedido não encontrado."));
         garantirPedidoDoProdutor(pedido, produtorId);
 
         pedido.setEstado(Pedido.EstadoPedido.REJEITADO);
         pedido.setDataResposta(LocalDateTime.now());
-        if (motivoRejeicao != null && !motivoRejeicao.isBlank()) {
-            pedido.setMotivoRejeicao(motivoRejeicao.trim());
-        }
+        pedido.setMotivoRejeicao(motivoRejeicao.trim());
         pedidoRepository.save(pedido);
 
         if (pedido.getComprador() != null && pedido.getOferta() != null) {
             String assunto = "Pedido rejeitado — " + pedido.getOferta().getNomeProduto();
             String corpo = "Olá " + pedido.getComprador().getNomeCompleto() + ",\n\n"
                 + "Infelizmente o seu pedido de \"" + pedido.getOferta().getNomeProduto() + "\" foi rejeitado pelo produtor.\n\n"
-                + "Motivo: " + (motivoRejeicao != null && !motivoRejeicao.isBlank() ? motivoRejeicao.trim() : "Sem justificação indicada.") + "\n";
+                + "Motivo: " + motivoRejeicao.trim() + "\n";
             emailService.enviar(pedido.getComprador().getEmail(), assunto, corpo);
         }
 

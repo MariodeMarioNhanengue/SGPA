@@ -4,7 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -174,18 +176,28 @@ public class CompradorService {
 
     // ─── PEDIDOS DO COMPRADOR ────────────────────────────────────────────
 
-    public record PedidosComprador(Comprador comprador, List<Pedido> pedidos) {}
+    public record PedidosComprador(Comprador comprador, List<Pedido> pedidos, Map<Long, Transacao> transacaoPorPedido) {}
 
     public PedidosComprador meusPedidos(Long compradorId) {
-        if (compradorId == null) return new PedidosComprador(null, new ArrayList<>());
+        if (compradorId == null) return new PedidosComprador(null, new ArrayList<>(), new HashMap<>());
         Comprador comprador = compradorRepository.findById(compradorId).orElse(null);
-        return new PedidosComprador(comprador, pedidoRepository.findByCompradorId(compradorId));
+        List<Pedido> pedidos = pedidoRepository.findByCompradorId(compradorId);
+        Map<Long, Transacao> transacaoPorPedido = new HashMap<>();
+        for (Pedido p : pedidos) {
+            transacaoRepository.findByPedidoId(p.getId()).ifPresent(t -> transacaoPorPedido.put(p.getId(), t));
+        }
+        return new PedidosComprador(comprador, pedidos, transacaoPorPedido);
     }
 
     public PedidosComprador historico(Long compradorId) {
-        if (compradorId == null) return new PedidosComprador(null, pedidoRepository.findAll());
+        if (compradorId == null) return new PedidosComprador(null, pedidoRepository.findAll(), new HashMap<>());
         Comprador comprador = compradorRepository.findById(compradorId).orElse(null);
-        return new PedidosComprador(comprador, pedidoRepository.findByCompradorId(compradorId));
+        List<Pedido> pedidos = pedidoRepository.findByCompradorId(compradorId);
+        Map<Long, Transacao> transacaoPorPedido = new HashMap<>();
+        for (Pedido p : pedidos) {
+            transacaoRepository.findByPedidoId(p.getId()).ifPresent(t -> transacaoPorPedido.put(p.getId(), t));
+        }
+        return new PedidosComprador(comprador, pedidos, transacaoPorPedido);
     }
 
     // ─── COMPRAR ─────────────────────────────────────────────────────────
@@ -341,7 +353,7 @@ public class CompradorService {
     // ─── CANCELAR PEDIDO ─────────────────────────────────────────────────
 
     /** Cancela um pedido pendente, garantindo que pertence ao comprador autenticado. */
-    public void cancelarPedido(Long pedidoId, Long compradorId, String justificativa) {
+    public void cancelarPedido(Long pedidoId, Long compradorId) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
             .orElseThrow(() -> new RecursoNaoEncontradoException("Pedido não encontrado."));
 
@@ -355,13 +367,9 @@ public class CompradorService {
                 "Não é possível cancelar um pedido que já foi " + pedido.getEstado().name().toLowerCase() + ".");
         }
 
-        if (justificativa == null || justificativa.trim().isEmpty()) {
-            throw new RegraNegocioException("É necessário indicar uma justificativa para cancelar o pedido.");
-        }
-
         pedido.setEstado(Pedido.EstadoPedido.CANCELADO);
         pedido.setDataResposta(LocalDateTime.now());
-        pedido.setMotivoCancelamento(justificativa.trim());
+        pedido.setMotivoCancelamento(null);
         pedidoRepository.save(pedido);
 
         if (pedido.getOferta() != null && pedido.getOferta().getProdutor() != null) {
@@ -369,8 +377,7 @@ public class CompradorService {
             String assunto = "Pedido cancelado pelo comprador — " + pedido.getOferta().getNomeProduto();
             String corpo = "Olá " + produtorNotificar.getNome() + ",\n\n"
                 + "O comprador " + pedido.getComprador().getNomeCompleto() + " cancelou o seguinte pedido:\n\n"
-                + "Produto: " + pedido.getOferta().getNomeProduto() + "\n"
-                + "Justificativa do cancelamento: " + justificativa.trim() + "\n";
+                + "Produto: " + pedido.getOferta().getNomeProduto() + "\n";
             emailService.enviar(produtorNotificar.getEmail(), assunto, corpo);
         }
     }
