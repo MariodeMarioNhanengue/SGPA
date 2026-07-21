@@ -211,13 +211,13 @@
               </span>
               <!-- Botões aceitar/rejeitar apenas para pedidos PENDENTES -->
               <div th:if="${pedido.estado.name() == 'PENDENTE'}" class="d-flex gap-1">
-                <form th:action="@{/produtor/pedido/aceitar}" method="post" class="d-inline m-0">
-                  <input type="hidden" name="pedidoId" th:value="${pedido.id}"/>
-                  <input type="hidden" name="from" value="dashboard"/>
-                  <button type="submit" class="btn btn-success btn-sm py-0 px-2" title="Aceitar pedido">
-                    <i class="bi bi-check-lg"></i>
-                  </button>
-                </form>
+                <button type="button"
+                        class="btn btn-success btn-sm py-0 px-2"
+                        title="Aceitar pedido"
+                        th:attr="data-pedido-id=${pedido.id}"
+                        onclick="abrirModalAceitar(this)">
+                  <i class="bi bi-check-lg"></i>
+                </button>
                 <button type="button"
                         class="btn btn-danger btn-sm py-0 px-2"
                         title="Rejeitar pedido"
@@ -239,6 +239,53 @@
 
 </div>
 
+<!-- ═══════════════ MODAL DE NÚMERO DE PAGAMENTO (ACEITAR) ═══════════════ -->
+<div id="modalAceitar"
+     style="display:none;position:fixed;inset:0;z-index:9999;
+            background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:14px;padding:2rem;width:min(460px,90vw);
+              box-shadow:0 8px 32px rgba(0,0,0,.22);position:relative;">
+    <h5 style="margin:0 0 .4rem;font-weight:700;color:#166534;">
+      <i class="bi bi-check-circle-fill" style="margin-right:.4rem;"></i>Aceitar Pedido
+    </h5>
+    <p style="font-size:.88rem;color:#555;margin-bottom:1.1rem;">
+      Indique o número (M-Pesa / e-Mola / Mkesh) para o comprador efectuar o pagamento.
+    </p>
+    <form id="formAceitar" th:action="@{/produtor/pedido/aceitar}" method="post">
+      <input type="hidden" name="pedidoId" id="aceitarPedidoId"/>
+      <input type="hidden" name="from" value="dashboard"/>
+      <div style="margin-bottom:1rem;">
+        <label for="numeroPagamentoAceitar"
+               style="font-size:.82rem;font-weight:600;color:#333;display:block;margin-bottom:.35rem;">
+          Número para pagamento <span style="color:#b71c1c;">*</span>
+        </label>
+        <input type="tel" id="numeroPagamentoAceitar" name="numeroPagamento" required
+               placeholder="8X XXX XXXX" maxlength="12" autocomplete="off"
+               style="width:100%;border:1.5px solid #86efac;border-radius:8px;
+                      padding:.65rem .8rem;font-size:.95rem;font-weight:600;letter-spacing:.04em;
+                      font-family:inherit;outline:none;"
+               onfocus="this.style.borderColor='#2e7d32'"
+               onblur="this.style.borderColor='#86efac'"/>
+        <div id="numeroPagamentoAceitarErro" style="display:none;font-size:.76rem;color:#b71c1c;margin-top:.3rem;">
+          Por favor, insira um número válido antes de aceitar.
+        </div>
+      </div>
+      <div style="display:flex;gap:.7rem;justify-content:flex-end;">
+        <button type="button" onclick="fecharModalAceitar()"
+                style="padding:.5rem 1.2rem;border:1.5px solid #ccc;border-radius:8px;
+                       background:#fff;cursor:pointer;font-size:.9rem;font-weight:600;color:#555;">
+          Cancelar
+        </button>
+        <button type="submit"
+                style="padding:.5rem 1.4rem;border:none;border-radius:8px;
+                       background:#16a34a;color:#fff;cursor:pointer;font-size:.9rem;font-weight:700;">
+          <i class="bi bi-check-lg" style="margin-right:.3rem;"></i>Confirmar Aceitação
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- ═══════════════ MODAL DE JUSTIFICAÇÃO DE REJEIÇÃO ═══════════════ -->
 <div id="modalRejeicao"
      style="display:none;position:fixed;inset:0;z-index:9999;
@@ -249,7 +296,7 @@
       <i class="bi bi-x-circle-fill" style="margin-right:.4rem;"></i>Rejeitar Pedido
     </h5>
     <p style="font-size:.88rem;color:#555;margin-bottom:1.1rem;">
-      Indique o motivo da rejeição. Esta justificação será visível para o comprador.
+      Indique o motivo do cancelamento. Esta justificação será visível para o comprador.
     </p>
     <form id="formRejeicao" th:action="@{/produtor/pedido/rejeitar}" method="post">
       <input type="hidden" name="pedidoId" id="rejeicaoPedidoId"/>
@@ -257,7 +304,7 @@
       <div style="margin-bottom:1rem;">
         <label for="motivoRejeicao"
                style="font-size:.82rem;font-weight:600;color:#333;display:block;margin-bottom:.35rem;">
-          Motivo da rejeição <span style="color:#b71c1c;">*</span>
+          Motivo do cancelamento <span style="color:#b71c1c;">*</span>
         </label>
         <textarea id="motivoRejeicao" name="motivoRejeicao" rows="4" required
                   placeholder="Ex: Stock esgotado, produto não disponível na quantidade pedida..."
@@ -276,12 +323,51 @@
         <button type="submit"
                 style="padding:.5rem 1.4rem;border:none;border-radius:8px;
                        background:#b71c1c;color:#fff;cursor:pointer;font-size:.9rem;font-weight:700;">
-          <i class="bi bi-x-lg" style="margin-right:.3rem;"></i>Confirmar Rejeição
+          <i class="bi bi-x-lg" style="margin-right:.3rem;"></i>Confirmar Cancelamento
         </button>
       </div>
     </form>
   </div>
 </div>
+
+<script>
+function abrirModalAceitar(btn) {
+  document.getElementById('aceitarPedidoId').value = btn.getAttribute('data-pedido-id');
+  var input = document.getElementById('numeroPagamentoAceitar');
+  input.value = '';
+  document.getElementById('numeroPagamentoAceitarErro').style.display = 'none';
+  input.style.borderColor = '#86efac';
+  var modal = document.getElementById('modalAceitar');
+  modal.style.display = 'flex';
+  setTimeout(function() { input.focus(); }, 80);
+}
+function fecharModalAceitar() {
+  document.getElementById('modalAceitar').style.display = 'none';
+}
+document.getElementById('modalAceitar').addEventListener('click', function(e) {
+  if (e.target === this) fecharModalAceitar();
+});
+
+// Máscara simples: 8X XXX XXXX
+document.getElementById('numeroPagamentoAceitar').addEventListener('input', function(e) {
+  var digits = e.target.value.replace(/\D/g, '').slice(0, 9);
+  var formatado = digits;
+  if (digits.length > 2) formatado = digits.slice(0, 2) + ' ' + digits.slice(2);
+  if (digits.length > 5) formatado = digits.slice(0, 2) + ' ' + digits.slice(2, 5) + ' ' + digits.slice(5);
+  e.target.value = formatado;
+});
+
+document.getElementById('formAceitar').addEventListener('submit', function(e) {
+  var digits = document.getElementById('numeroPagamentoAceitar').value.replace(/\D/g, '');
+  if (!digits || digits.length < 9) {
+    e.preventDefault();
+    var input = document.getElementById('numeroPagamentoAceitar');
+    document.getElementById('numeroPagamentoAceitarErro').style.display = 'block';
+    input.style.borderColor = '#dc2626';
+    input.focus();
+  }
+});
+</script>
 
 <script>
 function abrirModalRejeicao(btn) {

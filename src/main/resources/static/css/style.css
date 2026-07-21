@@ -293,10 +293,13 @@ a:hover .stat-widget { box-shadow:var(--shadow-md); transform:translateY(-2px); 
 .product-card:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); border-color:var(--gold); }
 
 /* ── OVERLAY ── */
-.page-overlay { position:fixed; inset:0; background:rgba(10,46,26,.88); backdrop-filter:blur(8px); z-index:9999; display:flex; justify-content:center; align-items:center; opacity:0; visibility:hidden; transition:.4s; }
+.page-overlay { position:fixed; inset:0; background:rgba(10,46,26,.88); backdrop-filter:blur(8px); z-index:1040; display:flex; justify-content:center; align-items:center; opacity:0; visibility:hidden; transition:.4s; }
 .page-overlay.active { opacity:1; visibility:visible; }
 .overlay-content { background:#fff; width:90%; max-width:900px; max-height:90vh; overflow-y:auto; border-radius:var(--r-lg); padding:30px; position:relative; animation:fadeInUp .4s var(--ease); }
 .overlay-close { position:absolute; top:15px; right:20px; border:none; background:none; font-size:22px; cursor:pointer; }
+/* When a Bootstrap modal is open we hide the global page overlay to ensure
+  the modal receives clicks and focus. */
+.overlay-hidden { display: none !important; pointer-events: none !important; }
 @keyframes fadeInUp { from{transform:translateY(40px);opacity:0} to{transform:translateY(0);opacity:1} }
 
 /* ── MOBILE TOGGLE ── */

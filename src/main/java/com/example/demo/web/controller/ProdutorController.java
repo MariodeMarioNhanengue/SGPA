@@ -216,8 +216,8 @@ public class ProdutorController {
         Long prodId = authService.getSessionId(session);
         try {
             produtorService.rejeitarPedido(pedidoId, motivoRejeicao, prodId);
-            redirectAttrs.addFlashAttribute("sucesso", "Pedido rejeitado.");
-        } catch (NaoAutorizadoException e) {
+            redirectAttrs.addFlashAttribute("sucesso", "Pedido cancelado.");
+        } catch (NaoAutorizadoException | RegraNegocioException e) {
             redirectAttrs.addFlashAttribute("erro", e.getMessage());
         }
         if ("dashboard".equals(from)) {

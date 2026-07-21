@@ -136,6 +136,37 @@
       text-align: center;
       margin-top: .3rem;
     }
+
+    /* ── BOTÃO BAIXAR COMPROVATIVO ── */
+    .btn-baixar-comprovativo {
+      width: 100%;
+      margin-top: .4rem;
+      background: linear-gradient(135deg, #16a34a, #166534);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: .75rem 1rem;
+      font-size: .9rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .5rem;
+      transition: filter .15s, transform .15s;
+    }
+    .btn-baixar-comprovativo:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-baixar-comprovativo:disabled { opacity: .65; cursor: wait; }
+    .msg-comprovativo-indisponivel {
+      margin-top: .4rem;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: .7rem 1rem;
+      font-size: .82rem;
+      color: #6b7280;
+      text-align: center;
+    }
   </style>
 </head>
 <body class="dashboard-body">
@@ -252,6 +283,7 @@
               <!-- BOTÃO VER DETALHES -->
               <td>
                 <button class="btn-detalhes"
+                  th:data-id="${pedido.id}"
                   th:data-nome="${pedido.comprador != null ? pedido.comprador.nomeCompleto : '—'}"
                   th:data-telefone="${pedido.comprador != null and pedido.comprador.telefone != null ? pedido.comprador.telefone : '—'}"
                   th:data-email="${pedido.comprador != null and pedido.comprador.email != null ? pedido.comprador.email : '—'}"
@@ -382,12 +414,26 @@
         <div id="d-motivo" style="font-size:.87rem;color:#5a0000;background:#fff3f3;border-radius:8px;padding:.6rem .9rem;"></div>
       </div>
 
+      <!-- BOTÃO BAIXAR COMPROVATIVO — apenas para vendas ACEITES -->
+      <button type="button" class="btn-baixar-comprovativo" id="btnBaixarComprovativo" onclick="baixarComprovativoPDF()">
+        <i class="bi bi-file-earmark-arrow-down-fill"></i> Baixar Comprovativo (PDF)
+      </button>
+      <div class="msg-comprovativo-indisponivel" id="msgComprovativoIndisponivel" style="display:none;">
+        <i class="bi bi-info-circle me-1"></i> O comprovativo só está disponível para vendas <strong>aceites</strong>.
+      </div>
+
     </div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script th:inline="javascript">
+/*<![CDATA[*/
+var PRODUTOR_NOME = /*[[${produtor != null ? produtor.nomeCompleto : 'Produtor'}]]*/ 'Produtor';
+var LOGO_URL = /*[[@{/images/logo.png}]]*/ '/images/logo.png';
+/*]]>*/
+
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('show');
   var o = document.getElementById('sidebarOverlay'); if(o) o.classList.toggle('active');
@@ -407,8 +453,11 @@ function filterTable() {
 }
 
 // ── MODAL DETALHES (lê os data-* do botão) ────────────────────────────
+var dadosVendaAtual = null; // guarda os dados do pedido aberto, usados no PDF
+
 function abrirDetalhes(btn) {
   var d = btn.dataset;
+  dadosVendaAtual = Object.assign({}, d); // cópia para o comprovativo em PDF
 
   setText('d-nome',         d.nome);
   setText('d-telefone',     d.telefone);
@@ -484,6 +533,17 @@ function abrirDetalhes(btn) {
     secRej.style.display = 'none';
   }
 
+  // Botão de comprovativo — só disponível para vendas ACEITES
+  var btnComp = document.getElementById('btnBaixarComprovativo');
+  var msgComp = document.getElementById('msgComprovativoIndisponivel');
+  if (estado === 'ACEITE') {
+    btnComp.style.display = '';
+    msgComp.style.display = 'none';
+  } else {
+    btnComp.style.display = 'none';
+    msgComp.style.display = '';
+  }
+
   document.getElementById('modalDetalhes').classList.add('aberto');
   document.body.style.overflow = 'hidden';
 }
@@ -505,6 +565,179 @@ function setText(id, val) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') fecharModal();
 });
+
+// ── BAIXAR COMPROVATIVO EM PDF ─────────────────────────────────────────
+function imagemParaBase64(url) {
+  return new Promise(function(resolve, reject) {
+    var img = new Image();
+    img.crossOrigin = 'Anonymous';
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      try {
+        resolve(canvas.toDataURL('image/png'));
+      } catch (err) {
+        reject(err);
+      }
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+function nomeOperadora(cod) {
+  return { MPESA: 'M-Pesa', EMOLA: 'e-Mola', MKESH: 'Mkesh',
+           OUTROS: 'Outros (Banco/Transferência)' }[cod] || cod || '—';
+}
+
+function nomeEstado(cod) {
+  return { ACEITE: 'Aceite', REJEITADO: 'Rejeitado', CANCELADO: 'Cancelado',
+           PENDENTE: 'Pendente', AGUARDANDO_PAGAMENTO: 'Aguardando Pagamento' }[cod] || (cod || '—');
+}
+
+async function baixarComprovativoPDF() {
+  if (!dadosVendaAtual) return;
+  if (dadosVendaAtual.estado !== 'ACEITE') return; // segurança extra: só vendas aceites
+  var btn = document.getElementById('btnBaixarComprovativo');
+  var textoOriginal = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> A gerar PDF...';
+
+  try {
+    var d = dadosVendaAtual;
+    var jsPDFLib = window.jspdf.jsPDF;
+    var doc = new jsPDFLib({ unit: 'pt', format: 'a4' });
+
+    var pageW = doc.internal.pageSize.getWidth();
+    var marginX = 48;
+    var y = 50;
+
+    // ── LOGO ──
+    try {
+      var logoBase64 = await imagemParaBase64(LOGO_URL);
+      doc.addImage(logoBase64, 'PNG', marginX, y - 10, 42, 42);
+    } catch (e) { /* segue sem logo se falhar a carregar */ }
+
+    // ── CABEÇALHO ──
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(18);
+    doc.setTextColor(22, 101, 52);
+    doc.text('SGPA', marginX + 54, y + 12);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(110, 110, 110);
+    doc.text('Sistema de Gestão de Produtos Agrícolas', marginX + 54, y + 28);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(30, 30, 30);
+    doc.text('Comprovativo de Venda', pageW - marginX, y + 4, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(120, 120, 120);
+    var idTexto = d.id ? ('Pedido #' + d.id) : '';
+    doc.text(idTexto, pageW - marginX, y + 18, { align: 'right' });
+    doc.text('Emitido em ' + new Date().toLocaleString('pt-PT'), pageW - marginX, y + 31, { align: 'right' });
+
+    y += 60;
+    doc.setDrawColor(200, 230, 210);
+    doc.setLineWidth(1);
+    doc.line(marginX, y, pageW - marginX, y);
+    y += 26;
+
+    function secao(titulo) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.setTextColor(22, 101, 52);
+      doc.text(titulo.toUpperCase(), marginX, y);
+      y += 6;
+      doc.setDrawColor(230, 230, 230);
+      doc.line(marginX, y, pageW - marginX, y);
+      y += 18;
+    }
+
+    function linha(rotulo, valor) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(110, 110, 110);
+      doc.text(rotulo, marginX, y);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(25, 25, 25);
+      doc.text(String(valor || '—'), marginX + 150, y);
+      y += 18;
+    }
+
+    // ── VENDEDOR ──
+    secao('Vendedor (Produtor)');
+    linha('Nome:', PRODUTOR_NOME);
+    y += 6;
+
+    // ── COMPRADOR ──
+    secao('Dados do Comprador');
+    linha('Nome completo:', d.nome);
+    linha('Telefone:', d.telefone);
+    linha('Email:', d.email);
+    linha('Localização:', d.local);
+    y += 6;
+
+    // ── PEDIDO ──
+    secao('Dados do Pedido');
+    linha('Produto:', d.produto);
+    linha('Categoria:', d.categoria);
+    linha('Quantidade:', (d.quantidade || '—') + (d.unidade ? ' ' + d.unidade : ''));
+    linha('Total pago:', d.total && d.total !== '—' ? d.total + ' MT' : '—');
+    linha('Data do pedido:', d.data);
+    linha('Data de resposta:', d.dataresposta && d.dataresposta !== '—' ? d.dataresposta : 'Sem resposta ainda');
+    linha('Estado:', nomeEstado(d.estado));
+    y += 6;
+
+    // ── PAGAMENTO ──
+    secao('Pagamento');
+    if (d.operadora) {
+      linha('Confirmado por:', 'Comprador');
+      linha('Número usado:', d.referencia && d.referencia !== '—' ? d.referencia : '—');
+      linha('Método:', nomeOperadora(d.operadora));
+    } else {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(150, 150, 150);
+      doc.text('Sem dados de pagamento registados para este pedido.', marginX, y);
+      y += 18;
+    }
+
+    // ── MOTIVO DE REJEIÇÃO ──
+    if (d.estado === 'REJEITADO' && d.motivo && d.motivo.trim() !== '') {
+      y += 6;
+      secao('Motivo da Rejeição');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(90, 0, 0);
+      var linhasMotivo = doc.splitTextToSize(d.motivo, pageW - marginX * 2);
+      doc.text(linhasMotivo, marginX, y);
+      y += linhasMotivo.length * 14;
+    }
+
+    // ── RODAPÉ ──
+    var pageH = doc.internal.pageSize.getHeight();
+    doc.setDrawColor(230, 230, 230);
+    doc.line(marginX, pageH - 60, pageW - marginX, pageH - 60);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.setTextColor(150, 150, 150);
+    doc.text('Documento gerado automaticamente pelo SGPA – Mercado Agrário.', marginX, pageH - 42);
+    doc.text('Este comprovativo reflecte os dados registados no sistema à data de emissão.', marginX, pageH - 30);
+
+    var nomeArquivo = 'comprovativo-venda' + (d.id ? '-' + d.id : '') + '.pdf';
+    doc.save(nomeArquivo);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = textoOriginal;
+  }
+}
 </script>
 </body>
 </html>

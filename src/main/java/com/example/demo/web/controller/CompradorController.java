@@ -2,18 +2,25 @@ package com.example.demo.web.controller;
 
 import java.math.BigDecimal;
 
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.demo.web.domain.*;
+import com.example.demo.web.domain.Comprador;
+import com.example.demo.web.domain.Produtor;
 import com.example.demo.web.service.AuthService;
 import com.example.demo.web.service.CompradorService;
 import com.example.demo.web.service.exception.NaoAutorizadoException;
 import com.example.demo.web.service.exception.RegraNegocioException;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/comprador")
@@ -85,6 +92,7 @@ public class CompradorController {
         var p = compradorService.meusPedidos(id);
         model.addAttribute("comprador",   p.comprador());
         model.addAttribute("meusPedidos", p.pedidos());
+        model.addAttribute("transacaoPorPedido", p.transacaoPorPedido());
         return "comprador/pedidos-comprador";
     }
 
@@ -179,11 +187,10 @@ public class CompradorController {
     // ─── CANCELAR PEDIDO (pelo comprador) ──────────────────────────
     @PostMapping("/cancelar-pedido/{pedidoId}")
     public String cancelarPedido(@PathVariable Long pedidoId,
-                                 @RequestParam(required = false) String justificativa,
                                  HttpSession session,
                                  RedirectAttributes redirectAttrs) {
         try {
-            compradorService.cancelarPedido(pedidoId, authService.getSessionId(session), justificativa);
+            compradorService.cancelarPedido(pedidoId, authService.getSessionId(session));
             redirectAttrs.addFlashAttribute("sucesso", "Pedido cancelado com sucesso.");
         } catch (RegraNegocioException | NaoAutorizadoException e) {
             redirectAttrs.addFlashAttribute("erro", e.getMessage());
