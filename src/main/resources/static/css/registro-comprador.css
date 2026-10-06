@@ -1,0 +1,295 @@
+/* ================================================================
+   SGPA — Registo de Comprador
+   Mesmo layout do registo de Produtor (cartão de vidro sobre cenário),
+   mas com cenário próprio (anoitecer azul sobre campos) e paleta azul-petróleo.
+   Carregar DEPOIS de registro.css (só afeta .reg-page.comprador).
+================================================================ */
+
+:root {
+  --b900: #072a3d;
+  --b800: #0a4160;
+  --b700: #0c5d84;
+  --b500: #0891b2;
+  --b400: #22b8d4;
+  --b300: #7fd8ea;
+  --b100: #e0f4fa;
+  --ink:  #0a2233;
+  --txt:  #1d3d52;
+  --ff: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+}
+
+html { -webkit-text-size-adjust: 100%; }
+html, body { min-height: 100%; margin: 0; }
+body {
+  font-family: var(--ff);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  background: #082b40;
+}
+
+/* ══════════ CENÁRIO DE FUNDO ══════════
+   1) /images/registo-comprador-bg.jpg (opcional, se existir)
+   2) fotos de campos ao entardecer azul (Pexels, uso livre)
+   3) /images/comprador-bg.svg (incluído, se não houver internet)
+   4) gradiente azul */
+.reg-page.comprador::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    url('/images/registo-comprador-bg.jpg') center / cover no-repeat,
+    url('https://images.pexels.com/photos/9939932/pexels-photo-9939932.jpeg?auto=compress&cs=tinysrgb&w=1920') center / cover no-repeat,
+    url('https://images.pexels.com/photos/28772236/pexels-photo-28772236/free-photo-of-stunning-belarusian-landscape-at-twilight.jpeg?auto=compress&cs=tinysrgb&w=1920') center / cover no-repeat,
+    url('/images/comprador-bg.svg') center / cover no-repeat,
+    linear-gradient(180deg, #071a33 0%, #0b4a6f 50%, #2aa7bf 80%, #9fe3e0 100%);
+}
+.reg-page.comprador::after {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(3,20,40,.38), rgba(3,20,40,.06) 70%);
+}
+
+/* ══════════ ESTRUTURA ══════════ */
+.reg-page.comprador {
+  position: relative;
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; align-items: center; justify-content: center;
+  overflow: visible;
+  padding: clamp(16px, 4vw, 48px);
+  padding-top:    max(clamp(16px, 4vw, 48px), env(safe-area-inset-top));
+  padding-bottom: max(clamp(16px, 4vw, 48px), env(safe-area-inset-bottom));
+}
+.reg-page.comprador .reg-right {
+  flex: 0 1 auto;
+  width: 100%; max-width: 600px;
+  background: transparent; overflow: visible;
+  display: block; position: relative; z-index: 1;
+}
+.reg-page.comprador .reg-right::before,
+.reg-page.comprador .reg-right::after { content: none; }
+
+/* ══════════ CARTÃO (vidro) ══════════ */
+.reg-page.comprador .reg-form-wrap {
+  position: relative; overflow: hidden;
+  width: 100%; max-width: none; margin: 0;
+  background: rgba(255,255,255,.46);
+  -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255,255,255,.6);
+  border-radius: clamp(18px, 3vw, 24px);
+  padding: clamp(24px, 5vw, 38px) clamp(20px, 6vw, 42px) clamp(22px, 4vw, 30px);
+  box-shadow: 0 30px 80px rgba(3,20,40,.45), 0 2px 0 rgba(255,255,255,.6) inset;
+  animation: fadeUpC .6s var(--ease) both;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .reg-page.comprador .reg-form-wrap { background: rgba(255,255,255,.92); }
+}
+@keyframes fadeUpC { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+/* ── Logotipo ── */
+.reg-page.comprador .reg-logo { display: flex; justify-content: center; margin-bottom: clamp(10px, 2vh, 16px); }
+.reg-page.comprador .reg-logo a { display: block; }
+.reg-page.comprador .reg-logo img { height: clamp(56px, 10vh, 84px); width: auto; max-width: 100%; display: block; }
+
+/* ── Badge ── */
+.reg-page.comprador .reg-badge {
+  display: flex; width: fit-content; margin: 0 auto .7rem;
+  background: rgba(255,255,255,.58); color: var(--b800);
+  border: 1px solid rgba(255,255,255,.8);
+}
+.reg-page.comprador .reg-badge-dot { background: var(--b500); box-shadow: 0 0 0 3px rgba(8,145,178,.24); }
+
+/* ── Títulos ── */
+.reg-page.comprador .reg-title {
+  font-family: var(--ff); text-align: center;
+  font-size: clamp(23px, 5vw, 28px); font-weight: 800; letter-spacing: -.01em;
+  color: var(--b900); margin-bottom: .35rem;
+}
+.reg-page.comprador .reg-title-accent { color: var(--b700); }
+.reg-page.comprador .reg-subtitle {
+  text-align: center; color: var(--txt); font-weight: 500;
+  font-size: clamp(13px, 3.3vw, 14.5px); margin-bottom: 1.4rem;
+}
+
+/* ── Avatar (foto de perfil) ── */
+.reg-page.comprador .avatar-upload-wrap { position: relative; width: 92px; height: 92px; margin: 0 auto .5rem; }
+.reg-page.comprador .avatar-placeholder,
+.reg-page.comprador #avatarPreview {
+  width: 92px; height: 92px; border-radius: 50%;
+  border: 3px solid rgba(255,255,255,.85);
+  box-shadow: 0 6px 18px rgba(3,24,40,.25);
+}
+.reg-page.comprador .avatar-placeholder {
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.58); color: var(--b700); font-size: 2.3rem;
+}
+.reg-page.comprador #avatarPreview { display: none; object-fit: cover; }
+.reg-page.comprador .avatar-cam {
+  position: absolute; bottom: 2px; right: 2px; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--b700); color: #fff; border: 2px solid #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: .8rem;
+  transition: background .2s;
+}
+.reg-page.comprador .avatar-cam:hover { background: var(--b800); }
+.reg-page.comprador .avatar-hint { font-size: .78rem; font-weight: 500; color: var(--txt); margin-top: .25rem; }
+.reg-page.comprador .avatar-hint span { opacity: .75; font-weight: 400; }
+
+/* ── Progresso ── */
+.reg-page.comprador .reg-progress {
+  background: rgba(255,255,255,.36); border: 1px solid rgba(255,255,255,.65);
+  border-radius: 14px; padding: .7rem 1rem; margin-bottom: 1.3rem;
+}
+.reg-page.comprador .rp-step { color: #54707f; font-size: .78rem; }
+.reg-page.comprador .rp-step.active { color: var(--b900); }
+.reg-page.comprador .rp-step.done   { color: var(--b700); }
+.reg-page.comprador .rp-num { background: rgba(255,255,255,.62); border-color: rgba(255,255,255,.9); color: var(--txt); }
+.reg-page.comprador .rp-step.active .rp-num { background: var(--b700); border-color: var(--b700); color: #fff; box-shadow: 0 3px 12px rgba(10,65,96,.38); }
+.reg-page.comprador .rp-step.done .rp-num   { background: var(--b500); border-color: var(--b500); color: #fff; }
+.reg-page.comprador .rp-line { background: rgba(255,255,255,.7); }
+.reg-page.comprador .rp-line.done { background: var(--b500); }
+
+/* ── Secção ── */
+.reg-page.comprador .reg-sec { color: var(--b800); border-bottom: 1.5px solid rgba(12,93,132,.2); }
+
+/* ── Alerta ── */
+.reg-page.comprador .reg-alert { overflow-wrap: anywhere; }
+
+/* ── Labels ── */
+.reg-page.comprador .form-lbl { color: var(--b900); font-weight: 600; font-size: .8rem; }
+.reg-page.comprador .form-lbl .opt { color: #45657a; }
+
+/* ── Campos (vidro) ── */
+.reg-page.comprador .fi-icon { color: var(--b700); font-size: 1rem; }
+.reg-page.comprador .fi:focus-within .fi-icon { color: var(--b500); }
+.reg-page.comprador .fi-input,
+.reg-page.comprador .fi-select {
+  height: 52px; border-radius: 12px;
+  font-family: var(--ff); font-size: 16px;          /* 16px evita zoom no iOS */
+  color: var(--ink);
+  background-color: rgba(255,255,255,.36);
+  border: 1.5px solid rgba(255,255,255,.7);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.reg-page.comprador .fi-input { padding: 0 .75rem 0 2.8rem; }
+.reg-page.comprador .fi:has(.fi-eye) .fi-input { padding-right: 2.9rem; }
+.reg-page.comprador .fi-select { padding-left: .9rem; }
+.reg-page.comprador .fi-input::placeholder { color: #45657a; opacity: .85; }
+.reg-page.comprador .fi-input:hover { border-color: rgba(255,255,255,.95); background-color: rgba(255,255,255,.46); }
+.reg-page.comprador .fi-input:focus,
+.reg-page.comprador .fi-select:focus {
+  background-color: rgba(255,255,255,.68);
+  border-color: var(--b500);
+  box-shadow: 0 0 0 4px rgba(8,145,178,.16);
+}
+.reg-page.comprador .fi-eye { color: var(--b700); right: 4px; }
+.reg-page.comprador .fi-eye:hover { background: rgba(255,255,255,.5); color: var(--b500); }
+
+/* ── Botões ── */
+.reg-page.comprador .btn-reg-main {
+  height: 52px; border-radius: 12px;
+  background: linear-gradient(180deg, var(--b700), var(--b800));
+  color: #fff; font-family: var(--ff); font-size: 16px; font-weight: 700;
+  box-shadow: 0 8px 22px rgba(10,65,96,.34);
+  transition: transform .12s, box-shadow .2s, filter .2s;
+}
+.reg-page.comprador .btn-reg-main:hover { filter: brightness(1.1); box-shadow: 0 10px 28px rgba(10,65,96,.45); transform: none; }
+.reg-page.comprador .btn-reg-main:active { transform: translateY(1px); }
+.reg-page.comprador .btn-reg-main::before { content: none; }
+.reg-page.comprador .btn-reg-submit { flex: 2; }
+.reg-page.comprador .btn-reg-back {
+  height: 52px; border-radius: 12px; font-family: var(--ff); font-size: 15px;
+  background: rgba(255,255,255,.42); border: 1.5px solid rgba(255,255,255,.75); color: var(--b900);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.reg-page.comprador .btn-reg-back:hover { background: rgba(255,255,255,.66); border-color: var(--b500); color: var(--b800); }
+
+/* ── Rodapé ── */
+.reg-page.comprador .reg-foot {
+  margin-top: 1.3rem; padding-top: 1rem;
+  border-top: 1px solid rgba(12,93,132,.2);
+  font-size: .82rem; font-weight: 500; color: var(--txt);
+}
+.reg-page.comprador .reg-foot a { color: var(--b700); font-weight: 700; }
+.reg-page.comprador .reg-foot a:hover { color: var(--b900); }
+
+.reg-page.comprador a:focus-visible,
+.reg-page.comprador button:focus-visible { outline: 3px solid rgba(8,145,178,.55); outline-offset: 2px; border-radius: 8px; }
+
+/* ══════════ ECRÃ FIXO — sem scroll da página (como o login) ══════════
+   Tudo é dimensionado pela altura do ecrã para o cartão caber inteiro.
+   Só em ecrãs muito pequenos o cartão rola por dentro (sem barra visível). */
+html, body { height: 100%; overflow: hidden; }
+
+.reg-page.comprador {
+  height: 100vh; height: 100dvh; min-height: 0;
+  align-items: center; overflow: hidden;
+  padding: clamp(8px, 2.2vh, 28px) clamp(12px, 4vw, 48px);
+}
+.reg-page.comprador .reg-form-wrap {
+  margin: 0;
+  max-height: calc(100vh - 2 * clamp(8px, 2.2vh, 28px));
+  max-height: calc(100dvh - 2 * clamp(8px, 2.2vh, 28px));
+  overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: none; -ms-overflow-style: none;
+  padding: clamp(12px, 2.4vh, 30px) clamp(18px, 5vw, 40px) clamp(12px, 2.2vh, 24px);
+}
+.reg-page.comprador .reg-form-wrap::-webkit-scrollbar { display: none; }
+
+/* compactação vertical */
+.reg-page.comprador .reg-logo { margin-bottom: clamp(4px, 1vh, 12px); }
+.reg-page.comprador .reg-logo img { height: clamp(36px, 7vh, 64px); }
+.reg-page.comprador .reg-badge { margin-bottom: .4rem; padding: .2rem .65rem; font-size: .68rem; }
+.reg-page.comprador .reg-title { font-size: clamp(20px, 3.6vh, 28px); margin-bottom: .2rem; }
+.reg-page.comprador .reg-subtitle { font-size: clamp(12px, 1.9vh, 14px); margin-bottom: clamp(.5rem, 1.6vh, 1.2rem); }
+.reg-page.comprador .reg-progress { padding: .4rem .9rem; margin-bottom: clamp(.5rem, 1.8vh, 1.1rem); }
+.reg-page.comprador .rp-num { width: 28px; height: 28px; }
+.reg-page.comprador .reg-sec { padding: .2rem 0 .4rem; margin-bottom: clamp(.5rem, 1.4vh, .9rem); }
+.reg-page.comprador .reg-alert { padding: .55rem .8rem; margin-bottom: .7rem; }
+.reg-page.comprador .row { --bs-gutter-y: clamp(.45rem, 1.4vh, 1rem); }
+.reg-page.comprador .row.mb-3,
+.reg-page.comprador .row.mb-4 { margin-bottom: clamp(.6rem, 1.8vh, 1.1rem) !important; }
+.reg-page.comprador .form-lbl { margin-bottom: .2rem; font-size: .76rem; }
+.reg-page.comprador .fi-input,
+.reg-page.comprador .fi-select,
+.reg-page.comprador .fi-eye,
+.reg-page.comprador .btn-reg-main,
+.reg-page.comprador .btn-reg-back { height: clamp(40px, 6vh, 52px); }
+.reg-page.comprador .fi-eye { height: clamp(32px, 4.6vh, 40px); }
+.reg-page.comprador .reg-foot { margin-top: clamp(.5rem, 1.6vh, 1.1rem); padding-top: clamp(.4rem, 1.2vh, .8rem); font-size: .78rem; line-height: 1.6; }
+
+/* avatar (no passo 1) */
+.reg-page.comprador { --av: clamp(56px, 10vh, 84px); }
+.reg-page.comprador .text-center.mb-4 { margin-bottom: clamp(.5rem, 1.6vh, 1rem) !important; }
+.reg-page.comprador .avatar-upload-wrap { width: var(--av); height: var(--av); margin-bottom: .3rem; }
+.reg-page.comprador .avatar-placeholder,
+.reg-page.comprador #avatarPreview { width: var(--av); height: var(--av); }
+.reg-page.comprador .avatar-placeholder { font-size: calc(var(--av) * .42); }
+.reg-page.comprador .avatar-cam { width: 26px; height: 26px; font-size: .72rem; }
+
+@media (max-height: 820px) { .reg-page.comprador .reg-subtitle { display: none; } }
+@media (max-height: 720px) { .reg-page.comprador .avatar-hint { display: none; } }
+@media (max-width: 575.98px) {
+  .reg-page.comprador .reg-foot .sep { display: block; height: 0; overflow: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reg-page.comprador .reg-form-wrap { animation: none; }
+}
+
+/* ══════════ BOTÃO PRINCIPAL — cores do cenário (azul do entardecer) ══════════ */
+.reg-page.comprador .btn-reg-main {
+  background: linear-gradient(180deg, #0f9bbd 0%, #0a7ea8 52%, #0a5a80 100%);
+  color: #fff; letter-spacing: .01em;
+  border: 1px solid rgba(190,238,250,.55);
+  box-shadow:
+    0 10px 24px rgba(8,100,140,.42),
+    0 1px 0 rgba(255,255,255,.45) inset,
+    0 -2px 0 rgba(3,40,64,.25) inset;
+  text-shadow: 0 1px 2px rgba(3,40,64,.35);
+  transition: transform .15s var(--ease), box-shadow .2s, filter .2s;
+}
+.reg-page.comprador .btn-reg-main:hover {
+  filter: brightness(1.08) saturate(1.05);
+  transform: translateY(-1px);
+  box-shadow:
+    0 14px 30px rgba(8,100,140,.52),
+    0 1px 0 rgba(255,255,255,.5) inset,
+    0 -2px 0 rgba(3,40,64,.25) inset;
+}
+.reg-page.comprador .btn-reg-main:active { transform: translateY(1px); filter: brightness(.97); }

@@ -1,0 +1,290 @@
+/* ================================================================
+   SGPA — Registo de Produtor
+   Visual alinhado com a tela de Login (cartão de vidro sobre cenário).
+   Carregar DEPOIS de registro.css (este ficheiro só afeta o produtor;
+   o registo de comprador continua a usar apenas registro.css).
+================================================================ */
+
+:root {
+  --g900: #063b2a;
+  --g800: #07533a;
+  --g700: #0a6847;
+  --g500: #1f9d6a;
+  --g400: #35b57f;
+  --g300: #7fd9a8;
+  --g100: #e3f3ea;
+  --ink:  #0d2a1f;
+  --txt:  #1f3a2c;
+  --ff: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+}
+
+html { -webkit-text-size-adjust: 100%; }
+html, body { min-height: 100%; margin: 0; }
+body.reg-produtor, body {
+  font-family: var(--ff);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  background: #0b3a2a;
+}
+
+/* ══════════ CENÁRIO DE FUNDO (arrozal verde ao amanhecer) ══════════
+   1) /images/registo-bg.jpg (opcional, se existir)
+   2) fotos de campos verdes ao nascer do sol (Pexels, uso livre)
+   3) gradiente verde/dourado se não houver internet */
+.reg-page.produtor::before {
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    url('/images/registo-bg.jpg') center / cover no-repeat,
+    url('https://images.pexels.com/photos/36509146/pexels-photo-36509146/free-photo-of-dewy-rice-field-at-sunrise.jpeg?auto=compress&cs=tinysrgb&w=1920') center / cover no-repeat,
+    url('https://images.pexels.com/photos/20111879/pexels-photo-20111879/free-photo-of-wet-rice-cropland.jpeg?auto=compress&cs=tinysrgb&w=1920') center / cover no-repeat,
+    linear-gradient(180deg, #f6d27a 0%, #8cc98a 38%, #2f8f5b 70%, #0b4a33 100%);
+}
+.reg-page.produtor::after {   /* vinheta suave para destacar o cartão */
+  content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(4,30,18,.34), rgba(4,30,18,.05) 70%);
+}
+
+/* ══════════ ESTRUTURA ══════════ */
+.reg-page.produtor {
+  position: relative;
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; align-items: center; justify-content: center;
+  overflow: visible;
+  padding: clamp(16px, 4vw, 48px);
+  padding-top:    max(clamp(16px, 4vw, 48px), env(safe-area-inset-top));
+  padding-bottom: max(clamp(16px, 4vw, 48px), env(safe-area-inset-bottom));
+}
+.reg-page.produtor .reg-right {
+  flex: 0 1 auto;
+  width: 100%; max-width: 600px;
+  background: transparent; overflow: visible;
+  display: block; position: relative; z-index: 1;
+}
+.reg-page.produtor .reg-right::before,
+.reg-page.produtor .reg-right::after { content: none; }
+
+/* ══════════ CARTÃO (vidro) ══════════ */
+.reg-page.produtor .reg-form-wrap {
+  position: relative; overflow: hidden;
+  width: 100%; max-width: none; margin: 0;
+  background: rgba(255,255,255,.45);
+  -webkit-backdrop-filter: blur(22px) saturate(150%); backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255,255,255,.6);
+  border-radius: clamp(18px, 3vw, 24px);
+  padding: clamp(24px, 5vw, 38px) clamp(20px, 6vw, 42px) clamp(22px, 4vw, 30px);
+  box-shadow: 0 30px 80px rgba(40,20,5,.40), 0 2px 0 rgba(255,255,255,.6) inset;
+  animation: fadeUp .6s var(--ease) both;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .reg-page.produtor .reg-form-wrap { background: rgba(255,255,255,.9); }
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+
+/* ── Logotipo ── */
+.reg-logo { display: flex; justify-content: center; margin-bottom: clamp(10px, 2vh, 16px); }
+.reg-logo a { display: block; }
+.reg-logo img { height: clamp(56px, 10vh, 84px); width: auto; max-width: 100%; display: block; }
+
+/* ── Badge ── */
+.reg-page.produtor .reg-badge {
+  display: flex; width: fit-content; margin: 0 auto .7rem;
+  background: rgba(255,255,255,.55); color: var(--g800);
+  border: 1px solid rgba(255,255,255,.8);
+}
+.reg-page.produtor .reg-badge-dot { background: var(--g500); box-shadow: 0 0 0 3px rgba(31,157,106,.22); }
+
+/* ── Títulos ── */
+.reg-page.produtor .reg-title {
+  font-family: var(--ff); text-align: center;
+  font-size: clamp(23px, 5vw, 28px); font-weight: 800; letter-spacing: -.01em;
+  color: var(--g900); margin-bottom: .35rem;
+}
+.reg-page.produtor .reg-title-accent { color: var(--g700); }
+.reg-page.produtor .reg-subtitle {
+  text-align: center; color: var(--txt); font-weight: 500;
+  font-size: clamp(13px, 3.3vw, 14.5px); margin-bottom: 1.4rem;
+}
+
+/* ── Avatar (foto de perfil) ── */
+.avatar-upload-wrap { position: relative; width: 92px; height: 92px; margin: 0 auto .5rem; }
+.avatar-placeholder, #avatarPreview {
+  width: 92px; height: 92px; border-radius: 50%;
+  border: 3px solid rgba(255,255,255,.85);
+  box-shadow: 0 6px 18px rgba(3,30,20,.22);
+}
+.avatar-placeholder {
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,.55); color: var(--g700); font-size: 2.3rem;
+}
+#avatarPreview { display: none; object-fit: cover; }
+.avatar-cam {
+  position: absolute; bottom: 2px; right: 2px; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--g700); color: #fff; border: 2px solid #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: .8rem;
+  transition: background .2s;
+}
+.avatar-cam:hover { background: var(--g800); }
+.avatar-hint { font-size: .78rem; font-weight: 500; color: var(--txt); margin-top: .25rem; }
+.avatar-hint span { opacity: .75; font-weight: 400; }
+
+/* ── Progresso ── */
+.reg-page.produtor .reg-progress {
+  background: rgba(255,255,255,.35); border: 1px solid rgba(255,255,255,.65);
+  border-radius: 14px; padding: .7rem 1rem; margin-bottom: 1.3rem;
+}
+.reg-page.produtor .rp-step { color: #5b7365; font-size: .78rem; }
+.reg-page.produtor .rp-step.active { color: var(--g900); }
+.reg-page.produtor .rp-step.done   { color: var(--g700); }
+.reg-page.produtor .rp-num { background: rgba(255,255,255,.6); border-color: rgba(255,255,255,.9); color: var(--txt); }
+.reg-page.produtor .rp-step.active .rp-num { background: var(--g700); border-color: var(--g700); color: #fff; box-shadow: 0 3px 12px rgba(7,83,58,.35); }
+.reg-page.produtor .rp-step.done .rp-num   { background: var(--g500); border-color: var(--g500); color: #fff; }
+.reg-page.produtor .rp-line { background: rgba(255,255,255,.7); }
+.reg-page.produtor .rp-line.done { background: var(--g500); }
+
+/* ── Secção ── */
+.reg-page.produtor .reg-sec { color: var(--g800); border-bottom: 1.5px solid rgba(10,104,71,.18); }
+
+/* ── Alerta ── */
+.reg-page.produtor .reg-alert { overflow-wrap: anywhere; }
+
+/* ── Labels ── */
+.reg-page.produtor .form-lbl { color: var(--g900); font-weight: 600; font-size: .8rem; }
+.reg-page.produtor .form-lbl .opt { color: #3f5a4b; }
+
+/* ── Campos (vidro, igual ao login) ── */
+.reg-page.produtor .fi-icon { color: var(--g700); font-size: 1rem; }
+.reg-page.produtor .fi:focus-within .fi-icon { color: var(--g500); }
+.reg-page.produtor .fi-input,
+.reg-page.produtor .fi-select {
+  height: 52px; border-radius: 12px;
+  font-family: var(--ff); font-size: 16px;          /* 16px evita zoom no iOS */
+  color: var(--ink);
+  background-color: rgba(255,255,255,.35);
+  border: 1.5px solid rgba(255,255,255,.7);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.reg-page.produtor .fi-input { padding: 0 .75rem 0 2.8rem; }
+.reg-page.produtor .fi:has(.fi-eye) .fi-input { padding-right: 2.9rem; }
+.reg-page.produtor .fi-input::placeholder { color: #3f5a4b; opacity: .85; }
+.reg-page.produtor .fi-input:hover { border-color: rgba(255,255,255,.95); background-color: rgba(255,255,255,.45); }
+.reg-page.produtor .fi-input:focus,
+.reg-page.produtor .fi-select:focus {
+  background-color: rgba(255,255,255,.65);
+  border-color: var(--g500);
+  box-shadow: 0 0 0 4px rgba(31,157,106,.14);
+}
+.reg-page.produtor .fi-eye { color: var(--g700); right: 4px; }
+.reg-page.produtor .fi-eye:hover { background: rgba(255,255,255,.5); color: var(--g500); }
+
+/* ── Botões ── */
+.reg-page.produtor .btn-reg-main {
+  height: 52px; border-radius: 12px;
+  background: linear-gradient(180deg, var(--g700), var(--g800));
+  color: #fff; font-family: var(--ff); font-size: 16px; font-weight: 700;
+  box-shadow: 0 8px 22px rgba(7,83,58,.32);
+  transition: transform .12s, box-shadow .2s, filter .2s;
+}
+.reg-page.produtor .btn-reg-main:hover { filter: brightness(1.08); box-shadow: 0 10px 28px rgba(7,83,58,.42); transform: none; }
+.reg-page.produtor .btn-reg-main:active { transform: translateY(1px); }
+.reg-page.produtor .btn-reg-main::before { content: none; }
+.reg-page.produtor .btn-reg-submit { flex: 2; }
+.reg-page.produtor .btn-reg-back {
+  height: 52px; border-radius: 12px; font-family: var(--ff); font-size: 15px;
+  background: rgba(255,255,255,.4); border: 1.5px solid rgba(255,255,255,.75); color: var(--g900);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.reg-page.produtor .btn-reg-back:hover { background: rgba(255,255,255,.65); border-color: var(--g500); color: var(--g800); }
+
+/* ── Rodapé ── */
+.reg-page.produtor .reg-foot {
+  margin-top: 1.3rem; padding-top: 1rem;
+  border-top: 1px solid rgba(10,104,71,.18);
+  font-size: .82rem; font-weight: 500; color: var(--txt);
+}
+.reg-page.produtor .reg-foot a { color: var(--g700); font-weight: 700; }
+.reg-page.produtor .reg-foot a:hover { color: var(--g900); }
+
+a:focus-visible, button:focus-visible { outline: 3px solid rgba(31,157,106,.55); outline-offset: 2px; border-radius: 8px; }
+
+/* ══════════ ECRÃ FIXO — sem scroll da página (como o login) ══════════
+   Tudo é dimensionado pela altura do ecrã para o cartão caber inteiro.
+   Só em ecrãs muito pequenos o cartão rola por dentro (sem barra visível). */
+html, body { height: 100%; overflow: hidden; }
+
+.reg-page.produtor {
+  height: 100vh; height: 100dvh; min-height: 0;
+  align-items: center; overflow: hidden;
+  padding: clamp(8px, 2.2vh, 28px) clamp(12px, 4vw, 48px);
+}
+.reg-page.produtor .reg-form-wrap {
+  margin: 0;
+  max-height: calc(100vh - 2 * clamp(8px, 2.2vh, 28px));
+  max-height: calc(100dvh - 2 * clamp(8px, 2.2vh, 28px));
+  overflow-y: auto; overscroll-behavior: contain;
+  scrollbar-width: none; -ms-overflow-style: none;
+  padding: clamp(12px, 2.4vh, 30px) clamp(18px, 5vw, 40px) clamp(12px, 2.2vh, 24px);
+}
+.reg-page.produtor .reg-form-wrap::-webkit-scrollbar { display: none; }
+
+/* compactação vertical */
+.reg-page.produtor .reg-logo { margin-bottom: clamp(4px, 1vh, 12px); }
+.reg-page.produtor .reg-logo img { height: clamp(36px, 7vh, 64px); }
+.reg-page.produtor .reg-badge { margin-bottom: .4rem; padding: .2rem .65rem; font-size: .68rem; }
+.reg-page.produtor .reg-title { font-size: clamp(20px, 3.6vh, 28px); margin-bottom: .2rem; }
+.reg-page.produtor .reg-subtitle { font-size: clamp(12px, 1.9vh, 14px); margin-bottom: clamp(.5rem, 1.6vh, 1.2rem); }
+.reg-page.produtor .reg-progress { padding: .4rem .9rem; margin-bottom: clamp(.5rem, 1.8vh, 1.1rem); }
+.reg-page.produtor .rp-num { width: 28px; height: 28px; }
+.reg-page.produtor .reg-sec { padding: .2rem 0 .4rem; margin-bottom: clamp(.5rem, 1.4vh, .9rem); }
+.reg-page.produtor .reg-alert { padding: .55rem .8rem; margin-bottom: .7rem; }
+.reg-page.produtor .row { --bs-gutter-y: clamp(.45rem, 1.4vh, 1rem); }
+.reg-page.produtor .row.mb-3,
+.reg-page.produtor .row.mb-4 { margin-bottom: clamp(.6rem, 1.8vh, 1.1rem) !important; }
+.reg-page.produtor .form-lbl { margin-bottom: .2rem; font-size: .76rem; }
+.reg-page.produtor .fi-input,
+.reg-page.produtor .fi-select,
+.reg-page.produtor .fi-eye,
+.reg-page.produtor .btn-reg-main,
+.reg-page.produtor .btn-reg-back { height: clamp(40px, 6vh, 52px); }
+.reg-page.produtor .fi-eye { height: clamp(32px, 4.6vh, 40px); }
+.reg-page.produtor .reg-foot { margin-top: clamp(.5rem, 1.6vh, 1.1rem); padding-top: clamp(.4rem, 1.2vh, .8rem); font-size: .78rem; line-height: 1.6; }
+
+/* avatar (no passo 1) */
+.reg-page.produtor { --av: clamp(56px, 10vh, 84px); }
+.reg-page.produtor .text-center.mb-4 { margin-bottom: clamp(.5rem, 1.6vh, 1rem) !important; }
+.reg-page.produtor .avatar-upload-wrap { width: var(--av); height: var(--av); margin-bottom: .3rem; }
+.reg-page.produtor .avatar-placeholder,
+.reg-page.produtor #avatarPreview { width: var(--av); height: var(--av); }
+.reg-page.produtor .avatar-placeholder { font-size: calc(var(--av) * .42); }
+.reg-page.produtor .avatar-cam { width: 26px; height: 26px; font-size: .72rem; }
+
+@media (max-height: 820px) { .reg-page.produtor .reg-subtitle { display: none; } }
+@media (max-height: 720px) { .reg-page.produtor .avatar-hint { display: none; } }
+@media (max-width: 575.98px) {
+  .reg-page.produtor .reg-foot .sep { display: block; height: 0; overflow: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reg-page.produtor .reg-form-wrap { animation: none; }
+}
+
+/* ══════════ BOTÃO PRINCIPAL — cores do cenário (dourado do pôr do sol) ══════════ */
+.reg-page.produtor .btn-reg-main {
+  background: linear-gradient(180deg, #fbc569 0%, #efa13f 52%, #d9802a 100%);
+  color: #2e1703; letter-spacing: .01em;
+  border: 1px solid rgba(255,236,196,.7);
+  box-shadow:
+    0 10px 24px rgba(200,115,25,.42),
+    0 1px 0 rgba(255,255,255,.6) inset,
+    0 -2px 0 rgba(120,60,8,.22) inset;
+  text-shadow: 0 1px 0 rgba(255,236,196,.55);
+  transition: transform .15s var(--ease), box-shadow .2s, filter .2s;
+}
+.reg-page.produtor .btn-reg-main:hover {
+  filter: brightness(1.06) saturate(1.05);
+  transform: translateY(-1px);
+  box-shadow:
+    0 14px 30px rgba(200,115,25,.52),
+    0 1px 0 rgba(255,255,255,.65) inset,
+    0 -2px 0 rgba(120,60,8,.22) inset;
+}
+.reg-page.produtor .btn-reg-main:active { transform: translateY(1px); filter: brightness(.97); }
