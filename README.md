@@ -229,4 +229,4 @@ O sistema suporta **duplo perfil**: um utilizador registado como Comprador pode 
 
 ## 📄 Licença
 
-Este projecto foi desenvolvido para fins académicos na **UJC** (Universidade). Todos os direitos reservados aos autores: **Mário**, **Castigo** e **Álvaro**.
+Este projecto foi desenvolvido para fins académicos na **UJC** (Universidade). Todos os direitos reservados aos autores: **Mário**.
