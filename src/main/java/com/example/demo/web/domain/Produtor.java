@@ -45,6 +45,10 @@ public class Produtor extends AbstractEntity<Long> {
     @Column(name = "ultimo_acesso")
     private LocalDateTime ultimoAcesso;
 
+    /** Conta activa? null (contas antigas) conta como activa. Suspensa pelo admin quando false. */
+    @Column(name = "ativo")
+    private Boolean ativo = Boolean.TRUE;
+
     // RELACIONAMENTO COM OFERTAS
     @OneToMany(mappedBy = "produtor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Oferta> ofertas;
@@ -128,6 +132,12 @@ public class Produtor extends AbstractEntity<Long> {
 
     // ================= MÉTODO EXTRA =================
  
+    public Boolean getAtivo() { return ativo; }
+    public void setAtivo(Boolean ativo) { this.ativo = ativo; }
+
+    @Transient
+    public boolean isContaAtiva() { return ativo == null || ativo; }
+
     @Transient
     public String getNomeCompleto() {
         return nome + " " + apelido;

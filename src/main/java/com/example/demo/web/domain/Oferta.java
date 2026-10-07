@@ -78,7 +78,7 @@ public class Oferta extends AbstractEntity<Long> {
     @JoinColumn(name = "Produtor_idProdutor", nullable = false)
     private Produtor produtor;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "Bairro_idBairro", nullable = true)
     private Bairro bairro;
 
