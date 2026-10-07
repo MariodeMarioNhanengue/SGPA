@@ -65,6 +65,9 @@ public class AuthService {
         Optional<Produtor> produtor = produtorRepository.findByEmail(email);
         if (produtor.isPresent() && senhaCorreta(produtor.get().getSenha(), senha)) {
             Produtor p = produtor.get();
+            if (!p.isContaAtiva()) {
+                return ResultadoLogin.falha();
+            }
             if (Boolean.FALSE.equals(p.getEmailVerificado())) {
                 return ResultadoLogin.emailPorConfirmar(email);
             }
@@ -79,6 +82,9 @@ public class AuthService {
         Optional<Comprador> comprador = compradorRepository.findByEmail(email);
         if (comprador.isPresent() && senhaCorreta(comprador.get().getSenha(), senha)) {
             Comprador c = comprador.get();
+            if (!c.isContaAtiva()) {
+                return ResultadoLogin.falha();
+            }
             if (Boolean.FALSE.equals(c.getEmailVerificado())) {
                 return ResultadoLogin.emailPorConfirmar(email);
             }

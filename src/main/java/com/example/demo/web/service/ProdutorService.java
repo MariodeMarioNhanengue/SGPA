@@ -290,6 +290,9 @@ public class ProdutorService {
             .orElseThrow(() -> new RecursoNaoEncontradoException("Pedido não encontrado."));
         garantirPedidoDoProdutor(pedido, produtorId);
 
+        // O stock só é descontado quando o pedido é pago (ACEITE); só aí há stock a repor.
+        boolean stockFoiDescontado = pedido.getEstado() == Pedido.EstadoPedido.ACEITE;
+
         pedido.setEstado(Pedido.EstadoPedido.REJEITADO);
         pedido.setDataResposta(LocalDateTime.now());
         pedido.setMotivoRejeicao(motivoRejeicao.trim());
@@ -309,7 +312,7 @@ public class ProdutorService {
         });
 
         Oferta oferta = pedido.getOferta();
-        if (oferta != null && pedido.getQuantidade() != null
+        if (stockFoiDescontado && oferta != null && pedido.getQuantidade() != null
                 && pedido.getQuantidade().compareTo(BigDecimal.ZERO) > 0) {
             BigDecimal restanteActual = oferta.getQuantidadeRestante() != null
                 ? oferta.getQuantidadeRestante() : BigDecimal.ZERO;
