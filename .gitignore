@@ -31,3 +31,21 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### SGPA: segredos e ficheiros locais ###
+application-local.properties
+.env
+
+### Logs de crash da JVM ###
+hs_err_pid*.log
+replay_pid*.log
+
+### Eclipse workspace metadata ###
+.metadata/
+.classpath
+.factorypath
+
+### Uploads de utilizadores (imagens enviadas em runtime) ###
+/uploads/images/ofertas/*
+/uploads/images/perfis/*
+!/uploads/images/**/.gitkeep

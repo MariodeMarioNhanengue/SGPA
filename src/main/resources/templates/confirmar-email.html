@@ -46,22 +46,59 @@
       color:#fff; text-decoration:none; font-weight: 600; font-size: .92rem;
     }
     a.btn:hover { filter: brightness(1.08); }
+    button.btn { border: 0; cursor: pointer; font-family: inherit; width: 100%; justify-content: center; }
+    form.acao { margin-bottom: 12px; }
+    .btn-danger { background: linear-gradient(135deg, #d9534f, var(--error)); }
+    p strong { color: var(--text-dark); }
   </style>
 </head>
 <body>
   <div class="card">
-    <div th:if="${sucesso}">
+
+    <!-- Escolha: fui eu / não fui eu -->
+    <div th:if="${estado == 'PERGUNTAR'}">
+      <div class="icon ok"><i class="bi bi-shield-check"></i></div>
+      <h1>Confirmar criação da conta</h1>
+      <p>Foi pedida a criação de uma conta de
+         <strong th:text="${tipo == 'PRODUTOR' ? 'Produtor' : 'Comprador'}">Comprador</strong>
+         no SGPA para <strong th:text="${nome}">Nome</strong>
+         (<span th:text="${email}">email</span>).<br/>Foi você que a criou?</p>
+
+      <form th:action="@{/confirmar-email}" method="post" class="acao">
+        <input type="hidden" name="token" th:value="${token}"/>
+        <button type="submit" class="btn"><i class="bi bi-check-circle"></i> Sim, fui eu — confirmar</button>
+      </form>
+      <form th:action="@{/rejeitar-conta}" method="post" class="acao"
+            onsubmit="return confirm('Cancelar o registo e apagar esta conta?');">
+        <input type="hidden" name="token" th:value="${token}"/>
+        <button type="submit" class="btn btn-danger"><i class="bi bi-x-circle"></i> Não fui eu — cancelar registo</button>
+      </form>
+    </div>
+
+    <!-- Confirmado -->
+    <div th:if="${estado == 'CONFIRMADO'}">
       <div class="icon ok"><i class="bi bi-check-circle-fill"></i></div>
       <h1>Email confirmado!</h1>
       <p>A sua conta foi activada com sucesso. Já pode entrar na plataforma com o seu email e senha.</p>
       <a href="/login" class="btn"><i class="bi bi-box-arrow-in-right"></i> Ir para o login</a>
     </div>
-    <div th:unless="${sucesso}">
+
+    <!-- Cancelado -->
+    <div th:if="${estado == 'CANCELADO'}">
+      <div class="icon erro"><i class="bi bi-person-x-fill"></i></div>
+      <h1>Registo cancelado</h1>
+      <p>A conta não foi activada e os dados do registo foram apagados. Se alguém usou o seu email sem autorização, não precisa de fazer mais nada.</p>
+      <a href="/" class="btn"><i class="bi bi-house"></i> Ir para o início</a>
+    </div>
+
+    <!-- Inválido -->
+    <div th:if="${estado == 'INVALIDO'}">
       <div class="icon erro"><i class="bi bi-x-circle-fill"></i></div>
       <h1>Link inválido</h1>
-      <p>Este link de confirmação é inválido, já foi usado, ou expirou (é válido por 24 horas). Pode pedir um novo link na página de login.</p>
+      <p>Este link é inválido, já foi usado, a conta já foi confirmada, ou expirou (é válido por 24 horas). Pode pedir um novo link na página de login.</p>
       <a href="/login" class="btn"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
     </div>
+
   </div>
 </body>
 </html>
