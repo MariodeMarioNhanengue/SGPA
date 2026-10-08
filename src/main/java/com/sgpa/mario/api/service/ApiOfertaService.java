@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,21 +13,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.api.dto.OfertaDtos.OfertaRequest;
-import com.example.demo.api.dto.OfertaDtos.OfertaResponse;
-import com.example.demo.api.dto.UsuarioDtos.ResumoProdutorResponse;
-import com.example.demo.api.exception.ApiException;
-import com.example.demo.api.repository.OfertaSearchRepository;
-import com.example.demo.web.domain.Bairro;
-import com.example.demo.web.domain.Oferta;
-import com.example.demo.web.domain.Oferta.EstadoOferta;
-import com.example.demo.api.repository.OfertaRepository;
-import com.example.demo.api.service.ArmazenamentoService;
-import com.example.demo.api.service.LocalizacaoService;
-import com.example.demo.api.service.ProdutorService;
-import com.example.demo.api.service.exception.NaoAutorizadoException;
-import com.example.demo.api.service.exception.RecursoNaoEncontradoException;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.api.dto.OfertaDtos.OfertaRequest;
+import com.sgpa.mario.api.dto.OfertaDtos.OfertaResponse;
+import com.sgpa.mario.api.dto.UsuarioDtos.ResumoProdutorResponse;
+import com.sgpa.mario.api.exception.ApiException;
+import com.sgpa.mario.api.repository.OfertaSearchRepository;
+import com.sgpa.mario.web.domain.Bairro;
+import com.sgpa.mario.web.domain.Oferta;
+import com.sgpa.mario.web.domain.Oferta.EstadoOferta;
+import com.sgpa.mario.api.repository.OfertaRepository;
+import com.sgpa.mario.api.service.ArmazenamentoService;
+import com.sgpa.mario.api.service.LocalizacaoService;
+import com.sgpa.mario.api.service.ProdutorService;
+import com.sgpa.mario.api.service.exception.NaoAutorizadoException;
+import com.sgpa.mario.api.service.exception.RecursoNaoEncontradoException;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 /** Catálogo público de ofertas e gestão das ofertas pelo produtor dono. */
 @Service

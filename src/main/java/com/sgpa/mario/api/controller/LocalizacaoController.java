@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import java.util.List;
 
@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.web.domain.Bairro;
-import com.example.demo.web.domain.Distrito;
-import com.example.demo.web.domain.Provincia;
-import com.example.demo.api.service.LocalizacaoService;
+import com.sgpa.mario.web.domain.Bairro;
+import com.sgpa.mario.web.domain.Distrito;
+import com.sgpa.mario.web.domain.Provincia;
+import com.sgpa.mario.api.service.LocalizacaoService;
 
 @RestController
 @RequestMapping("/api")

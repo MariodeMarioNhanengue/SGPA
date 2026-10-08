@@ -1,4 +1,4 @@
-package com.example.demo.api.dto;
+package com.sgpa.mario.api.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+  Aviso de conta por validar (Produtor e Comprador).
+  Uso:  <div th:replace="~{fragments/verificacao-conta :: aviso}"></div>
+  Só aparece quando o ContaPorVerificarAdvice marca a sessão como "contaPorVerificar".
+    - Faixa fixa no topo: sempre visível enquanto a conta não for validada.
+    - Janela de lembrete: abre ao entrar e volta a abrir de 30 em 30 minutos.
+  O bloqueio das acções é feito no servidor (ContaVerificadaInterceptor); isto é só o aviso.
+-->
+<div th:fragment="aviso" th:if="${contaPorVerificar}">
+
+  <style>
+    .sgpa-verif-banner{position:sticky;top:0;z-index:2000;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;
+      padding:10px 18px;background:#fff3cd;border-bottom:1px solid #f0d58a;color:#7a5b00;font-size:14px;line-height:1.35;
+      font-family:inherit;}
+    .sgpa-verif-banner strong{color:#5c4400;}
+    .sgpa-verif-banner form{margin:0 0 0 auto;}
+    .sgpa-verif-btn{border:1px solid #c79a14;background:#fff;color:#7a5b00;border-radius:8px;padding:5px 12px;
+      font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+    .sgpa-verif-btn:hover{background:#fff8e1;}
+    .sgpa-verif-btn.primary{background:#c79a14;border-color:#c79a14;color:#fff;}
+    .sgpa-verif-btn.primary:hover{background:#b58a10;}
+    .sgpa-verif-overlay{position:fixed;inset:0;z-index:3000;display:none;align-items:center;justify-content:center;
+      background:rgba(0,0,0,.55);padding:16px;}
+    .sgpa-verif-modal{background:#fff;color:#222;max-width:440px;width:100%;border-radius:16px;padding:26px 24px;
+      box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center;font-family:inherit;}
+    .sgpa-verif-ico{font-size:40px;line-height:1;margin-bottom:8px;}
+    .sgpa-verif-modal h2{font-size:20px;margin:0 0 10px;color:#222;}
+    .sgpa-verif-modal p{font-size:14.5px;line-height:1.5;margin:0 0 10px;color:#444;}
+    .sgpa-verif-modal .email{font-weight:700;word-break:break-all;}
+    .sgpa-verif-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px;}
+    .sgpa-verif-actions form{margin:0;}
+  </style>
+
+  <div class="sgpa-verif-banner" role="alert" id="sgpaVerifBanner">
+    <span>
+      <strong>Conta por validar.</strong>
+      Confirme o e-mail <span th:text="${contaPorVerificarEmail}">email</span> para poder usar a plataforma.
+      Até lá não pode fazer pedidos, publicar ofertas nem alterar dados.
+    </span>
+    <form th:action="@{/reenviar-confirmacao}" method="post">
+      <input type="hidden" name="email" th:value="${contaPorVerificarEmail}"/>
+      <button type="submit" class="sgpa-verif-btn">Reenviar e-mail de confirmação</button>
+    </form>
+  </div>
+
+  <div class="sgpa-verif-overlay" id="sgpaVerifOverlay" role="dialog" aria-modal="true" aria-labelledby="sgpaVerifTitulo">
+    <div class="sgpa-verif-modal">
+      <div class="sgpa-verif-ico" aria-hidden="true">✉️</div>
+      <h2 id="sgpaVerifTitulo">Valide a sua conta</h2>
+      <p>
+        Enviámos um link de confirmação para
+        <span class="email" th:text="${contaPorVerificarEmail}">email</span>.
+        Abra o e-mail e clique no link para activar a conta.
+      </p>
+      <p>
+        Enquanto a conta não for validada <strong>não pode realizar nenhuma acção</strong>
+        (pedidos, pagamentos, ofertas, perfil). Também pode pedir a um administrador que a valide.
+      </p>
+      <div class="sgpa-verif-actions">
+        <form th:action="@{/reenviar-confirmacao}" method="post">
+          <input type="hidden" name="email" th:value="${contaPorVerificarEmail}"/>
+          <button type="submit" class="sgpa-verif-btn primary">Reenviar e-mail</button>
+        </form>
+        <button type="button" class="sgpa-verif-btn" id="sgpaVerifFechar">Fechar</button>
+      </div>
+      <p style="margin:12px 0 0;font-size:12px;color:#888;">Voltaremos a lembrá-lo de 30 em 30 minutos.</p>
+    </div>
+  </div>
+
+  <script th:inline="javascript">
+    (function () {
+      var INTERVALO_MS = 30 * 60 * 1000;                       // 30 minutos
+      var email   = /*[[${contaPorVerificarEmail}]]*/ '';
+      var CHAVE   = 'sgpa_lembrete_validacao:' + email;
+      var overlay = document.getElementById('sgpaVerifOverlay');
+      var fechar  = document.getElementById('sgpaVerifFechar');
+      if (!overlay) return;
+
+      function ultimoLembrete() {
+        try { return parseInt(localStorage.getItem(CHAVE) || '0', 10) || 0; } catch (e) { return 0; }
+      }
+      function mostrar() {
+        overlay.style.display = 'flex';
+        try { localStorage.setItem(CHAVE, String(Date.now())); } catch (e) { /* sem localStorage: continua a funcionar */ }
+      }
+      // Mostra se já passaram 30 min desde o último lembrete (ou se nunca foi mostrado).
+      // Corre ao abrir a página e a cada minuto: cobre recargas, vários separadores e páginas abertas há muito tempo.
+      function verificar() {
+        if (overlay.style.display !== 'flex' && Date.now() - ultimoLembrete() >= INTERVALO_MS) mostrar();
+      }
+      fechar.addEventListener('click', function () { overlay.style.display = 'none'; });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') overlay.style.display = 'none'; });
+
+      verificar();
+      setInterval(verificar, 60 * 1000);
+    })();
+  </script>
+</div>
+
+</body>
+</html>

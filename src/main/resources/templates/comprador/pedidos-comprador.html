@@ -344,7 +344,7 @@
          th:id="'modalCancelar' + ${pedido.id}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:14px;">
-          <form th:action="@{/comprador/cancelar-pedido/{id}(id=${pedido.id})}" method="post">
+          <form th:action="@{/comprador/cancelar-pedido/{id}(id=${pedido.id},_method='patch')}" method="post">
             <div class="modal-header">
               <h5 class="modal-title" style="font-weight:800;color:#6a1b9a;">
                 <i class="bi bi-slash-circle me-1"></i> Cancelar Pedido

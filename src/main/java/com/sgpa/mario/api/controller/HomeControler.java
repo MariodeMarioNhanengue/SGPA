@@ -1,14 +1,14 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import com.example.demo.web.domain.Oferta;
-import com.example.demo.api.repository.CompradorRepository;
-import com.example.demo.api.repository.OfertaRepository;
-import com.example.demo.api.repository.ProdutorRepository;
+import com.sgpa.mario.web.domain.Oferta;
+import com.sgpa.mario.api.repository.CompradorRepository;
+import com.sgpa.mario.api.repository.OfertaRepository;
+import com.sgpa.mario.api.repository.ProdutorRepository;
 
 @Controller
 public class HomeControler {

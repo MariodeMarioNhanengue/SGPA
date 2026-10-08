@@ -1,4 +1,4 @@
-package com.example.demo.api.exception;
+package com.sgpa.mario.api.exception;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,9 +20,9 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.example.demo.api.service.exception.NaoAutorizadoException;
-import com.example.demo.api.service.exception.RecursoNaoEncontradoException;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.api.service.exception.NaoAutorizadoException;
+import com.sgpa.mario.api.service.exception.RecursoNaoEncontradoException;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 /**
  * Converte todas as excepções da API em respostas JSON (RFC 7807, "problem+json"):

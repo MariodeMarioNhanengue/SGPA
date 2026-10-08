@@ -1,24 +1,24 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.web.domain.Admin;
-import com.example.demo.web.domain.AdminLog;
-import com.example.demo.web.domain.Comprador;
-import com.example.demo.web.domain.Oferta;
-import com.example.demo.web.domain.Pedido;
-import com.example.demo.web.domain.Produtor;
-import com.example.demo.api.repository.AdminLogRepository;
-import com.example.demo.api.repository.AdminRepository;
-import com.example.demo.api.repository.CompradorRepository;
-import com.example.demo.api.repository.OfertaRepository;
-import com.example.demo.api.repository.PedidoRepository;
-import com.example.demo.api.repository.ProdutorRepository;
-import com.example.demo.api.service.exception.RecursoNaoEncontradoException;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.web.domain.Admin;
+import com.sgpa.mario.web.domain.AdminLog;
+import com.sgpa.mario.web.domain.Comprador;
+import com.sgpa.mario.web.domain.Oferta;
+import com.sgpa.mario.web.domain.Pedido;
+import com.sgpa.mario.web.domain.Produtor;
+import com.sgpa.mario.api.repository.AdminLogRepository;
+import com.sgpa.mario.api.repository.AdminRepository;
+import com.sgpa.mario.api.repository.CompradorRepository;
+import com.sgpa.mario.api.repository.OfertaRepository;
+import com.sgpa.mario.api.repository.PedidoRepository;
+import com.sgpa.mario.api.repository.ProdutorRepository;
+import com.sgpa.mario.api.service.exception.RecursoNaoEncontradoException;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -205,6 +205,21 @@ public class AdminService {
         return p;
     }
 
+    /** Validação manual da conta por um administrador (alternativa ao link enviado por e-mail). */
+    public Produtor validarProdutor(Long id, HttpSession session) {
+        Produtor p = produtorRepository.findById(id)
+            .orElseThrow(() -> new RecursoNaoEncontradoException("Produtor não encontrado."));
+        if (!Boolean.FALSE.equals(p.getEmailVerificado())) {
+            throw new RegraNegocioException("Esta conta já está validada.");
+        }
+        p.setEmailVerificado(Boolean.TRUE);
+        produtorRepository.save(p);
+        adminAuthService.registarLog(session, "VALIDAR_PRODUTOR",
+            "Validou manualmente a conta do produtor " + p.getNomeCompleto() + " (" + p.getEmail() + ")",
+            p.getNomeCompleto(), "PRODUTOR");
+        return p;
+    }
+
     public record DetalheProdutor(Produtor produtor, List<Oferta> ofertas, long totalOfertas,
                                   long ofertasAtivas, long ofertasExpiradas, long ofertasInativas,
                                   List<Pedido> pedidosProdutor, long totalPedidosProdutor,
@@ -265,6 +280,21 @@ public class AdminService {
         adminAuthService.registarLog(session, "CRIAR_COMPRADOR",
             "Criou comprador: " + nome + " " + apelido + " (" + email + ")",
             nome + " " + apelido, "COMPRADOR");
+        return c;
+    }
+
+    /** Validação manual da conta por um administrador (alternativa ao link enviado por e-mail). */
+    public Comprador validarComprador(Long id, HttpSession session) {
+        Comprador c = compradorRepository.findById(id)
+            .orElseThrow(() -> new RecursoNaoEncontradoException("Comprador não encontrado."));
+        if (!Boolean.FALSE.equals(c.getEmailVerificado())) {
+            throw new RegraNegocioException("Esta conta já está validada.");
+        }
+        c.setEmailVerificado(Boolean.TRUE);
+        compradorRepository.save(c);
+        adminAuthService.registarLog(session, "VALIDAR_COMPRADOR",
+            "Validou manualmente a conta do comprador " + c.getNomeCompleto() + " (" + c.getEmail() + ")",
+            c.getNomeCompleto(), "COMPRADOR");
         return c;
     }
 

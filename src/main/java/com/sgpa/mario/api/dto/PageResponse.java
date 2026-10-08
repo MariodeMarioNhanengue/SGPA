@@ -1,4 +1,4 @@
-package com.example.demo.api.dto;
+package com.sgpa.mario.api.dto;
 
 import java.util.List;
 

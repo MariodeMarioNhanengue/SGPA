@@ -1,4 +1,4 @@
-package com.example.demo.api.config;
+package com.sgpa.mario.api.config;
 
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;

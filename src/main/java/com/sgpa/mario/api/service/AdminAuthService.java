@@ -1,14 +1,14 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.example.demo.web.domain.Admin;
-import com.example.demo.web.domain.AdminLog;
-import com.example.demo.api.repository.AdminLogRepository;
-import com.example.demo.api.repository.AdminRepository;
+import com.sgpa.mario.web.domain.Admin;
+import com.sgpa.mario.web.domain.AdminLog;
+import com.sgpa.mario.api.repository.AdminLogRepository;
+import com.sgpa.mario.api.repository.AdminRepository;
 import jakarta.servlet.http.HttpSession;
 
 /**

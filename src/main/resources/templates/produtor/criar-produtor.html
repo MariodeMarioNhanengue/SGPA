@@ -129,6 +129,11 @@
 
         <!-- ── STEP 2: Conta ── -->
         <div id="stepP2" style="display:none;">
+          <div id="erroStep2" class="reg-alert" role="alert" style="display:none;">
+            <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+            <span></span>
+          </div>
+
           <div class="reg-sec">
             <i class="bi bi-credit-card" aria-hidden="true"></i>
             Dados de Conta
@@ -136,12 +141,12 @@
 
           <div class="row g-3 mb-4">
             <div class="col-md-6">
-              <label class="form-lbl" for="pEmail">E-mail</label>
+              <label class="form-lbl" for="pEmail">E-mail <span aria-hidden="true">*</span></label>
               <div class="fi">
                 <i class="bi bi-envelope fi-icon" aria-hidden="true"></i>
                 <input type="email" id="pEmail" class="fi-input"
                        th:field="*{email}" th:value="${emailPre}"
-                       placeholder="exemplo@email.com"/>
+                       placeholder="exemplo@email.com" required/>
               </div>
             </div>
             <div class="col-md-6">
@@ -171,7 +176,7 @@
               <label class="form-lbl" for="senhaConfirmP">Confirmar Senha <span aria-hidden="true">*</span></label>
               <div class="fi">
                 <i class="bi bi-lock-fill fi-icon" aria-hidden="true"></i>
-                <input type="password" id="senhaConfirmP" class="fi-input"
+                <input type="password" id="senhaConfirmP" name="confirmarSenha" class="fi-input"
                        placeholder="Repita a senha" required/>
                 <button type="button" class="fi-eye" onclick="togglePass('senhaConfirmP','eyeP2')"
                         aria-label="Mostrar confirmação de senha">
@@ -211,7 +216,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 <script src="/js/main.js"></script>
 <script src="/js/criar-produtor.js"></script>
-<script>
+<script th:inline="javascript">
   /* ── STEPS ── */
   function goStep(from, to) {
     document.getElementById('stepP' + from).style.display = 'none';
@@ -252,6 +257,68 @@
     markActive(1);
     document.getElementById('rpS2').classList.remove('active');
   });
+
+
+  /* ── VALIDAÇÃO DO PASSO 2 (e-mail e senha são obrigatórios) ── */
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  function mostrarErroPasso2(msg) {
+    const box = document.getElementById('erroStep2');
+    box.querySelector('span').textContent = msg;
+    box.style.display = 'flex';
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function validarPasso2() {
+    const email   = document.getElementById('pEmail');
+    const senha   = document.getElementById('senhaP');
+    const confirm = document.getElementById('senhaConfirmP');
+    [email, senha, confirm].forEach(f => f.classList.remove('invalid'));
+    document.getElementById('erroStep2').style.display = 'none';
+
+    if (!email.value.trim()) {
+      email.classList.add('invalid'); email.focus();
+      mostrarErroPasso2('Indique o e-mail. Sem ele não é possível validar a conta.'); return false;
+    }
+    if (!EMAIL_RE.test(email.value.trim())) {
+      email.classList.add('invalid'); email.focus();
+      mostrarErroPasso2('E-mail inválido. Verifique se o escreveu correctamente.'); return false;
+    }
+    if (!senha.value) {
+      senha.classList.add('invalid'); senha.focus();
+      mostrarErroPasso2('Indique a senha.'); return false;
+    }
+    if (senha.value.length < 6) {
+      senha.classList.add('invalid'); senha.focus();
+      mostrarErroPasso2('A senha deve ter pelo menos 6 caracteres.'); return false;
+    }
+    if (senha.value !== confirm.value) {
+      confirm.classList.add('invalid'); confirm.focus();
+      mostrarErroPasso2('As senhas não coincidem.'); return false;
+    }
+    return true;
+  }
+
+  document.getElementById('formProdutor').addEventListener('submit', function (e) {
+    // Garante também o passo 1 (caso alguém chegue ao envio sem o ter preenchido)
+    const passo1 = ['pNome', 'pApelido', 'pTelefone'].every(id => document.getElementById(id).value.trim());
+    if (!passo1) {
+      e.preventDefault();
+      goStep(2, 1); markActive(1);
+      document.getElementById('rpS2').classList.remove('active');
+      ['pNome', 'pApelido', 'pTelefone'].forEach(id => {
+        const f = document.getElementById(id);
+        f.classList.toggle('invalid', !f.value.trim());
+      });
+      return;
+    }
+    if (!validarPasso2()) e.preventDefault();
+  });
+
+  /* Se o servidor devolveu erro, o passo 1 já vem preenchido: voltar directamente ao passo 2 */
+  /*[# th:if="${erro}"]*/
+  goStep(1, 2); markDone(1); document.getElementById('rpS2').classList.add('active');
+  /*[/]*/
 
   /* ── VER SENHA ── */
   function togglePass(id, iconId) {

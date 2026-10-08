@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import java.math.BigDecimal;
 import java.net.URI;
@@ -26,15 +26,15 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.api.config.UsuarioAtual;
-import com.example.demo.api.dto.OfertaDtos.EstadoOfertaRequest;
-import com.example.demo.api.dto.OfertaDtos.OfertaRequest;
-import com.example.demo.api.dto.OfertaDtos.OfertaResponse;
-import com.example.demo.api.dto.PageResponse;
-import com.example.demo.api.dto.UsuarioDtos.ResumoProdutorResponse;
-import com.example.demo.api.service.ApiOfertaService;
-import com.example.demo.api.service.OfertaFiltro;
-import com.example.demo.web.domain.Oferta.EstadoOferta;
+import com.sgpa.mario.api.config.UsuarioAtual;
+import com.sgpa.mario.api.dto.OfertaDtos.EstadoOfertaRequest;
+import com.sgpa.mario.api.dto.OfertaDtos.OfertaRequest;
+import com.sgpa.mario.api.dto.OfertaDtos.OfertaResponse;
+import com.sgpa.mario.api.dto.PageResponse;
+import com.sgpa.mario.api.dto.UsuarioDtos.ResumoProdutorResponse;
+import com.sgpa.mario.api.service.ApiOfertaService;
+import com.sgpa.mario.api.service.OfertaFiltro;
+import com.sgpa.mario.web.domain.Oferta.EstadoOferta;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

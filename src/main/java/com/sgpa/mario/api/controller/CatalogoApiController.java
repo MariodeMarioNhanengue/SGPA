@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import java.util.List;
 
@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.api.dto.CatalogoDtos.BairroRequest;
-import com.example.demo.api.dto.CatalogoDtos.BairroResponse;
-import com.example.demo.api.dto.CatalogoDtos.CategoriaResponse;
-import com.example.demo.api.dto.CatalogoDtos.DistritoRequest;
-import com.example.demo.api.dto.CatalogoDtos.DistritoResponse;
-import com.example.demo.api.dto.CatalogoDtos.ProdutoResponse;
-import com.example.demo.api.dto.CatalogoDtos.ProvinciaRequest;
-import com.example.demo.api.dto.CatalogoDtos.ProvinciaResponse;
-import com.example.demo.api.service.ApiCatalogoService;
+import com.sgpa.mario.api.dto.CatalogoDtos.BairroRequest;
+import com.sgpa.mario.api.dto.CatalogoDtos.BairroResponse;
+import com.sgpa.mario.api.dto.CatalogoDtos.CategoriaResponse;
+import com.sgpa.mario.api.dto.CatalogoDtos.DistritoRequest;
+import com.sgpa.mario.api.dto.CatalogoDtos.DistritoResponse;
+import com.sgpa.mario.api.dto.CatalogoDtos.ProdutoResponse;
+import com.sgpa.mario.api.dto.CatalogoDtos.ProvinciaRequest;
+import com.sgpa.mario.api.dto.CatalogoDtos.ProvinciaResponse;
+import com.sgpa.mario.api.service.ApiCatalogoService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

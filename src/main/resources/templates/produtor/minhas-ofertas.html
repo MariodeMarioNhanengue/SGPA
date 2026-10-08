@@ -171,7 +171,7 @@
                      style="border-radius:7px;font-size:.75rem;padding:3px 9px;">
                     <i class="bi bi-pencil-fill"></i> Editar
                   </a>
-                  <form th:action="@{/produtor/apagar-oferta/{id}(id=${oferta.id})}" method="post" class="d-inline m-0"
+                  <form th:action="@{/produtor/ofertas/{id}(id=${oferta.id},_method='delete')}" method="post" class="d-inline m-0"
                         onsubmit="return confirm('Tem a certeza que deseja apagar esta oferta?');">
                     <input type="hidden" name="produtorId" th:value="${produtorId}"/>
                     <button type="submit"

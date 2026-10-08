@@ -1,10 +1,11 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import java.net.URI;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,15 +13,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.api.config.UsuarioAtual;
-import com.example.demo.api.dto.PageResponse;
-import com.example.demo.api.dto.PedidoDtos.AceitarPedidoRequest;
-import com.example.demo.api.dto.PedidoDtos.PagamentoRequest;
-import com.example.demo.api.dto.PedidoDtos.PedidoCreateRequest;
-import com.example.demo.api.dto.PedidoDtos.PedidoResponse;
-import com.example.demo.api.dto.PedidoDtos.RejeitarPedidoRequest;
-import com.example.demo.api.service.ApiPedidoService;
-import com.example.demo.web.domain.Pedido.EstadoPedido;
+import com.sgpa.mario.api.config.UsuarioAtual;
+import com.sgpa.mario.api.dto.PageResponse;
+import com.sgpa.mario.api.dto.PedidoDtos.AceitarPedidoRequest;
+import com.sgpa.mario.api.dto.PedidoDtos.PagamentoRequest;
+import com.sgpa.mario.api.dto.PedidoDtos.PedidoCreateRequest;
+import com.sgpa.mario.api.dto.PedidoDtos.PedidoResponse;
+import com.sgpa.mario.api.dto.PedidoDtos.RejeitarPedidoRequest;
+import com.sgpa.mario.api.service.ApiPedidoService;
+import com.sgpa.mario.web.domain.Pedido.EstadoPedido;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -63,21 +64,21 @@ public class PedidoApiController {
         return pedidoService.obter(UsuarioAtual.obter(), id);
     }
 
-    @PostMapping("/{id}/aceitar")
+    @PatchMapping("/{id}/aceitar")
     @PreAuthorize("hasRole('PRODUTOR')")
     @Operation(summary = "Aceita um pedido pendente e indica o número para receber o pagamento (Produtor)")
     public PedidoResponse aceitar(@PathVariable Long id, @Valid @RequestBody AceitarPedidoRequest req) {
         return pedidoService.aceitar(UsuarioAtual.obter().id(), id, req.numeroPagamento());
     }
 
-    @PostMapping("/{id}/rejeitar")
+    @PatchMapping("/{id}/rejeitar")
     @PreAuthorize("hasRole('PRODUTOR')")
     @Operation(summary = "Rejeita um pedido indicando o motivo (Produtor)")
     public PedidoResponse rejeitar(@PathVariable Long id, @Valid @RequestBody RejeitarPedidoRequest req) {
         return pedidoService.rejeitar(UsuarioAtual.obter().id(), id, req.motivo());
     }
 
-    @PostMapping("/{id}/cancelar")
+    @PatchMapping("/{id}/cancelar")
     @PreAuthorize("hasRole('COMPRADOR')")
     @Operation(summary = "Cancela um pedido ainda pendente (Comprador)")
     public PedidoResponse cancelar(@PathVariable Long id) {

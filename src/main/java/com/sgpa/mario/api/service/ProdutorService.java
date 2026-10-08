@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -10,19 +10,9 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.web.domain.Bairro;
-import com.example.demo.web.domain.Oferta;
-import com.example.demo.web.domain.Pedido;
-import com.example.demo.web.domain.Produtor;
-import com.example.demo.web.domain.Transacao;
-import com.example.demo.api.repository.CompradorRepository;
-import com.example.demo.api.repository.OfertaRepository;
-import com.example.demo.api.repository.PedidoRepository;
-import com.example.demo.api.repository.ProdutorRepository;
-import com.example.demo.api.repository.TransacaoRepository;
-import com.example.demo.api.service.exception.NaoAutorizadoException;
-import com.example.demo.api.service.exception.RecursoNaoEncontradoException;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.web.domain.*;
+import com.sgpa.mario.api.repository.*;
+import com.sgpa.mario.api.service.exception.*;
 
 /**
  * Regras de negócio da área do Produtor: cadastro, gestão de ofertas,
@@ -109,8 +99,24 @@ public class ProdutorService {
     // ─── CADASTRO ────────────────────────────────────────────────────────
 
     public Produtor cadastrar(Produtor produtor, MultipartFile fotoPerfilFile) {
-        if (produtor.getEmail() != null && !produtor.getEmail().isBlank()
-                && produtorRepository.existsByEmail(produtor.getEmail())) {
+        return cadastrar(produtor, fotoPerfilFile, false);
+    }
+
+    /** emailJaVerificado: conversão de conta em que o mesmo e-mail já foi confirmado na outra conta. */
+    public Produtor cadastrar(Produtor produtor, MultipartFile fotoPerfilFile, boolean emailJaVerificado) {
+        // Campos obrigatórios validados SEMPRE no servidor. O e-mail é obrigatório: sem ele a conta não pode ser confirmada.
+        produtor.setNome(ValidacaoRegisto.obrigatorio(produtor.getNome(), "o nome", 150));
+        produtor.setApelido(ValidacaoRegisto.obrigatorio(produtor.getApelido(), "o apelido", 150));
+        produtor.setTelefone(ValidacaoRegisto.telefone(produtor.getTelefone()));
+        produtor.setEmail(ValidacaoRegisto.email(produtor.getEmail(), 255));
+        ValidacaoRegisto.senha(produtor.getSenha());
+
+        // NUIT em branco -> null (a coluna é única: "" repetido daria erro ao 2.º produtor sem NUIT)
+        if (produtor.getNuit() != null && produtor.getNuit().isBlank()) {
+            produtor.setNuit(null);
+        }
+
+        if (produtorRepository.existsByEmail(produtor.getEmail())) {
             throw new RegraNegocioException("Este e-mail já está registado. Faça login.");
         }
         if (produtor.getNuit() != null && !produtor.getNuit().isBlank()
@@ -119,7 +125,7 @@ public class ProdutorService {
         }
 
         produtor.setSenha(passwordEncoderService.encode(produtor.getSenha()));
-        produtor.setEmailVerificado(false);
+        produtor.setEmailVerificado(emailJaVerificado);
 
         Produtor salvo = produtorRepository.save(produtor);
 
@@ -128,7 +134,7 @@ public class ProdutorService {
             salvo.setFotoPerfil(foto);
             produtorRepository.save(salvo);
         }
-        confirmacaoEmailService.enviarConfirmacaoProdutor(salvo, baseUrl);
+        if (!emailJaVerificado) confirmacaoEmailService.enviarConfirmacaoProdutor(salvo, baseUrl);
         return salvo;
     }
 

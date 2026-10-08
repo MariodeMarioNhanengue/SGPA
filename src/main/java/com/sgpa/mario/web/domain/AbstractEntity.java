@@ -1,4 +1,4 @@
-package com.example.demo.web.domain;
+package com.sgpa.mario.web.domain;
 
 import java.io.Serializable;
 import java.util.Objects;

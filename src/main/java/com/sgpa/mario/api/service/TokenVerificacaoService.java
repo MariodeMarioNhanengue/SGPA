@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -6,11 +6,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-
-import com.example.demo.web.domain.TokenVerificacao;
-import com.example.demo.web.domain.TokenVerificacao.Finalidade;
-import com.example.demo.web.domain.TokenVerificacao.TipoUtilizador;
-import com.example.demo.api.repository.TokenVerificacaoRepository;
+import com.sgpa.mario.web.domain.TokenVerificacao;
+import com.sgpa.mario.web.domain.TokenVerificacao.*;
+import com.sgpa.mario.api.repository.TokenVerificacaoRepository;
 
 /**
  * Geração e validação de tokens de uso único (recuperação de senha,

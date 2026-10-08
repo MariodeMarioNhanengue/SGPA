@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -7,17 +7,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.api.config.UsuarioAtual;
-import com.example.demo.api.dto.AuthDtos.AdminLoginRequest;
-import com.example.demo.api.dto.AuthDtos.ConfirmacaoResponse;
-import com.example.demo.api.dto.AuthDtos.EmailRequest;
-import com.example.demo.api.dto.AuthDtos.LoginRequest;
-import com.example.demo.api.dto.AuthDtos.MensagemResponse;
-import com.example.demo.api.dto.AuthDtos.RedefinirSenhaRequest;
-import com.example.demo.api.dto.AuthDtos.TokenRequest;
-import com.example.demo.api.dto.AuthDtos.TokenResponse;
-import com.example.demo.api.dto.AuthDtos.TrocarPerfilRequest;
-import com.example.demo.api.service.ApiAuthService;
+import com.sgpa.mario.api.config.UsuarioAtual;
+import com.sgpa.mario.api.dto.AuthDtos.AdminLoginRequest;
+import com.sgpa.mario.api.dto.AuthDtos.ConfirmacaoResponse;
+import com.sgpa.mario.api.dto.AuthDtos.EmailRequest;
+import com.sgpa.mario.api.dto.AuthDtos.LoginRequest;
+import com.sgpa.mario.api.dto.AuthDtos.MensagemResponse;
+import com.sgpa.mario.api.dto.AuthDtos.RedefinirSenhaRequest;
+import com.sgpa.mario.api.dto.AuthDtos.TokenRequest;
+import com.sgpa.mario.api.dto.AuthDtos.TokenResponse;
+import com.sgpa.mario.api.dto.AuthDtos.TrocarPerfilRequest;
+import com.sgpa.mario.api.service.ApiAuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

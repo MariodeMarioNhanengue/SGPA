@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

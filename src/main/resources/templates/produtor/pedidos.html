@@ -456,7 +456,7 @@
     <p style="font-size:.88rem;color:#555;margin-bottom:1.1rem;">
       Indique o motivo da rejeição. Esta justificação será visível para o comprador.
     </p>
-    <form id="formRejeicao" th:action="@{/produtor/pedido/rejeitar}" method="post">
+    <form id="formRejeicao" th:action="@{/produtor/pedido/rejeitar(_method='patch')}" method="post">
       <input type="hidden" name="pedidoId" id="rejeicaoPedidoId"/>
       <input type="hidden" name="from" value="pedidos"/>
       <div style="margin-bottom:1rem;">
@@ -566,7 +566,7 @@ function aceitarPedidoAjax(btn) {
   params.append('pedidoId', pedidoId);
   params.append('numeroPagamento', numeroFormatado);
 
-  fetch('/produtor/pedido/aceitar', {
+  fetch('/produtor/pedido/aceitar?_method=patch', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: params.toString()

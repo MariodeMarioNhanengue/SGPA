@@ -1,9 +1,9 @@
-package com.example.demo.api.dto;
+package com.sgpa.mario.api.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.example.demo.web.domain.Oferta.EstadoOferta;
+import com.sgpa.mario.web.domain.Oferta.EstadoOferta;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;

@@ -1,5 +1,5 @@
-package com.example.demo.api.service;
 
+package com.sgpa.mario.api.service;
 import java.util.Locale;
 
 import org.springframework.http.HttpStatus;
@@ -7,27 +7,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.api.config.UsuarioAtual;
-import com.example.demo.api.dto.UsuarioDtos.AlterarSenhaRequest;
-import com.example.demo.api.dto.UsuarioDtos.AtualizarPerfilRequest;
-import com.example.demo.api.dto.UsuarioDtos.RegistoCompradorRequest;
-import com.example.demo.api.dto.UsuarioDtos.RegistoProdutorRequest;
-import com.example.demo.api.dto.UsuarioDtos.UsuarioResponse;
-import com.example.demo.api.exception.ApiException;
-import com.example.demo.web.domain.Admin;
-import com.example.demo.web.domain.Bairro;
-import com.example.demo.web.domain.Comprador;
-import com.example.demo.web.domain.Produtor;
-import com.example.demo.api.repository.AdminRepository;
-import com.example.demo.api.repository.CompradorRepository;
-import com.example.demo.api.repository.ProdutorRepository;
-import com.example.demo.api.service.ArmazenamentoService;
-import com.example.demo.api.service.CompradorService;
-import com.example.demo.api.service.LocalizacaoService;
-import com.example.demo.api.service.PasswordEncoderService;
-import com.example.demo.api.service.ProdutorService;
-import com.example.demo.api.service.exception.RecursoNaoEncontradoException;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.api.config.UsuarioAtual;
+import com.sgpa.mario.api.dto.UsuarioDtos.AtualizarPerfilRequest;
+import com.sgpa.mario.api.dto.UsuarioDtos.AlterarSenhaRequest;
+import com.sgpa.mario.api.dto.UsuarioDtos.RegistoCompradorRequest;
+import com.sgpa.mario.api.dto.UsuarioDtos.RegistoProdutorRequest;
+import com.sgpa.mario.api.dto.UsuarioDtos.UsuarioResponse;
+import com.sgpa.mario.api.exception.ApiException;
+import com.sgpa.mario.web.domain.Admin;
+import com.sgpa.mario.web.domain.Bairro;
+import com.sgpa.mario.web.domain.Comprador;
+import com.sgpa.mario.api.repository.AdminRepository;
+import com.sgpa.mario.web.domain.Produtor;
+import com.sgpa.mario.api.repository.CompradorRepository;
+import com.sgpa.mario.api.repository.ProdutorRepository;
+import com.sgpa.mario.api.service.ArmazenamentoService;
+import com.sgpa.mario.api.service.CompradorService;
+import com.sgpa.mario.api.service.LocalizacaoService;
+import com.sgpa.mario.api.service.PasswordEncoderService;
+import com.sgpa.mario.api.service.ProdutorService;
+import com.sgpa.mario.api.service.exception.RecursoNaoEncontradoException;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 /** Registo, perfil, foto e senha de Produtores, Compradores e Administradores. */
 @Service

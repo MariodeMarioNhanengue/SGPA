@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.demo.api.service.PasswordResetService;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.api.service.PasswordResetService;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 import jakarta.servlet.http.HttpServletRequest;
 

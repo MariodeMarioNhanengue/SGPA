@@ -1,10 +1,11 @@
-package com.example.demo.api.dto;
+package com.sgpa.mario.api.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public final class AdminDtos {
@@ -23,6 +24,10 @@ public final class AdminDtos {
         @Size(max = 20) String nuit,
         @NotBlank(message = "Indique a senha.")
         @Size(min = 6, max = 72, message = "A senha deve ter entre 6 e 72 caracteres.") String senha) {}
+
+    /** Corpo de PATCH .../estado: ativo=false suspende a conta, ativo=true reactiva-a. */
+    public record AlterarEstadoContaRequest(
+        @NotNull(message = "Indique se a conta fica ativa (true) ou suspensa (false).") Boolean ativo) {}
 
     public record CriarAdminRequest(
         @NotBlank(message = "Indique o nome.") @Size(max = 150) String nome,

@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.api.config.WebMvcConfig;
+import com.sgpa.mario.api.config.WebMvcConfig;
 
 /**
  * Regra de negócio de armazenamento de ficheiros enviados pelo utilizador

@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import java.math.BigDecimal;
 
@@ -7,18 +7,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.demo.web.domain.Comprador;
-import com.example.demo.web.domain.Produtor;
-import com.example.demo.api.service.AuthService;
-import com.example.demo.api.service.CompradorService;
-import com.example.demo.api.service.exception.NaoAutorizadoException;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.web.domain.Comprador;
+import com.sgpa.mario.web.domain.Produtor;
+import com.sgpa.mario.api.service.AuthService;
+import com.sgpa.mario.api.service.CompradorService;
+import com.sgpa.mario.api.service.ValidacaoRegisto;
+import com.sgpa.mario.api.service.exception.NaoAutorizadoException;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -44,18 +47,32 @@ public class CompradorController {
     @PostMapping("/cadastrar")
     public String cadastrar(
             @ModelAttribute Comprador comprador,
+            @RequestParam(required = false) String confirmarSenha,
             @RequestParam(required = false) String provinciaNome,
             @RequestParam(required = false) String distritoNome,
             @RequestParam(required = false) String bairroNome,
             @RequestParam(value = "fotoPerfilFile", required = false) MultipartFile fotoPerfilFile,
-            HttpSession session, Model model) {
+            HttpSession session, RedirectAttributes redirectAttrs, Model model) {
 
         try {
-            Comprador salvo = compradorService.cadastrar(comprador, provinciaNome, distritoNome, bairroNome, fotoPerfilFile);
+            // Validação no servidor: os dados obrigatórios (incl. e-mail) nunca podem faltar.
+            ValidacaoRegisto.confirmacaoSenha(comprador.getSenha(), confirmarSenha);
+            boolean jaVerificado = authService.emailJaVerificadoNaSessao(session, comprador.getEmail());
+            Comprador salvo = compradorService.cadastrar(comprador, provinciaNome, distritoNome, bairroNome, fotoPerfilFile, jaVerificado);
+            // A conta nasce por validar: a sessão abre, mas em modo restrito (ver ContaVerificadaInterceptor).
             authService.mudarSessaoParaComprador(session, salvo);
+            redirectAttrs.addFlashAttribute("sucesso",
+                "Conta criada! Enviámos um link de confirmação para " + salvo.getEmail()
+                + ". Enquanto a conta não for validada só pode consultar — não pode fazer pedidos.");
             return "redirect:/comprador/dashboard?id=" + salvo.getId();
         } catch (RegraNegocioException e) {
             model.addAttribute("erro", e.getMessage());
+            // Devolve o que o utilizador já escreveu (a senha nunca é devolvida)
+            model.addAttribute("nomePre",     comprador.getNome());
+            model.addAttribute("apelidoPre",  comprador.getApelido());
+            model.addAttribute("telefonePre", comprador.getTelefone());
+            model.addAttribute("emailPre",    comprador.getEmail());
+            model.addAttribute("nuitPre",     comprador.getNuit());
             return "comprador/criar-comprador";
         }
     }
@@ -164,7 +181,7 @@ public class CompradorController {
     }
 
     // ─── EDITAR PERFIL – POST ────────────────────────────────────────
-    @PostMapping("/editar-perfil")
+    @PutMapping("/editar-perfil")
     public String salvarPerfil(
             @RequestParam Long id,
             @RequestParam String nome,
@@ -185,7 +202,7 @@ public class CompradorController {
     }
 
     // ─── CANCELAR PEDIDO (pelo comprador) ──────────────────────────
-    @PostMapping("/cancelar-pedido/{pedidoId}")
+    @PatchMapping("/cancelar-pedido/{pedidoId}")
     public String cancelarPedido(@PathVariable Long pedidoId,
                                  HttpSession session,
                                  RedirectAttributes redirectAttrs) {
@@ -216,13 +233,16 @@ public class CompradorController {
             }
         }
 
+        Produtor preenchido = new Produtor();
         if (comprador != null) {
-            model.addAttribute("nomePre",     comprador.getNome());
-            model.addAttribute("apelidoPre",  comprador.getApelido());
-            model.addAttribute("telefonePre", comprador.getTelefone());
-            model.addAttribute("emailPre",    comprador.getEmail());
+            // Os mesmos dados da conta de Comprador, para não ter de os escrever outra vez
+            preenchido.setNome(comprador.getNome());
+            preenchido.setApelido(comprador.getApelido());
+            preenchido.setTelefone(comprador.getTelefone());
+            preenchido.setEmail(comprador.getEmail());
+            preenchido.setNuit(comprador.getNuit());
         }
-        model.addAttribute("produtor", new Produtor());
+        model.addAttribute("produtor", preenchido);
         model.addAttribute("modoConversao", true);
         return "produtor/criar-produtor";
     }

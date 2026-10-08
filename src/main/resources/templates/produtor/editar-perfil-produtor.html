@@ -135,7 +135,7 @@
         <h5><i class="bi bi-person-fill me-2" style="color:#16a34a;"></i>Dados do Produtor</h5>
       </div>
       <div class="p-4">
-        <form th:action="@{/produtor/editar-perfil}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/produtor/editar-perfil(_method='put')}" method="post" enctype="multipart/form-data">
           <input type="hidden" name="id" th:value="${produtor.id}"/>
 
           <!-- FOTO DE PERFIL -->

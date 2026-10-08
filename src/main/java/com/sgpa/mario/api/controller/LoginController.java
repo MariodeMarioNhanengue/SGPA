@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.example.demo.api.service.AuthService;
-import com.example.demo.api.service.AuthService.ResultadoLogin;
+import com.sgpa.mario.api.service.AuthService;
+import com.sgpa.mario.api.service.AuthService.ResultadoLogin;
 
 import jakarta.servlet.http.HttpSession;
 

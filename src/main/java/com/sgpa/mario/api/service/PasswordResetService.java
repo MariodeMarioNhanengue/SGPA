@@ -1,20 +1,15 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.time.Duration;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.example.demo.web.domain.Admin;
-import com.example.demo.web.domain.Comprador;
-import com.example.demo.web.domain.Produtor;
-import com.example.demo.web.domain.TokenVerificacao;
-import com.example.demo.web.domain.TokenVerificacao.Finalidade;
-import com.example.demo.web.domain.TokenVerificacao.TipoUtilizador;
-import com.example.demo.api.repository.AdminRepository;
-import com.example.demo.api.repository.CompradorRepository;
-import com.example.demo.api.repository.ProdutorRepository;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.web.domain.*;
+import com.sgpa.mario.web.domain.TokenVerificacao;
+import com.sgpa.mario.web.domain.TokenVerificacao.*;
+import com.sgpa.mario.api.repository.*;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 /**
  * Fluxo de "esqueci-me da senha": pedir a recuperação por email, e depois
