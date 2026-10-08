@@ -370,7 +370,7 @@
 
     <!-- ── Formulário ── -->
     <div class="form-card">
-      <form th:action="@{/admin/perfil}" method="post" enctype="multipart/form-data" id="perfilForm">
+      <form th:action="@{/admin/perfil(_method='put')}" method="post" enctype="multipart/form-data" id="perfilForm">
 
         <!-- Input de foto escondido -->
         <input type="file" id="fotoInput" name="fotoPerfilFile" accept="image/*"/>

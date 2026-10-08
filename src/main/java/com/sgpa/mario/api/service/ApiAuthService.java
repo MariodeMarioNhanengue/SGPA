@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,25 +10,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.api.config.JwtService;
-import com.example.demo.api.config.UsuarioAtual;
-import com.example.demo.api.dto.AuthDtos.AdminLoginRequest;
-import com.example.demo.api.dto.AuthDtos.LoginRequest;
-import com.example.demo.api.dto.AuthDtos.RedefinirSenhaRequest;
-import com.example.demo.api.dto.AuthDtos.TokenResponse;
-import com.example.demo.api.dto.UsuarioDtos.UsuarioResponse;
-import com.example.demo.api.exception.ApiException;
-import com.example.demo.web.domain.Admin;
-import com.example.demo.web.domain.Comprador;
-import com.example.demo.web.domain.Produtor;
-import com.example.demo.api.repository.AdminRepository;
-import com.example.demo.api.repository.CompradorRepository;
-import com.example.demo.api.repository.ProdutorRepository;
-import com.example.demo.api.service.ConfirmacaoEmailService;
-import com.example.demo.api.service.LoginAttemptService;
-import com.example.demo.api.service.PasswordEncoderService;
-import com.example.demo.api.service.PasswordResetService;
-import com.example.demo.api.service.exception.RecursoNaoEncontradoException;
+import com.sgpa.mario.api.config.JwtService;
+import com.sgpa.mario.api.config.UsuarioAtual;
+import com.sgpa.mario.api.dto.AuthDtos.AdminLoginRequest;
+import com.sgpa.mario.api.dto.AuthDtos.LoginRequest;
+import com.sgpa.mario.api.dto.AuthDtos.RedefinirSenhaRequest;
+import com.sgpa.mario.api.dto.AuthDtos.TokenResponse;
+import com.sgpa.mario.api.dto.UsuarioDtos.UsuarioResponse;
+import com.sgpa.mario.api.exception.ApiException;
+import com.sgpa.mario.web.domain.Admin;
+import com.sgpa.mario.web.domain.Comprador;
+import com.sgpa.mario.web.domain.Produtor;
+import com.sgpa.mario.api.repository.AdminRepository;
+import com.sgpa.mario.api.repository.CompradorRepository;
+import com.sgpa.mario.api.repository.ProdutorRepository;
+import com.sgpa.mario.api.service.exception.RecursoNaoEncontradoException;
 
 /** Autenticação sem sessão: valida credenciais e emite JWT. Reutiliza BCrypt e o bloqueio por tentativas. */
 @Service
@@ -161,9 +157,9 @@ public class ApiAuthService {
         }
     }
 
-    public com.example.demo.api.dto.AuthDtos.ConfirmacaoResponse consultarConfirmacao(String token) {
+    public com.sgpa.mario.api.dto.AuthDtos.ConfirmacaoResponse consultarConfirmacao(String token) {
         return confirmacaoEmailService.consultar(token)
-            .map(d -> new com.example.demo.api.dto.AuthDtos.ConfirmacaoResponse(d.tipo(), d.nome(), d.email()))
+            .map(d -> new com.sgpa.mario.api.dto.AuthDtos.ConfirmacaoResponse(d.tipo(), d.nome(), d.email()))
             .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "TOKEN_INVALIDO",
                 "O link é inválido, já foi usado, a conta já foi confirmada, ou expirou."));
     }

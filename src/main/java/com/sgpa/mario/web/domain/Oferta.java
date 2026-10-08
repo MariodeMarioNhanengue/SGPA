@@ -1,4 +1,4 @@
-package com.example.demo.web.domain;
+package com.sgpa.mario.web.domain;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

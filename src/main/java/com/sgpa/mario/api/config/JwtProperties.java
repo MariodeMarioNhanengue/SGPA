@@ -1,4 +1,4 @@
-package com.example.demo.api.config;
+package com.sgpa.mario.api.config;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;

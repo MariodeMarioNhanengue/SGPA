@@ -1,6 +1,6 @@
-package com.example.demo.api.repository;
+package com.sgpa.mario.api.repository;
 
-import com.example.demo.web.domain.Transacao;
+import com.sgpa.mario.web.domain.Transacao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

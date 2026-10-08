@@ -413,7 +413,7 @@
 <script>
   function abrirModal(id, nome) {
     document.getElementById('modalNome').textContent = nome;
-    document.getElementById('modalForm').action = '/admin/administradores/' + id + '/remover';
+    document.getElementById('modalForm').action = '/admin/administradores/' + id + '?_method=delete';
     document.getElementById('modalOverlay').classList.add('open');
   }
   function fecharModal() {

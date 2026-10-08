@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -10,23 +10,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.api.config.UsuarioAtual;
-import com.example.demo.api.dto.PedidoDtos.PagamentoRequest;
-import com.example.demo.api.dto.PedidoDtos.PedidoCreateRequest;
-import com.example.demo.api.dto.PedidoDtos.PedidoResponse;
-import com.example.demo.api.exception.ApiException;
-import com.example.demo.web.domain.Oferta;
-import com.example.demo.web.domain.Pedido;
-import com.example.demo.web.domain.Pedido.EstadoPedido;
-import com.example.demo.web.domain.Transacao.MetodoPagamento;
-import com.example.demo.web.domain.Transacao.Operadora;
-import com.example.demo.api.repository.PedidoRepository;
-import com.example.demo.api.repository.TransacaoRepository;
-import com.example.demo.api.service.CompradorService;
-import com.example.demo.api.service.ProdutorService;
-import com.example.demo.api.service.exception.NaoAutorizadoException;
-import com.example.demo.api.service.exception.RecursoNaoEncontradoException;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.api.config.UsuarioAtual;
+import com.sgpa.mario.api.dto.PedidoDtos.PagamentoRequest;
+import com.sgpa.mario.api.dto.PedidoDtos.PedidoCreateRequest;
+import com.sgpa.mario.api.dto.PedidoDtos.PedidoResponse;
+import com.sgpa.mario.api.exception.ApiException;
+import com.sgpa.mario.web.domain.Oferta;
+import com.sgpa.mario.web.domain.Pedido;
+import com.sgpa.mario.web.domain.Pedido.EstadoPedido;
+import com.sgpa.mario.web.domain.Transacao.MetodoPagamento;
+import com.sgpa.mario.web.domain.Transacao.Operadora;
+import com.sgpa.mario.api.repository.PedidoRepository;
+import com.sgpa.mario.api.repository.TransacaoRepository;
+import com.sgpa.mario.api.service.CompradorService;
+import com.sgpa.mario.api.service.ProdutorService;
+import com.sgpa.mario.api.service.exception.NaoAutorizadoException;
+import com.sgpa.mario.api.service.exception.RecursoNaoEncontradoException;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 /**
  * Ciclo de vida do pedido:

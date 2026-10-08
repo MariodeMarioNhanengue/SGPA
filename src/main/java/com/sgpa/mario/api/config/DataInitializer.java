@@ -1,17 +1,17 @@
-package com.example.demo.api.config;
+package com.sgpa.mario.api.config;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.example.demo.web.domain.Admin;
-import com.example.demo.web.domain.Bairro;
-import com.example.demo.web.domain.Distrito;
-import com.example.demo.web.domain.Provincia;
-import com.example.demo.api.repository.AdminRepository;
-import com.example.demo.api.repository.BairroRepository;
-import com.example.demo.api.repository.DistritoRepository;
-import com.example.demo.api.repository.ProvinciaRepository;
-import com.example.demo.api.service.PasswordEncoderService;
+import com.sgpa.mario.web.domain.Admin;
+import com.sgpa.mario.web.domain.Bairro;
+import com.sgpa.mario.web.domain.Distrito;
+import com.sgpa.mario.web.domain.Provincia;
+import com.sgpa.mario.api.repository.AdminRepository;
+import com.sgpa.mario.api.repository.BairroRepository;
+import com.sgpa.mario.api.repository.DistritoRepository;
+import com.sgpa.mario.api.repository.ProvinciaRepository;
+import com.sgpa.mario.api.service.PasswordEncoderService;
 
 /**
  * Popula automaticamente a base de dados com os dados geográficos

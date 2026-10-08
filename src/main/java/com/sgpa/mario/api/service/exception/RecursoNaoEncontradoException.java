@@ -1,4 +1,4 @@
-package com.example.demo.api.service.exception;
+package com.sgpa.mario.api.service.exception;
 
 /**
  * Lançada pelos services quando uma entidade pedida não existe.

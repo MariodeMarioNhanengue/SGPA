@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.util.List;
 import java.util.Locale;
@@ -8,31 +8,30 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.api.config.UsuarioAtual;
-import com.example.demo.api.dto.AdminDtos.AdminLogResponse;
-import com.example.demo.api.dto.AdminDtos.CriarAdminRequest;
-import com.example.demo.api.dto.AdminDtos.CriarUtilizadorRequest;
-import com.example.demo.api.dto.AdminDtos.DetalheCompradorResponse;
-import com.example.demo.api.dto.AdminDtos.DetalheProdutorResponse;
-import com.example.demo.api.dto.AdminDtos.ResumoAdminResponse;
-import com.example.demo.api.dto.PageResponse;
-import com.example.demo.api.dto.PedidoDtos.PedidoResponse;
-import com.example.demo.api.dto.UsuarioDtos.UsuarioResponse;
-import com.example.demo.api.exception.ApiException;
-import com.example.demo.web.domain.Admin;
-import com.example.demo.web.domain.AdminLog;
-import com.example.demo.web.domain.Comprador;
-import com.example.demo.web.domain.Pedido.EstadoPedido;
-import com.example.demo.web.domain.Produtor;
-import com.example.demo.api.repository.AdminLogRepository;
-import com.example.demo.api.repository.AdminRepository;
-import com.example.demo.api.repository.CompradorRepository;
-import com.example.demo.api.repository.PedidoRepository;
-import com.example.demo.api.repository.ProdutorRepository;
-import com.example.demo.api.service.AdminService;
-import com.example.demo.api.service.PasswordEncoderService;
-import com.example.demo.api.service.exception.RecursoNaoEncontradoException;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.api.config.UsuarioAtual;
+import com.sgpa.mario.api.dto.AdminDtos.AdminLogResponse;
+import com.sgpa.mario.api.dto.AdminDtos.CriarAdminRequest;
+import com.sgpa.mario.api.dto.AdminDtos.CriarUtilizadorRequest;
+import com.sgpa.mario.api.dto.AdminDtos.DetalheCompradorResponse;
+import com.sgpa.mario.api.dto.AdminDtos.DetalheProdutorResponse;
+import com.sgpa.mario.api.dto.AdminDtos.ResumoAdminResponse;
+import com.sgpa.mario.api.dto.PageResponse;
+import com.sgpa.mario.api.dto.PedidoDtos.PedidoResponse;
+import com.sgpa.mario.api.dto.UsuarioDtos.UsuarioResponse;
+import com.sgpa.mario.api.exception.ApiException;
+import com.sgpa.mario.web.domain.Admin;
+import com.sgpa.mario.web.domain.AdminLog;
+import com.sgpa.mario.web.domain.Comprador;
+import com.sgpa.mario.web.domain.Pedido.EstadoPedido;
+import com.sgpa.mario.web.domain.Produtor;
+import com.sgpa.mario.api.repository.AdminLogRepository;
+import com.sgpa.mario.api.repository.AdminRepository;
+import com.sgpa.mario.api.repository.CompradorRepository;
+import com.sgpa.mario.api.repository.PedidoRepository;
+import com.sgpa.mario.api.repository.ProdutorRepository;
+
+import com.sgpa.mario.api.service.exception.RecursoNaoEncontradoException;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 /** Operações da área de administração (sem sessão), com registo de auditoria em admin_log. */
 @Service
@@ -137,6 +136,21 @@ public class ApiAdminService {
         return ApiMapper.produtor(p, null);
     }
 
+    @Transactional
+    public UsuarioResponse validarProdutor(Long adminId, Long id) {
+        Produtor p = produtorRepository.findById(id)
+            .orElseThrow(() -> new RecursoNaoEncontradoException("Produtor não encontrado."));
+        if (!Boolean.FALSE.equals(p.getEmailVerificado())) {
+            throw new RegraNegocioException("Esta conta já está validada.");
+        }
+        p.setEmailVerificado(Boolean.TRUE);
+        produtorRepository.save(p);
+        registarLog(adminId, "VALIDAR_PRODUTOR",
+            "Validou manualmente a conta do produtor " + p.getNomeCompleto() + " (" + p.getEmail() + ")",
+            p.getNomeCompleto(), "PRODUTOR");
+        return ApiMapper.produtor(p, null);
+    }
+
     // ─── Compradores ─────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
@@ -207,11 +221,26 @@ public class ApiAdminService {
         return ApiMapper.comprador(c, null);
     }
 
+    @Transactional
+    public UsuarioResponse validarComprador(Long adminId, Long id) {
+        Comprador c = compradorRepository.findById(id)
+            .orElseThrow(() -> new RecursoNaoEncontradoException("Comprador não encontrado."));
+        if (!Boolean.FALSE.equals(c.getEmailVerificado())) {
+            throw new RegraNegocioException("Esta conta já está validada.");
+        }
+        c.setEmailVerificado(Boolean.TRUE);
+        compradorRepository.save(c);
+        registarLog(adminId, "VALIDAR_COMPRADOR",
+            "Validou manualmente a conta do comprador " + c.getNomeCompleto() + " (" + c.getEmail() + ")",
+            c.getNomeCompleto(), "COMPRADOR");
+        return ApiMapper.comprador(c, null);
+    }
+
     // ─── Vendas / pedidos ────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public PageResponse<PedidoResponse> vendas(String estado, int pagina, int tamanho) {
-        List<com.example.demo.web.domain.Pedido> lista;
+        List<com.sgpa.mario.web.domain.Pedido> lista;
         if (estado == null || estado.isBlank()) {
             lista = pedidoRepository.findAll();
         } else {

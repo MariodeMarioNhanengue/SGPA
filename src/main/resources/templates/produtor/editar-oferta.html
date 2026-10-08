@@ -43,7 +43,7 @@
       </div>
 
       <div class="form-card p-4 p-md-5">
-        <form th:action="@{/produtor/editar-oferta/{id}(id=${oferta.id})}"
+        <form th:action="@{/produtor/editar-oferta/{id}(id=${oferta.id},_method='put')}"
               th:object="${oferta}"
               method="post"
               enctype="multipart/form-data">

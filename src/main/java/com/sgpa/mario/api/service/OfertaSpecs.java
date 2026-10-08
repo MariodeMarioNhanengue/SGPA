@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -7,10 +7,8 @@ import java.util.Locale;
 
 import org.springframework.data.jpa.domain.Specification;
 
-import com.example.demo.web.domain.Bairro;
-import com.example.demo.web.domain.Distrito;
-import com.example.demo.web.domain.Oferta;
-import com.example.demo.web.domain.Oferta.EstadoOferta;
+import com.sgpa.mario.web.domain.*;
+import com.sgpa.mario.web.domain.Oferta.EstadoOferta;
 
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;

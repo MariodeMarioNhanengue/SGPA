@@ -1,4 +1,4 @@
-package com.example.demo.api.config;
+package com.sgpa.mario.api.config;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

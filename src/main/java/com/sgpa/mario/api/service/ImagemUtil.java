@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.util.Locale;
 import java.util.Set;
@@ -6,7 +6,7 @@ import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.api.exception.ApiException;
+import com.sgpa.mario.api.exception.ApiException;
 
 /** Validação de uploads de imagem (tipo MIME + extensão), para não aceitar ficheiros arbitrários. */
 final class ImagemUtil {

@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import java.util.List;
 
@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,17 +15,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.api.config.UsuarioAtual;
-import com.example.demo.api.dto.AdminDtos.AdminLogResponse;
-import com.example.demo.api.dto.AdminDtos.CriarAdminRequest;
-import com.example.demo.api.dto.AdminDtos.CriarUtilizadorRequest;
-import com.example.demo.api.dto.AdminDtos.DetalheCompradorResponse;
-import com.example.demo.api.dto.AdminDtos.DetalheProdutorResponse;
-import com.example.demo.api.dto.AdminDtos.ResumoAdminResponse;
-import com.example.demo.api.dto.PageResponse;
-import com.example.demo.api.dto.PedidoDtos.PedidoResponse;
-import com.example.demo.api.dto.UsuarioDtos.UsuarioResponse;
-import com.example.demo.api.service.ApiAdminService;
+import com.sgpa.mario.api.config.UsuarioAtual;
+import com.sgpa.mario.api.dto.AdminDtos.AdminLogResponse;
+import com.sgpa.mario.api.dto.AdminDtos.AlterarEstadoContaRequest;
+import com.sgpa.mario.api.dto.AdminDtos.CriarAdminRequest;
+import com.sgpa.mario.api.dto.AdminDtos.CriarUtilizadorRequest;
+import com.sgpa.mario.api.dto.AdminDtos.DetalheCompradorResponse;
+import com.sgpa.mario.api.dto.AdminDtos.DetalheProdutorResponse;
+import com.sgpa.mario.api.dto.AdminDtos.ResumoAdminResponse;
+import com.sgpa.mario.api.dto.PageResponse;
+import com.sgpa.mario.api.dto.PedidoDtos.PedidoResponse;
+import com.sgpa.mario.api.dto.UsuarioDtos.UsuarioResponse;
+import com.sgpa.mario.api.service.ApiAdminService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -73,16 +75,17 @@ public class AdminApiController {
         return adminService.criarProdutor(UsuarioAtual.obter().id(), req);
     }
 
-    @PostMapping("/produtores/{id}/suspender")
-    @Operation(summary = "Suspende um produtor (deixa de poder entrar)")
-    public UsuarioResponse suspenderProdutor(@PathVariable Long id) {
-        return adminService.definirAtivoProdutor(UsuarioAtual.obter().id(), id, false);
+    @PatchMapping("/produtores/{id}/estado")
+    @Operation(summary = "Suspende (ativo=false) ou reactiva (ativo=true) um produtor")
+    public UsuarioResponse alterarEstadoProdutor(@PathVariable Long id,
+                                               @Valid @RequestBody AlterarEstadoContaRequest req) {
+        return adminService.definirAtivoProdutor(UsuarioAtual.obter().id(), id, req.ativo());
     }
 
-    @PostMapping("/produtores/{id}/ativar")
-    @Operation(summary = "Reactiva um produtor suspenso")
-    public UsuarioResponse ativarProdutor(@PathVariable Long id) {
-        return adminService.definirAtivoProdutor(UsuarioAtual.obter().id(), id, true);
+    @PatchMapping("/produtores/{id}/validar")
+    @Operation(summary = "Valida manualmente a conta de um produtor (equivale a confirmar o e-mail)")
+    public UsuarioResponse validarProdutor(@PathVariable Long id) {
+        return adminService.validarProdutor(UsuarioAtual.obter().id(), id);
     }
 
     @DeleteMapping("/produtores/{id}")
@@ -115,16 +118,17 @@ public class AdminApiController {
         return adminService.criarComprador(UsuarioAtual.obter().id(), req);
     }
 
-    @PostMapping("/compradores/{id}/suspender")
-    @Operation(summary = "Suspende um comprador (deixa de poder entrar)")
-    public UsuarioResponse suspenderComprador(@PathVariable Long id) {
-        return adminService.definirAtivoComprador(UsuarioAtual.obter().id(), id, false);
+    @PatchMapping("/compradores/{id}/estado")
+    @Operation(summary = "Suspende (ativo=false) ou reactiva (ativo=true) um comprador")
+    public UsuarioResponse alterarEstadoComprador(@PathVariable Long id,
+                                               @Valid @RequestBody AlterarEstadoContaRequest req) {
+        return adminService.definirAtivoComprador(UsuarioAtual.obter().id(), id, req.ativo());
     }
 
-    @PostMapping("/compradores/{id}/ativar")
-    @Operation(summary = "Reactiva um comprador suspenso")
-    public UsuarioResponse ativarComprador(@PathVariable Long id) {
-        return adminService.definirAtivoComprador(UsuarioAtual.obter().id(), id, true);
+    @PatchMapping("/compradores/{id}/validar")
+    @Operation(summary = "Valida manualmente a conta de um comprador (equivale a confirmar o e-mail)")
+    public UsuarioResponse validarComprador(@PathVariable Long id) {
+        return adminService.validarComprador(UsuarioAtual.obter().id(), id);
     }
 
     @DeleteMapping("/compradores/{id}")

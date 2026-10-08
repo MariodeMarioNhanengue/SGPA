@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,20 +11,9 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.web.domain.Bairro;
-import com.example.demo.web.domain.Comprador;
-import com.example.demo.web.domain.Oferta;
-import com.example.demo.web.domain.Pedido;
-import com.example.demo.web.domain.Produtor;
-import com.example.demo.web.domain.Transacao;
-import com.example.demo.api.repository.CompradorRepository;
-import com.example.demo.api.repository.OfertaRepository;
-import com.example.demo.api.repository.PedidoRepository;
-import com.example.demo.api.repository.ProdutorRepository;
-import com.example.demo.api.repository.TransacaoRepository;
-import com.example.demo.api.service.exception.NaoAutorizadoException;
-import com.example.demo.api.service.exception.RecursoNaoEncontradoException;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.web.domain.*;
+import com.sgpa.mario.api.repository.*;
+import com.sgpa.mario.api.service.exception.*;
 
 /**
  * Regras de negócio da área do Comprador: cadastro, procura de ofertas,
@@ -75,6 +64,19 @@ public class CompradorService {
 
     public Comprador cadastrar(Comprador comprador, String provinciaNome, String distritoNome,
                                String bairroNome, MultipartFile fotoPerfilFile) {
+        return cadastrar(comprador, provinciaNome, distritoNome, bairroNome, fotoPerfilFile, false);
+    }
+
+    /** emailJaVerificado: conversão de conta em que o mesmo e-mail já foi confirmado na outra conta. */
+    public Comprador cadastrar(Comprador comprador, String provinciaNome, String distritoNome,
+                               String bairroNome, MultipartFile fotoPerfilFile, boolean emailJaVerificado) {
+        // Campos obrigatórios validados SEMPRE no servidor (o JavaScript do formulário pode ser contornado).
+        comprador.setNome(ValidacaoRegisto.obrigatorio(comprador.getNome(), "o nome", 150));
+        comprador.setApelido(ValidacaoRegisto.obrigatorio(comprador.getApelido(), "o apelido", 150));
+        comprador.setTelefone(ValidacaoRegisto.telefone(comprador.getTelefone()));
+        comprador.setEmail(ValidacaoRegisto.email(comprador.getEmail(), 100));
+        ValidacaoRegisto.senha(comprador.getSenha());
+
         if (compradorRepository.existsByEmail(comprador.getEmail())) {
             throw new RegraNegocioException("Este e-mail já está registado. Faça login.");
         }
@@ -90,7 +92,7 @@ public class CompradorService {
         if (bairro != null) comprador.setBairros(bairro);
 
         comprador.setSenha(passwordEncoderService.encode(comprador.getSenha()));
-        comprador.setEmailVerificado(false);
+        comprador.setEmailVerificado(emailJaVerificado);
 
         Comprador salvo = compradorRepository.save(comprador);
 
@@ -99,7 +101,7 @@ public class CompradorService {
             salvo.setFotoPerfil(foto);
             compradorRepository.save(salvo);
         }
-        confirmacaoEmailService.enviarConfirmacaoComprador(salvo, baseUrl);
+        if (!emailJaVerificado) confirmacaoEmailService.enviarConfirmacaoComprador(salvo, baseUrl);
         return salvo;
     }
 

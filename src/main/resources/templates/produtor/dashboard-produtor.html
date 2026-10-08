@@ -251,7 +251,7 @@
     <p style="font-size:.88rem;color:#555;margin-bottom:1.1rem;">
       Indique o número (M-Pesa / e-Mola / Mkesh) para o comprador efectuar o pagamento.
     </p>
-    <form id="formAceitar" th:action="@{/produtor/pedido/aceitar}" method="post">
+    <form id="formAceitar" th:action="@{/produtor/pedido/aceitar(_method='patch')}" method="post">
       <input type="hidden" name="pedidoId" id="aceitarPedidoId"/>
       <input type="hidden" name="from" value="dashboard"/>
       <div style="margin-bottom:1rem;">
@@ -298,7 +298,7 @@
     <p style="font-size:.88rem;color:#555;margin-bottom:1.1rem;">
       Indique o motivo do cancelamento. Esta justificação será visível para o comprador.
     </p>
-    <form id="formRejeicao" th:action="@{/produtor/pedido/rejeitar}" method="post">
+    <form id="formRejeicao" th:action="@{/produtor/pedido/rejeitar(_method='patch')}" method="post">
       <input type="hidden" name="pedidoId" id="rejeicaoPedidoId"/>
       <input type="hidden" name="from" value="dashboard"/>
       <div style="margin-bottom:1rem;">

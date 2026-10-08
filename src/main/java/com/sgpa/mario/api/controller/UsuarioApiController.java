@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.api.config.UsuarioAtual;
-import com.example.demo.api.dto.UsuarioDtos.AlterarSenhaRequest;
-import com.example.demo.api.dto.UsuarioDtos.AtualizarPerfilRequest;
-import com.example.demo.api.dto.UsuarioDtos.RegistoCompradorRequest;
-import com.example.demo.api.dto.UsuarioDtos.RegistoProdutorRequest;
-import com.example.demo.api.dto.UsuarioDtos.UsuarioResponse;
-import com.example.demo.api.service.ApiUsuarioService;
+import com.sgpa.mario.api.config.UsuarioAtual;
+import com.sgpa.mario.api.dto.UsuarioDtos.AlterarSenhaRequest;
+import com.sgpa.mario.api.dto.UsuarioDtos.AtualizarPerfilRequest;
+import com.sgpa.mario.api.dto.UsuarioDtos.RegistoCompradorRequest;
+import com.sgpa.mario.api.dto.UsuarioDtos.RegistoProdutorRequest;
+import com.sgpa.mario.api.dto.UsuarioDtos.UsuarioResponse;
+import com.sgpa.mario.api.service.ApiUsuarioService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

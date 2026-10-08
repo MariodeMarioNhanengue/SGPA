@@ -1,10 +1,10 @@
-package com.example.demo.api.repository;
+package com.sgpa.mario.api.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.example.demo.web.domain.Bairro;
-import com.example.demo.web.domain.Distrito;
+import com.sgpa.mario.web.domain.Bairro;
+import com.sgpa.mario.web.domain.Distrito;
 
 import java.util.List;
 import java.util.Optional;

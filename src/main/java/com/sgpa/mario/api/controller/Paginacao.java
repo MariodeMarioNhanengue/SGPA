@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 /** Limita os parâmetros de paginação a valores seguros. */
 final class Paginacao {

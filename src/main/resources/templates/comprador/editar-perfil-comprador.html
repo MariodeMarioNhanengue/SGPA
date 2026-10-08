@@ -75,7 +75,7 @@
     </div>
 
     <div class="p-4">
-      <form th:action="@{/comprador/editar-perfil}" method="post" enctype="multipart/form-data">
+      <form th:action="@{/comprador/editar-perfil(_method='put')}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="id" th:value="${comprador.id}"/>
 
         <!-- FOTO DE PERFIL -->

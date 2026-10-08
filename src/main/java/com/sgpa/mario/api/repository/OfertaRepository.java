@@ -1,4 +1,4 @@
-package com.example.demo.api.repository;
+package com.sgpa.mario.api.repository;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.example.demo.web.domain.Oferta;
-import com.example.demo.web.domain.Oferta.EstadoOferta;
+import com.sgpa.mario.web.domain.Oferta;
+import com.sgpa.mario.web.domain.Oferta.EstadoOferta;
 
 @Repository
 public interface OfertaRepository extends JpaRepository<Oferta, Long> {

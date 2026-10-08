@@ -1,21 +1,23 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.demo.web.domain.Admin;
-import com.example.demo.api.service.AdminAuthService;
-import com.example.demo.api.service.AdminService;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.web.domain.Admin;
+import com.sgpa.mario.api.service.AdminAuthService;
+import com.sgpa.mario.api.service.AdminService;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -94,7 +96,7 @@ public class AdminController {
         return "admin/editar-perfil-admin";
     }
 
-    @PostMapping("/perfil")
+    @PutMapping("/perfil")
     public String salvarPerfil(@RequestParam String nome,
                                @RequestParam String apelido,
                                @RequestParam String email,
@@ -152,7 +154,7 @@ public class AdminController {
         return "redirect:/admin/administradores";
     }
 
-    @PostMapping("/administradores/{id}/remover")
+    @DeleteMapping("/administradores/{id}")
     public String removerAdmin(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
         if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
         try {
@@ -176,7 +178,7 @@ public class AdminController {
         return "admin/gerir-produtores";
     }
 
-    @PostMapping("/produtores/{id}/remover")
+    @DeleteMapping("/produtores/{id}")
     public String removerProdutor(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
         if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
         adminService.removerProdutor(id, session);
@@ -202,6 +204,21 @@ public class AdminController {
         return "redirect:/admin/produtores";
     }
 
+    /** Valida manualmente a conta de um produtor (sem precisar do link do e-mail). */
+    @PostMapping("/produtores/{id}/validar")
+    public String validarProdutor(@PathVariable Long id,
+                                  @RequestParam(required = false) String voltar,
+                                  HttpSession session, RedirectAttributes ra) {
+        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        try {
+            var p = adminService.validarProdutor(id, session);
+            ra.addFlashAttribute("sucesso", "Conta de " + p.getNomeCompleto() + " validada com sucesso.");
+        } catch (RegraNegocioException e) {
+            ra.addFlashAttribute("erro", e.getMessage());
+        }
+        return "detalhe".equals(voltar) ? "redirect:/admin/produtores/" + id : "redirect:/admin/produtores";
+    }
+
     // ════════ COMPRADORES ════════
 
     @GetMapping("/compradores")
@@ -214,7 +231,7 @@ public class AdminController {
         return "admin/gerir-compradores";
     }
 
-    @PostMapping("/compradores/{id}/remover")
+    @DeleteMapping("/compradores/{id}")
     public String removerComprador(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
         if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
         adminService.removerComprador(id, session);
@@ -238,6 +255,21 @@ public class AdminController {
             ra.addFlashAttribute("erro", e.getMessage());
         }
         return "redirect:/admin/compradores";
+    }
+
+    /** Valida manualmente a conta de um comprador (sem precisar do link do e-mail). */
+    @PostMapping("/compradores/{id}/validar")
+    public String validarComprador(@PathVariable Long id,
+                                   @RequestParam(required = false) String voltar,
+                                   HttpSession session, RedirectAttributes ra) {
+        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        try {
+            var c = adminService.validarComprador(id, session);
+            ra.addFlashAttribute("sucesso", "Conta de " + c.getNomeCompleto() + " validada com sucesso.");
+        } catch (RegraNegocioException e) {
+            ra.addFlashAttribute("erro", e.getMessage());
+        }
+        return "detalhe".equals(voltar) ? "redirect:/admin/compradores/" + id : "redirect:/admin/compradores";
     }
 
     // ════════ DETALHES COMPRADOR ════════

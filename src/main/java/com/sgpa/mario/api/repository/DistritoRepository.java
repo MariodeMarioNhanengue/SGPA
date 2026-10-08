@@ -1,11 +1,11 @@
-package com.example.demo.api.repository;
+package com.sgpa.mario.api.repository;
 
 import java.util.*;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.demo.web.domain.Distrito;
-import com.example.demo.web.domain.Provincia;
+import com.sgpa.mario.web.domain.Distrito;
+import com.sgpa.mario.web.domain.Provincia;
 
 public interface DistritoRepository extends JpaRepository<Distrito, Long> {
 

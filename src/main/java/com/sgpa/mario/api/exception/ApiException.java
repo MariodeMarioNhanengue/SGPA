@@ -1,4 +1,4 @@
-package com.example.demo.api.exception;
+package com.sgpa.mario.api.exception;
 
 import org.springframework.http.HttpStatus;
 

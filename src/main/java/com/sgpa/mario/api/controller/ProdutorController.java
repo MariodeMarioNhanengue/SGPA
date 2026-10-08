@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import java.math.BigDecimal;
 
@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.demo.web.domain.*;
-import com.example.demo.api.service.AuthService;
-import com.example.demo.api.service.ProdutorService;
-import com.example.demo.api.service.exception.NaoAutorizadoException;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.web.domain.*;
+import com.sgpa.mario.api.service.AuthService;
+import com.sgpa.mario.api.service.ProdutorService;
+import com.sgpa.mario.api.service.ValidacaoRegisto;
+import com.sgpa.mario.api.service.exception.NaoAutorizadoException;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 @Controller
 @RequestMapping("/produtor")
@@ -55,11 +56,19 @@ public class ProdutorController {
 
     @PostMapping("/cadastrar")
     public String salvarProdutor(@ModelAttribute Produtor produtor,
+                                 @RequestParam(required = false) String confirmarSenha,
                                  @RequestParam(value = "fotoPerfilFile", required = false) MultipartFile fotoPerfilFile,
-                                 HttpSession session, Model model) {
+                                 HttpSession session, RedirectAttributes redirectAttrs, Model model) {
         try {
-            Produtor salvo = produtorService.cadastrar(produtor, fotoPerfilFile);
+            // Validação no servidor: os dados obrigatórios (incl. e-mail) nunca podem faltar.
+            ValidacaoRegisto.confirmacaoSenha(produtor.getSenha(), confirmarSenha);
+            boolean jaVerificado = authService.emailJaVerificadoNaSessao(session, produtor.getEmail());
+            Produtor salvo = produtorService.cadastrar(produtor, fotoPerfilFile, jaVerificado);
+            // A conta nasce por validar: a sessão abre, mas em modo restrito (ver ContaVerificadaInterceptor).
             authService.mudarSessaoParaProdutor(session, salvo);
+            redirectAttrs.addFlashAttribute("sucesso",
+                "Conta criada! Enviámos um link de confirmação para " + salvo.getEmail()
+                + ". Enquanto a conta não for validada só pode consultar — não pode publicar ofertas nem gerir pedidos.");
             return "redirect:/produtor/dashboard?id=" + salvo.getId();
         } catch (RegraNegocioException e) {
             model.addAttribute("erro", e.getMessage());
@@ -75,7 +84,7 @@ public class ProdutorController {
         return "produtor/editar-perfil-produtor";
     }
 
-    @PostMapping("/editar-perfil")
+    @PutMapping("/editar-perfil")
     public String salvarPerfil(@ModelAttribute Produtor produtor,
                                @RequestParam(value = "fotoPerfilFile", required = false) MultipartFile fotoPerfilFile,
                                HttpSession session,
@@ -121,7 +130,7 @@ public class ProdutorController {
         return "produtor/editar-oferta";
     }
 
-    @PostMapping("/editar-oferta/{id}")
+    @PutMapping("/editar-oferta/{id}")
     public String salvarEdicaoOferta(@PathVariable Long id,
                                      @ModelAttribute Oferta ofertaEditada,
                                      @RequestParam(required = false) Long produtorId,
@@ -139,7 +148,7 @@ public class ProdutorController {
     }
 
     // APAGAR OFERTA
-    @PostMapping("/apagar-oferta/{id}")
+    @DeleteMapping("/ofertas/{id}")
     public String apagarOferta(@PathVariable Long id,
                                @RequestParam(required = false) Long produtorId,
                                RedirectAttributes redirectAttrs) {
@@ -187,7 +196,7 @@ public class ProdutorController {
     }
 
     // ACEITAR PEDIDO
-    @PostMapping("/pedido/aceitar")
+    @PatchMapping("/pedido/aceitar")
     public String aceitarPedido(@RequestParam Long pedidoId,
                                 @RequestParam(required = false) String numeroPagamento,
                                 @RequestParam(required = false, defaultValue = "pedidos") String from,
@@ -207,7 +216,7 @@ public class ProdutorController {
     }
 
     // REJEITAR PEDIDO
-    @PostMapping("/pedido/rejeitar")
+    @PatchMapping("/pedido/rejeitar")
     public String rejeitarPedido(@RequestParam Long pedidoId,
                                  @RequestParam(required = false, defaultValue = "pedidos") String from,
                                  @RequestParam(required = false) String motivoRejeicao,
@@ -249,6 +258,7 @@ public class ProdutorController {
             model.addAttribute("apelidoPre",  produtor.getApelido());
             model.addAttribute("telefonePre", produtor.getTelefone());
             model.addAttribute("emailPre",    produtor.getEmail());
+            model.addAttribute("nuitPre",     produtor.getNuit());
         }
         model.addAttribute("modoConversao", true);
         return "comprador/criar-comprador";

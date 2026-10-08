@@ -1,12 +1,12 @@
-package com.example.demo.api.dto;
+package com.sgpa.mario.api.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import com.example.demo.web.domain.Pedido.EstadoPedido;
-import com.example.demo.web.domain.Transacao.EstadoTransacao;
-import com.example.demo.web.domain.Transacao.MetodoPagamento;
-import com.example.demo.web.domain.Transacao.Operadora;
+import com.sgpa.mario.web.domain.Pedido.EstadoPedido;
+import com.sgpa.mario.web.domain.Transacao.EstadoTransacao;
+import com.sgpa.mario.web.domain.Transacao.MetodoPagamento;
+import com.sgpa.mario.web.domain.Transacao.Operadora;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;

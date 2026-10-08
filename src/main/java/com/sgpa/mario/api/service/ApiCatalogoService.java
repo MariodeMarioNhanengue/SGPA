@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.util.Comparator;
 import java.util.List;
@@ -6,26 +6,26 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.api.dto.CatalogoDtos.BairroRequest;
-import com.example.demo.api.dto.CatalogoDtos.BairroResponse;
-import com.example.demo.api.dto.CatalogoDtos.CategoriaResponse;
-import com.example.demo.api.dto.CatalogoDtos.DistritoRequest;
-import com.example.demo.api.dto.CatalogoDtos.DistritoResponse;
-import com.example.demo.api.dto.CatalogoDtos.ProdutoResponse;
-import com.example.demo.api.dto.CatalogoDtos.ProvinciaRequest;
-import com.example.demo.api.dto.CatalogoDtos.ProvinciaResponse;
-import com.example.demo.web.domain.Bairro;
-import com.example.demo.web.domain.Distrito;
-import com.example.demo.web.domain.Produto;
-import com.example.demo.web.domain.Provincia;
-import com.example.demo.api.repository.BairroRepository;
-import com.example.demo.api.repository.CategoriaRepository;
-import com.example.demo.api.repository.DistritoRepository;
-import com.example.demo.api.repository.ProdutoRepository;
-import com.example.demo.api.repository.ProvinciaRepository;
-import com.example.demo.api.service.LocalizacaoService;
-import com.example.demo.api.service.exception.RecursoNaoEncontradoException;
-import com.example.demo.api.service.exception.RegraNegocioException;
+import com.sgpa.mario.api.dto.CatalogoDtos.BairroRequest;
+import com.sgpa.mario.api.dto.CatalogoDtos.BairroResponse;
+import com.sgpa.mario.api.dto.CatalogoDtos.CategoriaResponse;
+import com.sgpa.mario.api.dto.CatalogoDtos.DistritoRequest;
+import com.sgpa.mario.api.dto.CatalogoDtos.DistritoResponse;
+import com.sgpa.mario.api.dto.CatalogoDtos.ProdutoResponse;
+import com.sgpa.mario.api.dto.CatalogoDtos.ProvinciaRequest;
+import com.sgpa.mario.api.dto.CatalogoDtos.ProvinciaResponse;
+import com.sgpa.mario.web.domain.Bairro;
+import com.sgpa.mario.web.domain.Distrito;
+import com.sgpa.mario.web.domain.Produto;
+import com.sgpa.mario.web.domain.Provincia;
+import com.sgpa.mario.api.repository.BairroRepository;
+import com.sgpa.mario.api.repository.CategoriaRepository;
+import com.sgpa.mario.api.repository.DistritoRepository;
+import com.sgpa.mario.api.repository.ProdutoRepository;
+import com.sgpa.mario.api.repository.ProvinciaRepository;
+import com.sgpa.mario.api.service.LocalizacaoService;
+import com.sgpa.mario.api.service.exception.RecursoNaoEncontradoException;
+import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 /** Categorias, produtos e hierarquia Província > Distrito > Bairro. */
 @Service

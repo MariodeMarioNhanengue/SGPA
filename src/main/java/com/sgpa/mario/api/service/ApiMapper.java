@@ -1,27 +1,27 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.math.BigDecimal;
 
-import com.example.demo.api.dto.CatalogoDtos.BairroResponse;
-import com.example.demo.api.dto.CatalogoDtos.DistritoResponse;
-import com.example.demo.api.dto.CatalogoDtos.ProvinciaResponse;
-import com.example.demo.api.dto.OfertaDtos.LocalizacaoResumo;
-import com.example.demo.api.dto.OfertaDtos.OfertaResponse;
-import com.example.demo.api.dto.OfertaDtos.ProdutorResumo;
-import com.example.demo.api.dto.PedidoDtos.CompradorResumo;
-import com.example.demo.api.dto.PedidoDtos.OfertaResumo;
-import com.example.demo.api.dto.PedidoDtos.PedidoResponse;
-import com.example.demo.api.dto.PedidoDtos.TransacaoResponse;
-import com.example.demo.api.dto.UsuarioDtos.UsuarioResponse;
-import com.example.demo.web.domain.Admin;
-import com.example.demo.web.domain.Bairro;
-import com.example.demo.web.domain.Comprador;
-import com.example.demo.web.domain.Distrito;
-import com.example.demo.web.domain.Oferta;
-import com.example.demo.web.domain.Pedido;
-import com.example.demo.web.domain.Produtor;
-import com.example.demo.web.domain.Provincia;
-import com.example.demo.web.domain.Transacao;
+import com.sgpa.mario.api.dto.CatalogoDtos.BairroResponse;
+import com.sgpa.mario.api.dto.CatalogoDtos.DistritoResponse;
+import com.sgpa.mario.api.dto.CatalogoDtos.ProvinciaResponse;
+import com.sgpa.mario.api.dto.OfertaDtos.LocalizacaoResumo;
+import com.sgpa.mario.api.dto.OfertaDtos.OfertaResponse;
+import com.sgpa.mario.api.dto.OfertaDtos.ProdutorResumo;
+import com.sgpa.mario.api.dto.PedidoDtos.CompradorResumo;
+import com.sgpa.mario.api.dto.PedidoDtos.OfertaResumo;
+import com.sgpa.mario.api.dto.PedidoDtos.PedidoResponse;
+import com.sgpa.mario.api.dto.PedidoDtos.TransacaoResponse;
+import com.sgpa.mario.api.dto.UsuarioDtos.UsuarioResponse;
+import com.sgpa.mario.web.domain.Admin;
+import com.sgpa.mario.web.domain.Bairro;
+import com.sgpa.mario.web.domain.Comprador;
+import com.sgpa.mario.web.domain.Distrito;
+import com.sgpa.mario.web.domain.Oferta;
+import com.sgpa.mario.web.domain.Pedido;
+import com.sgpa.mario.web.domain.Produtor;
+import com.sgpa.mario.web.domain.Provincia;
+import com.sgpa.mario.web.domain.Transacao;
 
 /** Converte entidades JPA em DTOs. Nunca expõe senhas nem relações internas. */
 public final class ApiMapper {

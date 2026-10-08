@@ -1,15 +1,11 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.example.demo.web.domain.Bairro;
-import com.example.demo.web.domain.Distrito;
-import com.example.demo.web.domain.Provincia;
-import com.example.demo.api.repository.BairroRepository;
-import com.example.demo.api.repository.DistritoRepository;
-import com.example.demo.api.repository.ProvinciaRepository;
+import com.sgpa.mario.web.domain.*;
+import com.sgpa.mario.api.repository.*;
 
 @Service
 public class LocalizacaoService {

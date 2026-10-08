@@ -99,6 +99,13 @@
     .modal-confirm{padding:10px 20px;background:var(--red);border:none;border-radius:9px;color:#fff;font-family:var(--ff-body);font-size:14px;font-weight:600;cursor:pointer;transition:opacity 150ms;}
     .modal-confirm:hover{opacity:.85;}
     @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  
+    /* ── Validação manual de contas ── */
+    .badge-por-validar{display:inline-block;margin-left:8px;padding:2px 8px;background:rgba(232,168,56,.14);border:1px solid rgba(232,168,56,.3);color:#e8a838;border-radius:20px;font-size:10px;font-weight:600;white-space:nowrap;}
+    .btn-validar{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;background:rgba(61,186,126,.12);border:1px solid rgba(61,186,126,.3);color:#3dba7e;border-radius:7px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;transition:background 150ms;}
+    .btn-validar:hover{background:rgba(61,186,126,.24);}
+    .validar-box{margin:0 0 18px;padding:12px 14px;background:rgba(232,168,56,.08);border:1px solid rgba(232,168,56,.25);border-radius:10px;display:flex;flex-direction:column;gap:10px;}
+    .validar-txt{font-size:12px;color:#e8a838;line-height:1.4;}
   </style>
 </head>
 <body>
@@ -217,6 +224,7 @@
               <div class="avatar-cell">
                 <div class="avatar-sm" th:text="${c.nome.substring(0,1).toUpperCase()}">C</div>
                 <span th:text="${c.nomeCompleto}">Nome</span>
+                <span class="badge-por-validar" th:if="${c.emailVerificado != null and !c.emailVerificado}">Por validar</span>
               </div>
             </td>
             <td th:text="${c.email ?: '-'}">email</td>
@@ -224,6 +232,12 @@
             <td th:text="${c.nuit ?: '-'}">nuit</td>
             <td th:text="${c.ultimoAcesso != null ? #temporals.format(c.ultimoAcesso,'dd/MM/yyyy HH:mm') : 'Nunca'}">-</td>
             <td style="display:flex;gap:6px;align-items:center;">
+              <form th:if="${c.emailVerificado != null and !c.emailVerificado}"
+                    th:action="@{/admin/compradores/{id}/validar(id=${c.id})}" method="post" style="margin:0;">
+                <button type="submit" class="btn-validar" title="Validar a conta sem esperar pelo e-mail">
+                  <i class="bi bi-patch-check"></i> Validar
+                </button>
+              </form>
               <a th:href="@{/admin/compradores/{id}(id=${c.id})}" class="btn-ver">
                 <i class="bi bi-eye"></i> Ver
               </a>
@@ -299,7 +313,7 @@
 <script>
   function abrirModal(id, nome) {
     document.getElementById('modalNome').textContent = nome;
-    document.getElementById('modalForm').action = '/admin/compradores/' + id + '/remover';
+    document.getElementById('modalForm').action = '/admin/compradores/' + id + '?_method=delete';
     document.getElementById('modalOverlay').classList.add('open');
   }
   function fecharModal() { document.getElementById('modalOverlay').classList.remove('open'); }

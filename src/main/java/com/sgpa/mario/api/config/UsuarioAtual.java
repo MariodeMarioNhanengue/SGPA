@@ -1,4 +1,4 @@
-package com.example.demo.api.config;
+package com.sgpa.mario.api.config;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -6,7 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
-import com.example.demo.api.exception.ApiException;
+import com.sgpa.mario.api.exception.ApiException;
 
 /** Acesso ao utilizador autenticado (lido do JWT). */
 public final class UsuarioAtual {

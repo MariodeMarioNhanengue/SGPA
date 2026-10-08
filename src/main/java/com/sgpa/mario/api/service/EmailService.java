@@ -1,4 +1,4 @@
-package com.example.demo.api.service;
+package com.sgpa.mario.api.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

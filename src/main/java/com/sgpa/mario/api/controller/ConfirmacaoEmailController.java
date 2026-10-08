@@ -1,4 +1,4 @@
-package com.example.demo.api.controller;
+package com.sgpa.mario.api.controller;
 
 import java.util.Optional;
 
@@ -9,10 +9,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.example.demo.api.service.ConfirmacaoEmailService;
-import com.example.demo.api.service.ConfirmacaoEmailService.DadosConfirmacao;
+import com.sgpa.mario.api.service.ConfirmacaoEmailService;
+import com.sgpa.mario.api.service.ConfirmacaoEmailService.DadosConfirmacao;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * Páginas web do fluxo de confirmação de e-mail (links enviados por e-mail).
@@ -62,12 +63,21 @@ public class ConfirmacaoEmailController {
         return "confirmar-email";
     }
 
-    /** Formulário da página de login: reenviar o link de confirmação. */
+    /**
+     * Reenviar o link de confirmação. Usado na página de login e no aviso do painel das contas
+     * por validar: se o utilizador tem sessão volta ao seu painel, senão volta ao login.
+     */
     @PostMapping("/reenviar-confirmacao")
-    public String reenviar(@RequestParam String email, HttpServletRequest request, RedirectAttributes redirectAttrs) {
+    public String reenviar(@RequestParam String email, HttpServletRequest request,
+                           RedirectAttributes redirectAttrs) {
         confirmacaoEmailService.reenviarConfirmacao(email.trim(), baseUrl(request));
         redirectAttrs.addFlashAttribute("sucesso",
             "Se existir uma conta por confirmar com este e-mail, enviámos um novo link. Verifique a caixa de entrada (e o spam).");
+
+        HttpSession session = request.getSession(false); // não cria sessão para visitantes anónimos
+        Object tipo = session == null ? null : session.getAttribute("loggedInType");
+        if ("PRODUTOR".equals(tipo)) return "redirect:/produtor/dashboard";
+        if ("COMPRADOR".equals(tipo)) return "redirect:/comprador/dashboard";
         return "redirect:/login";
     }
 }
