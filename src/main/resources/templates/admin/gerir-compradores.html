@@ -160,7 +160,7 @@
       </div>
       <div>
         <div class="sb-user-name" th:text="${nomeAdmin}">Administrador</div>
-        <div class="sb-user-role">Super Admin</div>
+        <div class="sb-user-role" th:text="${isSuperAdmin} ? 'Super Admin' : 'Admin'">Admin</div>
       </div>
     </div>
     <a href="/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>

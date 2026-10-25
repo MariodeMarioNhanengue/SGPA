@@ -35,9 +35,6 @@ public class CompradorService {
     private final PasswordEncoderService passwordEncoderService;
     private final ConfirmacaoEmailService confirmacaoEmailService;
 
-    @org.springframework.beans.factory.annotation.Value("${app.base-url}")
-    private String baseUrl;
-
     public CompradorService(CompradorRepository compradorRepository,
                             OfertaRepository ofertaRepository,
                             PedidoRepository pedidoRepository,
@@ -77,6 +74,12 @@ public class CompradorService {
         comprador.setEmail(ValidacaoRegisto.email(comprador.getEmail(), 100));
         ValidacaoRegisto.senha(comprador.getSenha());
 
+        // Um registo anterior com este e-mail que nunca chegou a ser confirmado (conta por validar, sem actividade
+        // possível) não pode impedir o verdadeiro dono do e-mail de se registar: é substituído por este.
+        compradorRepository.findByEmail(comprador.getEmail())
+            .filter(c -> Boolean.FALSE.equals(c.getEmailVerificado()))
+            .ifPresent(compradorRepository::delete);
+
         if (compradorRepository.existsByEmail(comprador.getEmail())) {
             throw new RegraNegocioException("Este e-mail já está registado. Faça login.");
         }
@@ -101,7 +104,7 @@ public class CompradorService {
             salvo.setFotoPerfil(foto);
             compradorRepository.save(salvo);
         }
-        if (!emailJaVerificado) confirmacaoEmailService.enviarConfirmacaoComprador(salvo, baseUrl);
+        if (!emailJaVerificado) confirmacaoEmailService.enviarConfirmacaoComprador(salvo);
         return salvo;
     }
 

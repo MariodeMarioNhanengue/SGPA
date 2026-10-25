@@ -19,8 +19,8 @@ import jakarta.servlet.http.HttpSession;
 /**
  * Modo restrito para contas por validar.
  *
- * Enquanto o e-mail de um Produtor/Comprador não for confirmado (pelo link do e-mail ou
- * por um administrador), a ÚNICA coisa que a conta pode fazer é abrir o seu painel para
+ * Enquanto o e-mail de um Produtor/Comprador não for confirmado (pelo código de 6 dígitos enviado
+ * por e-mail ou por um administrador), a ÚNICA coisa que a conta pode fazer é abrir o seu painel para
  * ver o aviso de validação. Qualquer outra rota de /produtor/** e /comprador/** — pedidos,
  * pagamentos, publicar/editar ofertas, editar perfil, trocar de perfil, etc. — é recusada
  * aqui, no servidor, por isso não há botão escondido nem URL escrito à mão que contorne.
@@ -32,7 +32,7 @@ public class ContaVerificadaInterceptor implements HandlerInterceptor {
     private static final Set<String> PAGINAS_PERMITIDAS = Set.of("/comprador/dashboard", "/produtor/dashboard");
 
     static final String MENSAGEM =
-        "Valide a sua conta para continuar. Confirme o e-mail através do link que lhe enviámos "
+        "Valide a sua conta para continuar. Introduza o código de 6 dígitos que lhe enviámos por e-mail "
         + "(ou peça a um administrador que a valide). Até lá não pode realizar acções na plataforma.";
 
     private final AuthService authService;

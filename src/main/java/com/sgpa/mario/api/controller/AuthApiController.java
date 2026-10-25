@@ -1,20 +1,17 @@
 package com.sgpa.mario.api.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sgpa.mario.api.config.UsuarioAtual;
 import com.sgpa.mario.api.dto.AuthDtos.AdminLoginRequest;
-import com.sgpa.mario.api.dto.AuthDtos.ConfirmacaoResponse;
+import com.sgpa.mario.api.dto.AuthDtos.ConfirmarEmailRequest;
 import com.sgpa.mario.api.dto.AuthDtos.EmailRequest;
 import com.sgpa.mario.api.dto.AuthDtos.LoginRequest;
 import com.sgpa.mario.api.dto.AuthDtos.MensagemResponse;
 import com.sgpa.mario.api.dto.AuthDtos.RedefinirSenhaRequest;
-import com.sgpa.mario.api.dto.AuthDtos.TokenRequest;
 import com.sgpa.mario.api.dto.AuthDtos.TokenResponse;
 import com.sgpa.mario.api.dto.AuthDtos.TrocarPerfilRequest;
 import com.sgpa.mario.api.service.ApiAuthService;
@@ -58,32 +55,21 @@ public class AuthApiController {
         return auth.trocarPerfil(UsuarioAtual.obter(), req.tipo());
     }
 
-    @GetMapping("/confirmacao")
-    @Operation(summary = "Consulta o token de confirmação (não o consome) para mostrar quem vai ser confirmado")
-    public ConfirmacaoResponse consultarConfirmacao(@RequestParam String token) {
-        return auth.consultarConfirmacao(token);
-    }
-
     @PostMapping("/confirmar-email")
-    @Operation(summary = "Confirma o e-mail da conta")
-    public MensagemResponse confirmarEmail(@Valid @RequestBody TokenRequest req) {
-        auth.confirmarEmail(req.token());
+    @Operation(summary = "Confirma o e-mail da conta com o código de 6 dígitos recebido por e-mail",
+        description = "Máximo de 5 tentativas por código; depois é preciso pedir um novo em /auth/reenviar-confirmacao.")
+    public MensagemResponse confirmarEmail(@Valid @RequestBody ConfirmarEmailRequest req) {
+        auth.confirmarEmail(req.email(), req.codigo());
         return new MensagemResponse("E-mail confirmado. Já pode entrar.");
     }
 
-    @PostMapping("/rejeitar-conta")
-    @Operation(summary = "\"Não fui eu\": cancela o registo de uma conta ainda não confirmada")
-    public MensagemResponse rejeitarConta(@Valid @RequestBody TokenRequest req) {
-        auth.rejeitarConta(req.token());
-        return new MensagemResponse("Registo cancelado.");
-    }
-
     @PostMapping("/reenviar-confirmacao")
-    @Operation(summary = "Reenvia o e-mail de confirmação")
+    @Operation(summary = "Envia um novo código de confirmação por e-mail (o anterior deixa de valer)",
+        description = "No máximo um por minuto por conta.")
     public MensagemResponse reenviarConfirmacao(@Valid @RequestBody EmailRequest req) {
         auth.reenviarConfirmacao(req.email());
         // Resposta neutra: não revela se o e-mail existe.
-        return new MensagemResponse("Se existir uma conta por confirmar com este e-mail, enviámos um novo link.");
+        return new MensagemResponse("Se existir uma conta por confirmar com este e-mail, enviámos um novo código.");
     }
 
     @PostMapping("/recuperar-senha")

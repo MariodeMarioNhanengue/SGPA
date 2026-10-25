@@ -33,9 +33,6 @@ public class ProdutorService {
     private final PasswordEncoderService passwordEncoderService;
     private final ConfirmacaoEmailService confirmacaoEmailService;
 
-    @org.springframework.beans.factory.annotation.Value("${app.base-url}")
-    private String baseUrl;
-
     public ProdutorService(OfertaRepository ofertaRepository,
                            PedidoRepository pedidoRepository,
                            ProdutorRepository produtorRepository,
@@ -111,6 +108,12 @@ public class ProdutorService {
         produtor.setEmail(ValidacaoRegisto.email(produtor.getEmail(), 255));
         ValidacaoRegisto.senha(produtor.getSenha());
 
+        // Um registo anterior com este e-mail que nunca chegou a ser confirmado (conta por validar, sem actividade
+        // possível) não pode impedir o verdadeiro dono do e-mail de se registar: é substituído por este.
+        produtorRepository.findByEmail(produtor.getEmail())
+            .filter(p -> Boolean.FALSE.equals(p.getEmailVerificado()))
+            .ifPresent(produtorRepository::delete);
+
         // NUIT em branco -> null (a coluna é única: "" repetido daria erro ao 2.º produtor sem NUIT)
         if (produtor.getNuit() != null && produtor.getNuit().isBlank()) {
             produtor.setNuit(null);
@@ -134,7 +137,7 @@ public class ProdutorService {
             salvo.setFotoPerfil(foto);
             produtorRepository.save(salvo);
         }
-        if (!emailJaVerificado) confirmacaoEmailService.enviarConfirmacaoProdutor(salvo, baseUrl);
+        if (!emailJaVerificado) confirmacaoEmailService.enviarConfirmacaoProdutor(salvo);
         return salvo;
     }
 

@@ -64,12 +64,16 @@ public class ProdutorController {
             ValidacaoRegisto.confirmacaoSenha(produtor.getSenha(), confirmarSenha);
             boolean jaVerificado = authService.emailJaVerificadoNaSessao(session, produtor.getEmail());
             Produtor salvo = produtorService.cadastrar(produtor, fotoPerfilFile, jaVerificado);
-            // A conta nasce por validar: a sessão abre, mas em modo restrito (ver ContaVerificadaInterceptor).
+            // A sessão abre já, mas se a conta nasceu por validar fica em modo restrito (ver ContaVerificadaInterceptor)
+            // até o utilizador escrever o código que recebeu por e-mail.
             authService.mudarSessaoParaProdutor(session, salvo);
+            if (jaVerificado) {
+                redirectAttrs.addFlashAttribute("sucesso", "Conta criada com sucesso!");
+                return "redirect:/produtor/dashboard?id=" + salvo.getId();
+            }
             redirectAttrs.addFlashAttribute("sucesso",
-                "Conta criada! Enviámos um link de confirmação para " + salvo.getEmail()
-                + ". Enquanto a conta não for validada só pode consultar — não pode publicar ofertas nem gerir pedidos.");
-            return "redirect:/produtor/dashboard?id=" + salvo.getId();
+                "Conta criada! Enviámos um código de 6 dígitos para " + salvo.getEmail() + ".");
+            return "redirect:/confirmar-codigo";
         } catch (RegraNegocioException e) {
             model.addAttribute("erro", e.getMessage());
             model.addAttribute("produtor", produtor);

@@ -71,7 +71,6 @@ public class SecurityConfig {
                     "/api/v1/auth/login",
                     "/api/v1/auth/admin/login",
                     "/api/v1/auth/confirmar-email",
-                    "/api/v1/auth/rejeitar-conta",
                     "/api/v1/auth/reenviar-confirmacao",
                     "/api/v1/auth/recuperar-senha",
                     "/api/v1/auth/redefinir-senha",
@@ -79,7 +78,6 @@ public class SecurityConfig {
                     "/api/v1/produtores").permitAll()
                 // públicos: catálogo de ofertas e dados de apoio (leitura)
                 .requestMatchers(HttpMethod.GET,
-                    "/api/v1/auth/confirmacao",
                     "/api/v1/ofertas",
                     "/api/v1/ofertas/*",
                     "/api/v1/categorias",

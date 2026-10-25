@@ -40,6 +40,11 @@ public class AdminController {
         model.addAttribute("adminFoto", session.getAttribute("adminFoto"));
     }
 
+    private String negarGestaoAdmins(RedirectAttributes ra) {
+        ra.addFlashAttribute("erro", AdminService.MSG_SO_SUPER_ADMIN);
+        return "redirect:/admin/dashboard";
+    }
+
     // ════════ LOGIN / LOGOUT ════════
 
     @GetMapping("/login")
@@ -128,12 +133,12 @@ public class AdminController {
 
     // ════════ GESTÃO DE ADMINS (SUPERADMIN) ════════
 
+    // Só o Super Admin cria/remove/lista administradores; um Admin normal é mandado de volta ao painel.
     @GetMapping("/administradores")
-    public String listarAdmins(HttpSession session, Model model) {
+    public String listarAdmins(HttpSession session, Model model, RedirectAttributes ra) {
         if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
-        model.addAttribute("nomeAdmin", session.getAttribute("loggedInNome"));
-        model.addAttribute("isSuperAdmin", true);
-        model.addAttribute("adminFoto", session.getAttribute("adminFoto"));
+        if (!adminAuthService.isSuperAdmin(session)) return negarGestaoAdmins(ra);
+        preencherModeloBase(model, session);
         model.addAttribute("admins", adminService.listarAdmins(session));
         return "admin/gerir-admins";
     }
@@ -145,6 +150,7 @@ public class AdminController {
                              @RequestParam String senha,
                              HttpSession session, RedirectAttributes ra) {
         if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isSuperAdmin(session)) return negarGestaoAdmins(ra);
         try {
             Admin novo = adminService.criarAdmin(nome, apelido, email, senha, session);
             ra.addFlashAttribute("sucesso", "Administrador " + novo.getNomeCompleto() + " criado com sucesso.");
@@ -157,6 +163,7 @@ public class AdminController {
     @DeleteMapping("/administradores/{id}")
     public String removerAdmin(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
         if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isSuperAdmin(session)) return negarGestaoAdmins(ra);
         try {
             adminService.removerAdmin(id, session);
             ra.addFlashAttribute("sucesso", "Administrador removido com sucesso.");

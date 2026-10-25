@@ -282,7 +282,7 @@
     </ul>
   </div>
 
-  <div class="sb-section">
+  <div th:if="${isSuperAdmin}" class="sb-section">
     <div class="sb-section-label">Sistema</div>
     <ul class="sb-nav">
       <li><a href="/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li>
@@ -297,7 +297,7 @@
       </div>
       <div>
         <div class="sb-user-name" th:text="${nomeAdmin}">Administrador</div>
-        <div class="sb-user-role">Super Admin</div>
+        <div class="sb-user-role" th:text="${isSuperAdmin} ? 'Super Admin' : 'Admin'">Admin</div>
       </div>
     </div>
     <a href="/admin/logout" class="sb-logout">
@@ -318,6 +318,16 @@
       <i class="bi bi-calendar3"></i>
       <span id="currentDate"></span>
     </div>
+  </div>
+
+  <!-- Mensagens (ex.: acesso recusado a quem não é Super Admin) -->
+  <div th:if="${erro}" role="alert"
+       style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:10px;margin-bottom:24px;font-size:14px;background:var(--red-g);border:1px solid rgba(224,85,85,.2);color:var(--red);">
+    <i class="bi bi-exclamation-triangle-fill"></i><span th:text="${erro}"></span>
+  </div>
+  <div th:if="${sucesso}" role="status"
+       style="display:flex;align-items:center;gap:10px;padding:13px 16px;border-radius:10px;margin-bottom:24px;font-size:14px;background:var(--green-g);border:1px solid rgba(61,186,126,.2);color:var(--green);">
+    <i class="bi bi-check-circle-fill"></i><span th:text="${sucesso}"></span>
   </div>
 
   <!-- STATS -->

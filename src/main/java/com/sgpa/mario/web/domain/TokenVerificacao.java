@@ -15,6 +15,11 @@ import jakarta.persistence.Table;
  * Não guarda uma FK directa para Produtor/Comprador/Admin (que são tabelas
  * distintas) — em vez disso guarda o tipo de utilizador e o respectivo id,
  * resolvidos no serviço que consome o token.
+ *
+ * Na confirmação de conta (Finalidade.CONFIRMACAO_EMAIL) o utilizador não recebe o
+ * {@code token} mas sim um {@code codigo} curto de 6 dígitos, que escreve no sistema.
+ * Como 6 dígitos não são únicos, o código só é procurado em conjunto com o tipo e o id
+ * do utilizador, e {@code tentativas} limita quantas vezes se pode tentar adivinhá-lo.
  */
 @SuppressWarnings("serial")
 @Entity
@@ -48,6 +53,14 @@ public class TokenVerificacao extends AbstractEntity<Long> {
     @Column(nullable = false)
     private boolean usado = false;
 
+    /** Código de 6 dígitos enviado por e-mail (só na confirmação de conta; null nos restantes tokens). */
+    @Column(length = 6)
+    private String codigo;
+
+    /** Tentativas falhadas de introduzir {@link #codigo}. */
+    @Column(nullable = false, columnDefinition = "int not null default 0")
+    private int tentativas = 0;
+
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
 
@@ -68,6 +81,12 @@ public class TokenVerificacao extends AbstractEntity<Long> {
 
     public boolean isUsado() { return usado; }
     public void setUsado(boolean usado) { this.usado = usado; }
+
+    public String getCodigo() { return codigo; }
+    public void setCodigo(String codigo) { this.codigo = codigo; }
+
+    public int getTentativas() { return tentativas; }
+    public void setTentativas(int tentativas) { this.tentativas = tentativas; }
 
     public boolean isValido() {
         return !usado && dataExpiracao != null && LocalDateTime.now().isBefore(dataExpiracao);

@@ -96,6 +96,9 @@
 <!-- MAIN -->
 <div class="main-content" id="mainContent">
 
+  <!-- Aviso de conta por validar (só aparece se a conta ainda não foi validada) -->
+  <div th:replace="~{fragments/verificacao-conta :: aviso}"></div>
+
   <!-- TOPBAR -->
   <div class="topbar d-flex align-items-center justify-content-between px-4">
     <div class="d-flex align-items-center gap-3">

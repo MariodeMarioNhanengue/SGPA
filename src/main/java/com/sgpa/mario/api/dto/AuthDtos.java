@@ -29,7 +29,10 @@ public final class AuthDtos {
     public record EmailRequest(
         @NotBlank(message = "Indique o e-mail.") @Email(message = "E-mail inválido.") String email) {}
 
-    public record TokenRequest(@NotBlank(message = "Indique o token.") String token) {}
+    public record ConfirmarEmailRequest(
+        @NotBlank(message = "Indique o e-mail.") @Email(message = "E-mail inválido.") String email,
+        @NotBlank(message = "Indique o código.") @Size(max = 20, message = "Código inválido.")
+        @Schema(description = "Código de 6 dígitos recebido por e-mail", example = "482915") String codigo) {}
 
     public record RedefinirSenhaRequest(
         @NotBlank(message = "Indique o token.") String token,
@@ -38,7 +41,4 @@ public final class AuthDtos {
         @NotBlank(message = "Confirme a nova senha.") String confirmarSenha) {}
 
     public record MensagemResponse(String mensagem) {}
-
-    /** Quem vai ser confirmado/cancelado: mostrar ao utilizador antes de decidir. */
-    public record ConfirmacaoResponse(String tipo, String nome, String email) {}
 }

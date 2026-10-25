@@ -24,6 +24,7 @@ import com.sgpa.mario.web.domain.Produtor;
 import com.sgpa.mario.api.repository.AdminRepository;
 import com.sgpa.mario.api.repository.CompradorRepository;
 import com.sgpa.mario.api.repository.ProdutorRepository;
+import com.sgpa.mario.api.service.TokenVerificacaoService.ResultadoCodigo;
 import com.sgpa.mario.api.service.exception.RecursoNaoEncontradoException;
 
 /** Autenticação sem sessão: valida credenciais e emite JWT. Reutiliza BCrypt e o bloqueio por tentativas. */
@@ -151,29 +152,25 @@ public class ApiAuthService {
 
     // ─── Confirmação de e-mail e recuperação de senha ────────────────────
 
-    public void confirmarEmail(String token) {
-        if (!confirmacaoEmailService.confirmar(token)) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "TOKEN_INVALIDO", "O link de confirmação é inválido ou expirou.");
-        }
-    }
-
-    public com.sgpa.mario.api.dto.AuthDtos.ConfirmacaoResponse consultarConfirmacao(String token) {
-        return confirmacaoEmailService.consultar(token)
-            .map(d -> new com.sgpa.mario.api.dto.AuthDtos.ConfirmacaoResponse(d.tipo(), d.nome(), d.email()))
-            .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "TOKEN_INVALIDO",
-                "O link é inválido, já foi usado, a conta já foi confirmada, ou expirou."));
-    }
-
-    /** "Não fui eu": cancela o registo e apaga a conta ainda não confirmada. */
-    public void rejeitarConta(String token) {
-        if (!confirmacaoEmailService.rejeitar(token)) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "TOKEN_INVALIDO",
-                "O link é inválido, já foi usado, a conta já foi confirmada, ou expirou.");
+    /** Confirma a conta com o código de 6 dígitos recebido por e-mail. Se estiver certo a conta fica activa já. */
+    public void confirmarEmail(String email, String codigo) {
+        ResultadoCodigo r = confirmacaoEmailService.confirmarCodigoPorEmail(email, codigo);
+        switch (r.estado()) {
+            case CONFIRMADO -> { }
+            case INCORRETO -> throw new ApiException(HttpStatus.BAD_REQUEST, "CODIGO_INCORRETO",
+                "Código incorrecto. Ainda tem " + r.tentativasRestantes()
+                + (r.tentativasRestantes() == 1 ? " tentativa." : " tentativas."));
+            case BLOQUEADO -> throw new ApiException(HttpStatus.TOO_MANY_REQUESTS, "TENTATIVAS_ESGOTADAS",
+                "Demasiadas tentativas falhadas: o código foi anulado. Peça um novo em /api/v1/auth/reenviar-confirmacao.");
+            case FORMATO_INVALIDO -> throw new ApiException(HttpStatus.BAD_REQUEST, "CODIGO_INVALIDO",
+                "O código tem 6 dígitos.");
+            case EXPIRADO -> throw new ApiException(HttpStatus.BAD_REQUEST, "CODIGO_EXPIRADO",
+                "O código expirou ou já não é válido. Peça um novo em /api/v1/auth/reenviar-confirmacao.");
         }
     }
 
     public void reenviarConfirmacao(String email) {
-        confirmacaoEmailService.reenviarConfirmacao(email.trim(), baseUrl);
+        confirmacaoEmailService.reenviarConfirmacao(email.trim());
     }
 
     public void recuperarSenha(String email) {
@@ -197,7 +194,8 @@ public class ApiAuthService {
     private void validarConta(Boolean emailVerificado, boolean ativa) {
         if (Boolean.FALSE.equals(emailVerificado)) {
             throw new ApiException(HttpStatus.FORBIDDEN, "EMAIL_NAO_CONFIRMADO",
-                "Confirme o seu e-mail antes de entrar (pode pedir novo link em /api/v1/auth/reenviar-confirmacao).");
+                "Confirme o seu e-mail antes de entrar: envie o código recebido para /api/v1/auth/confirmar-email "
+                + "(ou peça um novo em /api/v1/auth/reenviar-confirmacao).");
         }
         if (!ativa) {
             throw new ApiException(HttpStatus.FORBIDDEN, "CONTA_SUSPENSA",
