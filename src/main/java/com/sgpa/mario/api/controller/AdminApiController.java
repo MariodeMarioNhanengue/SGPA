@@ -38,6 +38,10 @@ import jakarta.validation.Valid;
 @RequestMapping("/api/v1/admin")
 @Tag(name = "Administração")
 @SecurityRequirement(name = "bearerAuth")
+// Defesa em profundidade: estes URLs partilham o prefixo /api/v1/admin com as páginas do site, por isso a
+// permissão é exigida aqui em cada método e não apenas na cadeia de segurança (os métodos de Super Admin abaixo
+// têm o seu próprio @PreAuthorize, que prevalece sobre este).
+@PreAuthorize("hasRole('ADMIN')")
 public class AdminApiController {
 
     private final ApiAdminService adminService;
@@ -54,7 +58,7 @@ public class AdminApiController {
 
     // ─── Produtores ──────────────────────────────────────────────────────
 
-    @GetMapping("/produtores")
+    @GetMapping(value = "/produtores", produces = "application/json")
     @Operation(summary = "Lista/pesquisa produtores")
     public PageResponse<UsuarioResponse> listarProdutores(@RequestParam(required = false) String pesquisa,
                                                           @RequestParam(defaultValue = "0") int pagina,
@@ -62,7 +66,7 @@ public class AdminApiController {
         return adminService.listarProdutores(pesquisa, Paginacao.pagina(pagina), Paginacao.tamanho(tamanho));
     }
 
-    @GetMapping("/produtores/{id}")
+    @GetMapping(value = "/produtores/{id}", produces = "application/json")
     @Operation(summary = "Detalhe de um produtor com contagens de ofertas e pedidos")
     public DetalheProdutorResponse detalheProdutor(@PathVariable Long id) {
         return adminService.detalheProdutor(id);
@@ -88,7 +92,7 @@ public class AdminApiController {
         return adminService.validarProdutor(UsuarioAtual.obter().id(), id);
     }
 
-    @DeleteMapping("/produtores/{id}")
+    @DeleteMapping(value = "/produtores/{id}", produces = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Remove um produtor sem pedidos associados")
     public void removerProdutor(@PathVariable Long id) {
@@ -97,7 +101,7 @@ public class AdminApiController {
 
     // ─── Compradores ─────────────────────────────────────────────────────
 
-    @GetMapping("/compradores")
+    @GetMapping(value = "/compradores", produces = "application/json")
     @Operation(summary = "Lista/pesquisa compradores")
     public PageResponse<UsuarioResponse> listarCompradores(@RequestParam(required = false) String pesquisa,
                                                            @RequestParam(defaultValue = "0") int pagina,
@@ -105,7 +109,7 @@ public class AdminApiController {
         return adminService.listarCompradores(pesquisa, Paginacao.pagina(pagina), Paginacao.tamanho(tamanho));
     }
 
-    @GetMapping("/compradores/{id}")
+    @GetMapping(value = "/compradores/{id}", produces = "application/json")
     @Operation(summary = "Detalhe de um comprador com contagens de pedidos")
     public DetalheCompradorResponse detalheComprador(@PathVariable Long id) {
         return adminService.detalheComprador(id);
@@ -131,7 +135,7 @@ public class AdminApiController {
         return adminService.validarComprador(UsuarioAtual.obter().id(), id);
     }
 
-    @DeleteMapping("/compradores/{id}")
+    @DeleteMapping(value = "/compradores/{id}", produces = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Remove um comprador sem pagamentos associados")
     public void removerComprador(@PathVariable Long id) {
@@ -140,7 +144,7 @@ public class AdminApiController {
 
     // ─── Vendas e histórico ──────────────────────────────────────────────
 
-    @GetMapping("/vendas")
+    @GetMapping(value = "/vendas", produces = "application/json")
     @Operation(summary = "Todos os pedidos/vendas, com filtro opcional por estado")
     public PageResponse<PedidoResponse> vendas(@RequestParam(required = false) String estado,
                                                @RequestParam(defaultValue = "0") int pagina,
@@ -148,7 +152,7 @@ public class AdminApiController {
         return adminService.vendas(estado, Paginacao.pagina(pagina), Paginacao.tamanho(tamanho));
     }
 
-    @GetMapping("/historico")
+    @GetMapping(value = "/historico", produces = "application/json")
     @Operation(summary = "Registo de auditoria (SuperAdmin vê tudo; os outros só as suas acções)")
     public PageResponse<AdminLogResponse> historico(@RequestParam(defaultValue = "0") int pagina,
                                                     @RequestParam(defaultValue = "20") int tamanho) {
@@ -158,7 +162,7 @@ public class AdminApiController {
 
     // ─── Administradores (SUPER_ADMIN) ───────────────────────────────────
 
-    @GetMapping("/administradores")
+    @GetMapping(value = "/administradores", produces = "application/json")
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @Operation(summary = "Lista os outros administradores (SuperAdmin)")
     public List<UsuarioResponse> listarAdmins() {
@@ -173,7 +177,7 @@ public class AdminApiController {
         return adminService.criarAdmin(UsuarioAtual.obter().id(), req);
     }
 
-    @DeleteMapping("/administradores/{id}")
+    @DeleteMapping(value = "/administradores/{id}", produces = "application/json")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @Operation(summary = "Remove um administrador (SuperAdmin)")

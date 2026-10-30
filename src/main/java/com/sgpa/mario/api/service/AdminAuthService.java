@@ -89,8 +89,15 @@ public class AdminAuthService {
         return "ADMIN".equals(session.getAttribute("loggedInType"));
     }
 
+    /**
+     * Só um administrador autenticado cuja conta é Super Admin NA BASE DE DADOS.
+     * Lê-se sempre da BD (e não da cópia guardada na sessão no login): assim a permissão nunca fica
+     * desactualizada e um admin normal não a pode "herdar" de uma sessão anterior.
+     */
     public boolean isSuperAdmin(HttpSession session) {
-        return Boolean.TRUE.equals(session.getAttribute("isSuperAdmin"));
+        if (session == null || !isAdmin(session)) return false;
+        Long id = getAdminId(session);
+        return id != null && adminRepository.findById(id).map(Admin::isSuperAdmin).orElse(false);
     }
 
     public Long getAdminId(HttpSession session) {

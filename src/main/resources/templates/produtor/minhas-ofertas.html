@@ -35,15 +35,15 @@
     </div>
   </div>
   <nav class="sidebar-nav mt-2">
-    <a th:href="@{/produtor/dashboard}" class="sidebar-link"><i class="bi bi-house-door-fill"></i> Visão Geral</a>
-    <a th:href="@{/produtor/publicar-oferta}" class="sidebar-link"><i class="bi bi-plus-square-fill"></i> Publicar Oferta</a>
-    <a th:href="@{/produtor/minhas-ofertas}" class="sidebar-link active"><i class="bi bi-collection-fill"></i> Minhas Ofertas</a>
-    <a th:href="@{/produtor/pedidos}" class="sidebar-link"><i class="bi bi-clipboard2-check-fill"></i> Pedidos Recebidos</a>
-    <a th:href="@{/produtor/historico}" class="sidebar-link"><i class="bi bi-bar-chart-line-fill"></i> Histórico de Vendas</a>
-    <a th:href="@{/produtor/editar-perfil(id=${produtor != null ? produtor.id : ''})}" class="sidebar-link"><i class="bi bi-person-gear"></i> Editar Perfil</a>
+    <a th:href="@{/api/v1/produtor/dashboard}" class="sidebar-link"><i class="bi bi-house-door-fill"></i> Visão Geral</a>
+    <a th:href="@{/api/v1/produtor/publicar-oferta}" class="sidebar-link"><i class="bi bi-plus-square-fill"></i> Publicar Oferta</a>
+    <a th:href="@{/api/v1/produtor/minhas-ofertas}" class="sidebar-link active"><i class="bi bi-collection-fill"></i> Minhas Ofertas</a>
+    <a th:href="@{/api/v1/produtor/pedidos}" class="sidebar-link"><i class="bi bi-clipboard2-check-fill"></i> Pedidos Recebidos</a>
+    <a th:href="@{/api/v1/produtor/historico}" class="sidebar-link"><i class="bi bi-bar-chart-line-fill"></i> Histórico de Vendas</a>
+    <a th:href="@{/api/v1/produtor/editar-perfil(id=${produtor != null ? produtor.id : ''})}" class="sidebar-link"><i class="bi bi-person-gear"></i> Editar Perfil</a>
   </nav>
   <div class="sidebar-footer">
-    <a th:href="@{/logout}" class="sidebar-link text-danger-light"><i class="bi bi-box-arrow-left"></i> Sair</a>
+    <a th:href="@{/api/v1/auth/logout}" class="sidebar-link text-danger-light"><i class="bi bi-box-arrow-left"></i> Sair</a>
   </div>
 </div>
 
@@ -58,7 +58,7 @@
       <button class="mobile-toggle" onclick="toggleSidebar()" title="Menu"><i class="bi bi-list"></i></button>
       <h6 class="mb-0 fw-semibold text-dark"><i class="bi bi-collection-fill me-2 text-accent"></i>Minhas Ofertas</h6>
     </div>
-    <a th:href="@{/produtor/publicar-oferta}" class="btn-nova d-inline-flex align-items-center gap-1">
+    <a th:href="@{/api/v1/produtor/publicar-oferta}" class="btn-nova d-inline-flex align-items-center gap-1">
       <i class="bi bi-plus-lg"></i> Nova Oferta
     </a>
   </div>
@@ -166,12 +166,12 @@
               <!-- ACÇÕES: EDITAR / APAGAR -->
               <td>
                 <div class="d-flex gap-1 flex-wrap">
-                  <a th:href="@{/produtor/editar-oferta/{id}(id=${oferta.id},produtorId=${produtorId})}"
+                  <a th:href="@{/api/v1/produtor/editar-oferta/{id}(id=${oferta.id},produtorId=${produtorId})}"
                      class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
                      style="border-radius:7px;font-size:.75rem;padding:3px 9px;">
                     <i class="bi bi-pencil-fill"></i> Editar
                   </a>
-                  <form th:action="@{/produtor/ofertas/{id}(id=${oferta.id},_method='delete')}" method="post" class="d-inline m-0"
+                  <form th:action="@{/api/v1/produtor/ofertas/{id}(id=${oferta.id},_method='delete')}" method="post" class="d-inline m-0"
                         onsubmit="return confirm('Tem a certeza que deseja apagar esta oferta?');">
                     <input type="hidden" name="produtorId" th:value="${produtorId}"/>
                     <button type="submit"
@@ -190,7 +190,7 @@
                 <div class="empty-state">
                   <i class="bi bi-box-seam"></i>
                   Ainda não publicou nenhuma oferta.<br/>
-                  <a th:href="@{/produtor/publicar-oferta}" class="btn-nova d-inline-flex align-items-center gap-1 mt-3">
+                  <a th:href="@{/api/v1/produtor/publicar-oferta}" class="btn-nova d-inline-flex align-items-center gap-1 mt-3">
                     <i class="bi bi-plus-lg"></i> Publicar Agora
                   </a>
                 </div>
@@ -208,7 +208,7 @@
       <!-- RODAPÉ -->
       <div class="table-footer">
         <span id="totalInfo"></span>
-        <a th:href="@{/produtor/dashboard}" class="btn-voltar">
+        <a th:href="@{/api/v1/produtor/dashboard}" class="btn-voltar">
           <i class="bi bi-arrow-left me-1"></i> Voltar ao Dashboard
         </a>
       </div>

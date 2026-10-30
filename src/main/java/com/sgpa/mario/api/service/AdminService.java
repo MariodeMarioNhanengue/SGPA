@@ -131,13 +131,24 @@ public class AdminService {
 
     // ─── GESTÃO DE ADMINS ────────────────────────────────────────────────
 
+    public static final String MSG_SO_SUPER_ADMIN = "Apenas o Super Admin pode gerir administradores.";
+
+    /** Garantia no servidor: mesmo que alguém chame isto por outro caminho, só o Super Admin gere administradores. */
+    private void exigirSuperAdmin(HttpSession session) {
+        if (!adminAuthService.isSuperAdmin(session)) {
+            throw new RegraNegocioException(MSG_SO_SUPER_ADMIN);
+        }
+    }
+
     public List<Admin> listarAdmins(HttpSession session) {
+        exigirSuperAdmin(session);
         Long myId = adminAuthService.getAdminId(session);
         return adminRepository.findAll().stream()
             .filter(a -> !a.getId().equals(myId)).toList();
     }
 
     public Admin criarAdmin(String nome, String apelido, String email, String senha, HttpSession session) {
+        exigirSuperAdmin(session);
         if (adminRepository.existsByEmail(email)) {
             throw new RegraNegocioException("Já existe um administrador com este e-mail.");
         }
@@ -155,6 +166,7 @@ public class AdminService {
     }
 
     public void removerAdmin(Long id, HttpSession session) {
+        exigirSuperAdmin(session);
         Admin target = adminRepository.findById(id).orElse(null);
         if (target != null && target.isSuperAdmin()) {
             throw new RegraNegocioException("Não é possível remover um SuperAdmin.");

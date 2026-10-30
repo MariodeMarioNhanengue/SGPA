@@ -63,13 +63,13 @@
   <div class="card">
 
     <div th:if="${!tokenValido}">
-      <a href="/recuperar-senha" class="back"><i class="bi bi-arrow-left"></i> Pedir novo link</a>
+      <a href="/api/v1/auth/recuperar-senha" class="back"><i class="bi bi-arrow-left"></i> Pedir novo link</a>
       <h1>Link inválido</h1>
       <p class="sub">Este link de recuperação é inválido ou já expirou (os links são válidos apenas por 30 minutos). Peça um novo link para continuar.</p>
     </div>
 
     <div th:if="${tokenValido}">
-      <a href="/login" class="back"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
+      <a href="/api/v1/auth/login" class="back"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
       <h1>Nova senha</h1>
       <p class="sub">Escolha uma nova senha para a sua conta.</p>
 
@@ -78,7 +78,7 @@
         <span th:text="${erro}"></span>
       </div>
 
-      <form th:action="@{/redefinir-senha}" method="post">
+      <form th:action="@{/api/v1/auth/redefinir-senha}" method="post">
         <input type="hidden" name="token" th:value="${token}"/>
         <div class="field">
           <label for="novaSenha">Nova senha</label>

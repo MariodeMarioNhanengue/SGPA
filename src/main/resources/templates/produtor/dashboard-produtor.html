@@ -48,45 +48,45 @@
   </div>
 
   <nav class="sidebar-nav mt-2">
-    <a th:href="@{/produtor/dashboard}" class="sidebar-link"
+    <a th:href="@{/api/v1/produtor/dashboard}" class="sidebar-link"
        th:classappend="${activePage == 'dashboard'} ? 'active'">
       <i class="bi bi-house-door-fill"></i> Visão Geral
     </a>
 
-    <a th:href="@{/produtor/publicar-oferta}" class="sidebar-link"
+    <a th:href="@{/api/v1/produtor/publicar-oferta}" class="sidebar-link"
        th:classappend="${activePage == 'publicar'} ? 'active'">
       <i class="bi bi-plus-square-fill"></i> Publicar Oferta
     </a>
 
-    <a th:href="@{/produtor/minhas-ofertas}" class="sidebar-link"
+    <a th:href="@{/api/v1/produtor/minhas-ofertas}" class="sidebar-link"
        th:classappend="${activePage == 'ofertas'} ? 'active'">
       <i class="bi bi-collection-fill"></i> Minhas Ofertas
     </a>
 
-    <a th:href="@{/produtor/pedidos}" class="sidebar-link"
+    <a th:href="@{/api/v1/produtor/pedidos}" class="sidebar-link"
        th:classappend="${activePage == 'pedidos'} ? 'active'">
       <i class="bi bi-clipboard2-check-fill"></i> Pedidos Recebidos
     </a>
 
-    <a th:href="@{/produtor/historico}" class="sidebar-link"
+    <a th:href="@{/api/v1/produtor/historico}" class="sidebar-link"
        th:classappend="${activePage == 'historico'} ? 'active'">
       <i class="bi bi-bar-chart-line-fill"></i> Histórico de Vendas
     </a>
-    <a th:href="@{/produtor/editar-perfil(id=${produtor != null ? produtor.id : ''})}" class="sidebar-link">
+    <a th:href="@{/api/v1/produtor/editar-perfil(id=${produtor != null ? produtor.id : ''})}" class="sidebar-link">
       <i class="bi bi-person-gear"></i> Editar Perfil
     </a>
   </nav>
 
   <div class="sidebar-footer">
     <!-- Botão Comprador: entra directamente se já for comprador, senão cria conta -->
-    <a th:href="@{/produtor/tornar-comprador}"
+    <a th:href="@{/api/v1/produtor/tornar-comprador}"
        class="sidebar-link"
        th:title="${jaEComprador} ? 'Ir para o painel de comprador' : 'Registar-se como comprador'"
        style="color:#a7f3d0;font-weight:700;">
       <i th:classappend="${jaEComprador} ? 'bi-box-arrow-in-right' : 'bi-cart-fill'" class="bi"></i>
       <span th:text="${jaEComprador} ? 'Painel Comprador' : 'Ser Comprador'">Ser Comprador</span>
     </a>
-    <a th:href="@{/logout}" class="sidebar-link text-danger-light">
+    <a th:href="@{/api/v1/auth/logout}" class="sidebar-link text-danger-light">
       <i class="bi bi-box-arrow-left"></i> Sair
     </a>
   </div>
@@ -95,6 +95,9 @@
 
 <!-- MAIN -->
 <div class="main-content" id="mainContent">
+
+  <!-- Aviso de conta por validar (só aparece se a conta ainda não foi validada) -->
+  <div th:replace="~{fragments/verificacao-conta :: aviso}"></div>
 
   <!-- TOPBAR -->
   <div class="topbar d-flex align-items-center justify-content-between px-4">
@@ -251,7 +254,7 @@
     <p style="font-size:.88rem;color:#555;margin-bottom:1.1rem;">
       Indique o número (M-Pesa / e-Mola / Mkesh) para o comprador efectuar o pagamento.
     </p>
-    <form id="formAceitar" th:action="@{/produtor/pedido/aceitar(_method='patch')}" method="post">
+    <form id="formAceitar" th:action="@{/api/v1/produtor/pedido/aceitar(_method='patch')}" method="post">
       <input type="hidden" name="pedidoId" id="aceitarPedidoId"/>
       <input type="hidden" name="from" value="dashboard"/>
       <div style="margin-bottom:1rem;">
@@ -298,7 +301,7 @@
     <p style="font-size:.88rem;color:#555;margin-bottom:1.1rem;">
       Indique o motivo do cancelamento. Esta justificação será visível para o comprador.
     </p>
-    <form id="formRejeicao" th:action="@{/produtor/pedido/rejeitar(_method='patch')}" method="post">
+    <form id="formRejeicao" th:action="@{/api/v1/produtor/pedido/rejeitar(_method='patch')}" method="post">
       <input type="hidden" name="pedidoId" id="rejeicaoPedidoId"/>
       <input type="hidden" name="from" value="dashboard"/>
       <div style="margin-bottom:1rem;">

@@ -105,7 +105,7 @@
         </span>
       </div>
 
-      <form th:action="@{/comprador/tornar-produtor}" method="post">
+      <form th:action="@{/api/v1/comprador/tornar-produtor}" method="post">
         <div class="mb-3">
           <label class="form-label">Email *</label>
           <input type="email" class="form-control" name="email"
@@ -121,7 +121,7 @@
         </button>
       </form>
 
-      <a th:href="@{/comprador/dashboard}" class="btn-voltar">
+      <a th:href="@{/api/v1/comprador/dashboard}" class="btn-voltar">
         <i class="bi bi-arrow-left me-1"></i>Voltar ao Mercado
       </a>
 

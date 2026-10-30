@@ -67,7 +67,7 @@
       </div>
 
       <!-- ════ FORMULÁRIO ════ -->
-      <form id="formComprador" th:action="@{/comprador/cadastrar}" method="post" enctype="multipart/form-data" novalidate>
+      <form id="formComprador" th:action="@{/api/v1/comprador/cadastrar}" method="post" enctype="multipart/form-data" novalidate>
 
         <!-- ── STEP 1: Dados Pessoais ── -->
         <div id="stepC1">
@@ -225,9 +225,9 @@
 
       <!-- Rodapé de links -->
       <p class="reg-foot">
-        Já tem conta? <a href="/login">Entrar aqui</a>
+        Já tem conta? <a href="/api/v1/auth/login">Entrar aqui</a>
         <span class="sep">·</span>
-        Quer ser produtor? <a href="/produtor/criar">Registe-se como Produtor</a>
+        Quer ser produtor? <a href="/api/v1/produtor/criar">Registe-se como Produtor</a>
       </p>
 
     </div>

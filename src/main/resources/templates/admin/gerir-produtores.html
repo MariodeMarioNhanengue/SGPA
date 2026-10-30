@@ -133,34 +133,34 @@
   <div class="sb-section">
     <div class="sb-section-label">Principal</div>
     <ul class="sb-nav">
-      <li><a href="/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+      <li><a href="/api/v1/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
     </ul>
   </div>
   <div class="sb-section">
     <div class="sb-section-label">Utilizadores</div>
     <ul class="sb-nav">
-      <li><a href="/admin/produtores" class="active"><i class="bi bi-person-workspace"></i> Produtores</a></li>
-      <li><a href="/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
+      <li><a href="/api/v1/admin/produtores" class="active"><i class="bi bi-person-workspace"></i> Produtores</a></li>
+      <li><a href="/api/v1/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
     </ul>
   </div>
   <div class="sb-section">
     <div class="sb-section-label">Transacções</div>
     <ul class="sb-nav">
-      <li><a href="/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
+      <li><a href="/api/v1/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
     </ul>
   </div>
   <div class="sb-section">
     <div class="sb-section-label">Conta</div>
     <ul class="sb-nav">
-      <li><a href="/admin/perfil"><i class="bi bi-person-circle"></i> Editar Perfil</a></li>
-      <li><a href="/admin/historico"><i class="bi bi-clock-history"></i> Histórico</a></li>
+      <li><a href="/api/v1/admin/perfil"><i class="bi bi-person-circle"></i> Editar Perfil</a></li>
+      <li><a href="/api/v1/admin/historico"><i class="bi bi-clock-history"></i> Histórico</a></li>
     </ul>
   </div>
 
   <div th:if="${isSuperAdmin}" class="sb-section">
     <div class="sb-section-label">Sistema</div>
     <ul class="sb-nav">
-      <li><a href="/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li>
+      <li><a href="/api/v1/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li>
     </ul>
   </div>
 
@@ -172,10 +172,10 @@
       </div>
       <div>
         <div class="sb-user-name" th:text="${nomeAdmin}">Administrador</div>
-        <div class="sb-user-role">Super Admin</div>
+        <div class="sb-user-role" th:text="${isSuperAdmin} ? 'Super Admin' : 'Admin'">Admin</div>
       </div>
     </div>
-    <a href="/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
+    <a href="/api/v1/auth/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
   </div>
 </nav>
 
@@ -202,7 +202,7 @@
   </div>
 
   <!-- Pesquisa -->
-  <form th:action="@{/admin/produtores}" method="get" class="search-bar">
+  <form th:action="@{/api/v1/admin/produtores}" method="get" class="search-bar">
     <div class="search-field">
       <i class="bi bi-search"></i>
       <input type="text" name="pesquisa" class="search-input"
@@ -249,12 +249,12 @@
             <td th:text="${p.ultimoAcesso != null ? #temporals.format(p.ultimoAcesso,'dd/MM/yyyy HH:mm') : 'Nunca'}">-</td>
             <td style="display:flex;gap:6px;align-items:center;">
               <form th:if="${p.emailVerificado != null and !p.emailVerificado}"
-                    th:action="@{/admin/produtores/{id}/validar(id=${p.id})}" method="post" style="margin:0;">
+                    th:action="@{/api/v1/admin/produtores/{id}/validar(id=${p.id})}" method="post" style="margin:0;">
                 <button type="submit" class="btn-validar" title="Validar a conta sem esperar pelo e-mail">
                   <i class="bi bi-patch-check"></i> Validar
                 </button>
               </form>
-              <a th:href="@{/admin/produtores/{id}(id=${p.id})}" class="btn-ver">
+              <a th:href="@{/api/v1/admin/produtores/{id}(id=${p.id})}" class="btn-ver">
                 <i class="bi bi-eye"></i> Ver
               </a>
               <button class="btn-remover"
@@ -289,7 +289,7 @@
   <div class="modal" style="max-width:480px;">
     <div class="modal-title"><i class="bi bi-person-workspace" style="color:var(--amber);margin-right:8px;font-size:20px;"></i>Novo Produtor</div>
     <p class="modal-text" style="margin-bottom:20px;">Preencha os dados para registar um novo produtor na plataforma.</p>
-    <form th:action="@{/admin/produtores/criar}" method="post">
+    <form th:action="@{/api/v1/admin/produtores/criar}" method="post">
       <div class="form-row">
         <div class="form-group">
           <label>Nome</label>
@@ -329,7 +329,7 @@
 <script>
   function abrirModal(id, nome) {
     document.getElementById('modalNome').textContent = nome;
-    document.getElementById('modalForm').action = '/admin/produtores/' + id + '?_method=delete';
+    document.getElementById('modalForm').action = '/api/v1/admin/produtores/' + id + '?_method=delete';
     document.getElementById('modalOverlay').classList.add('open');
   }
   function fecharModal() {

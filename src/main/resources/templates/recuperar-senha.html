@@ -61,7 +61,7 @@
 </head>
 <body>
   <div class="card">
-    <a href="/login" class="back"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
+    <a href="/api/v1/auth/login" class="back"><i class="bi bi-arrow-left"></i> Voltar ao login</a>
     <h1>Esqueceu-se da senha?</h1>
     <p class="sub">Indique o email da sua conta. Se existir uma conta registada com esse email, enviamos-lhe um link para escolher uma nova senha.</p>
 
@@ -70,7 +70,7 @@
       <span th:text="${erro}"></span>
     </div>
 
-    <form th:action="@{/recuperar-senha}" method="post">
+    <form th:action="@{/api/v1/auth/recuperar-senha}" method="post">
       <div class="field">
         <label for="emailInput">Email</label>
         <i class="bi bi-envelope"></i>
