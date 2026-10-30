@@ -38,14 +38,14 @@ public class UsuarioApiController {
 
     // ─── Registo (público) ───────────────────────────────────────────────
 
-    @PostMapping("/compradores")
+    @PostMapping(value = "/compradores", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Regista um Comprador (envia e-mail de confirmação)")
     public UsuarioResponse registarComprador(@Valid @RequestBody RegistoCompradorRequest req) {
         return usuarioService.registarComprador(req);
     }
 
-    @PostMapping("/produtores")
+    @PostMapping(value = "/produtores", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Regista um Produtor (envia e-mail de confirmação)")
     public UsuarioResponse registarProdutor(@Valid @RequestBody RegistoProdutorRequest req) {

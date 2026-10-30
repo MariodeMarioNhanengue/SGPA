@@ -195,15 +195,15 @@
     </div>
   </div>
   <nav class="sidebar-nav mt-2">
-    <a th:href="@{/produtor/dashboard}" class="sidebar-link"><i class="bi bi-house-door-fill"></i> Visão Geral</a>
-    <a th:href="@{/produtor/publicar-oferta}" class="sidebar-link"><i class="bi bi-plus-square-fill"></i> Publicar Oferta</a>
-    <a th:href="@{/produtor/minhas-ofertas}" class="sidebar-link"><i class="bi bi-collection-fill"></i> Minhas Ofertas</a>
-    <a th:href="@{/produtor/pedidos}" class="sidebar-link"><i class="bi bi-clipboard2-check-fill"></i> Pedidos Recebidos</a>
-    <a th:href="@{/produtor/historico}" class="sidebar-link active"><i class="bi bi-bar-chart-line-fill"></i> Histórico de Vendas</a>
-    <a th:href="@{/produtor/editar-perfil(id=${produtor != null ? produtor.id : ''})}" class="sidebar-link"><i class="bi bi-person-gear"></i> Editar Perfil</a>
+    <a th:href="@{/api/v1/produtor/dashboard}" class="sidebar-link"><i class="bi bi-house-door-fill"></i> Visão Geral</a>
+    <a th:href="@{/api/v1/produtor/publicar-oferta}" class="sidebar-link"><i class="bi bi-plus-square-fill"></i> Publicar Oferta</a>
+    <a th:href="@{/api/v1/produtor/minhas-ofertas}" class="sidebar-link"><i class="bi bi-collection-fill"></i> Minhas Ofertas</a>
+    <a th:href="@{/api/v1/produtor/pedidos}" class="sidebar-link"><i class="bi bi-clipboard2-check-fill"></i> Pedidos Recebidos</a>
+    <a th:href="@{/api/v1/produtor/historico}" class="sidebar-link active"><i class="bi bi-bar-chart-line-fill"></i> Histórico de Vendas</a>
+    <a th:href="@{/api/v1/produtor/editar-perfil(id=${produtor != null ? produtor.id : ''})}" class="sidebar-link"><i class="bi bi-person-gear"></i> Editar Perfil</a>
   </nav>
   <div class="sidebar-footer">
-    <a th:href="@{/logout}" class="sidebar-link text-danger-light"><i class="bi bi-box-arrow-left"></i> Sair</a>
+    <a th:href="@{/api/v1/auth/logout}" class="sidebar-link text-danger-light"><i class="bi bi-box-arrow-left"></i> Sair</a>
   </div>
 </div>
 
@@ -320,7 +320,7 @@
       </div>
       <div class="table-footer">
         <span id="totalInfo" class="text-muted small"></span>
-        <a th:href="@{/produtor/dashboard}" class="btn-voltar"><i class="bi bi-arrow-left me-1"></i> Voltar ao Dashboard</a>
+        <a th:href="@{/api/v1/produtor/dashboard}" class="btn-voltar"><i class="bi bi-arrow-left me-1"></i> Voltar ao Dashboard</a>
       </div>
     </div>
   </div>

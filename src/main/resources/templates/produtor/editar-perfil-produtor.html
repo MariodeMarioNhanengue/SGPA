@@ -80,19 +80,19 @@
     </div>
   </div>
   <nav class="sidebar-nav mt-2">
-    <a th:href="@{/produtor/dashboard}" class="sidebar-link">
+    <a th:href="@{/api/v1/produtor/dashboard}" class="sidebar-link">
       <i class="bi bi-grid-fill"></i> Visão Geral
     </a>
-    <a th:href="@{/produtor/publicar-oferta}" class="sidebar-link">
+    <a th:href="@{/api/v1/produtor/publicar-oferta}" class="sidebar-link">
       <i class="bi bi-plus-circle-fill"></i> Publicar Oferta
     </a>
-    <a th:href="@{/produtor/minhas-ofertas}" class="sidebar-link">
+    <a th:href="@{/api/v1/produtor/minhas-ofertas}" class="sidebar-link">
       <i class="bi bi-box-seam-fill"></i> Minhas Ofertas
     </a>
-    <a th:href="@{/produtor/pedidos}" class="sidebar-link">
+    <a th:href="@{/api/v1/produtor/pedidos}" class="sidebar-link">
       <i class="bi bi-list-check"></i> Pedidos Recebidos
     </a>
-    <a th:href="@{/produtor/historico}" class="sidebar-link">
+    <a th:href="@{/api/v1/produtor/historico}" class="sidebar-link">
       <i class="bi bi-clock-history"></i> Histórico de Vendas
     </a>
     <a class="sidebar-link active">
@@ -100,7 +100,7 @@
     </a>
   </nav>
   <div class="sidebar-footer">
-    <a th:href="@{/logout}" class="sidebar-link text-danger-light">
+    <a th:href="@{/api/v1/auth/logout}" class="sidebar-link text-danger-light">
       <i class="bi bi-box-arrow-left"></i> Sair
     </a>
   </div>
@@ -135,7 +135,7 @@
         <h5><i class="bi bi-person-fill me-2" style="color:#16a34a;"></i>Dados do Produtor</h5>
       </div>
       <div class="p-4">
-        <form th:action="@{/produtor/editar-perfil(_method='put')}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/api/v1/produtor/editar-perfil(_method='put')}" method="post" enctype="multipart/form-data">
           <input type="hidden" name="id" th:value="${produtor.id}"/>
 
           <!-- FOTO DE PERFIL -->
@@ -196,7 +196,7 @@
           </div>
 
           <div class="d-flex gap-2 mt-4">
-            <a th:href="@{/produtor/dashboard}"
+            <a th:href="@{/api/v1/produtor/dashboard}"
                class="btn btn-outline-secondary px-4">
               <i class="bi bi-arrow-left me-1"></i>Cancelar
             </a>

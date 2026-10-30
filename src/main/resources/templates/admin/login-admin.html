@@ -364,7 +364,7 @@
         <span th:text="${erro}"></span>
       </div>
 
-      <form th:action="@{/admin/login}" method="post" id="adminForm" novalidate>
+      <form th:action="@{/api/v1/auth/admin/login}" method="post" id="adminForm" novalidate>
 
         <div class="field-group">
           <label class="field-label" for="emailInput">E-mail de administrador</label>
@@ -402,7 +402,7 @@
         <span class="separator-text">Acesso de utilizadores normais</span>
       </div>
 
-      <a href="/login" class="back-link">
+      <a href="/api/v1/auth/login" class="back-link">
         <i class="bi bi-arrow-left"></i>
         Ir para login de Produtor / Comprador
       </a>

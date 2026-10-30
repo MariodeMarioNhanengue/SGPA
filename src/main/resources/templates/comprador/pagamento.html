@@ -77,7 +77,7 @@
 <body>
 
 <header class="pag-header">
-  <a th:href="@{/comprador/dashboard(id=${pedido.comprador != null ? pedido.comprador.id : ''})}">
+  <a th:href="@{/api/v1/comprador/dashboard(id=${pedido.comprador != null ? pedido.comprador.id : ''})}">
     <i class="bi bi-arrow-left"></i> Voltar
   </a>
   <span class="pag-header-title"><i class="bi bi-shield-lock-fill"></i>&nbsp; Pagamento Seguro</span>
@@ -196,7 +196,7 @@
     </div>
 
     <!-- FORM HIDDEN -->
-    <form id="form-pagamento" th:action="@{/comprador/pagamento/enviar}" method="post">
+    <form id="form-pagamento" th:action="@{/api/v1/comprador/pagamento/enviar}" method="post">
       <input type="hidden" name="pedidoId"        th:value="${pedido.id}"/>
       <input type="hidden" name="metodoPagamento" id="f-metodo"    value=""/>
       <input type="hidden" name="operadora"       id="f-operadora" value=""/>

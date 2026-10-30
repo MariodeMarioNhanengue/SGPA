@@ -44,8 +44,8 @@
       Até lá não pode fazer pedidos, publicar ofertas nem alterar dados.
     </span>
     <div class="sgpa-verif-acoes">
-      <a th:href="@{/confirmar-codigo}" class="sgpa-verif-btn primary">Inserir código</a>
-      <form th:action="@{/reenviar-confirmacao}" method="post">
+      <a th:href="@{/api/v1/auth/confirmar-email}" class="sgpa-verif-btn primary">Inserir código</a>
+      <form th:action="@{/api/v1/auth/reenviar-confirmacao}" method="post">
         <input type="hidden" name="email" th:value="${contaPorVerificarEmail}"/>
         <button type="submit" class="sgpa-verif-btn">Enviar novo código</button>
       </form>
@@ -66,8 +66,8 @@
         (pedidos, pagamentos, ofertas, perfil). Também pode pedir a um administrador que a valide.
       </p>
       <div class="sgpa-verif-actions">
-        <a th:href="@{/confirmar-codigo}" class="sgpa-verif-btn primary">Inserir código</a>
-        <form th:action="@{/reenviar-confirmacao}" method="post">
+        <a th:href="@{/api/v1/auth/confirmar-email}" class="sgpa-verif-btn primary">Inserir código</a>
+        <form th:action="@{/api/v1/auth/reenviar-confirmacao}" method="post">
           <input type="hidden" name="email" th:value="${contaPorVerificarEmail}"/>
           <button type="submit" class="sgpa-verif-btn">Enviar novo código</button>
         </form>

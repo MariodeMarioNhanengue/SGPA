@@ -1,5 +1,6 @@
 package com.sgpa.mario.api.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,13 +37,13 @@ public class AuthApiController {
         this.auth = auth;
     }
 
-    @PostMapping("/login")
+    @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Login de Produtor/Comprador — devolve o JWT")
     public TokenResponse login(@Valid @RequestBody LoginRequest req) {
         return auth.login(req);
     }
 
-    @PostMapping("/admin/login")
+    @PostMapping(value = "/admin/login", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Login de Administrador — devolve o JWT")
     public TokenResponse loginAdmin(@Valid @RequestBody AdminLoginRequest req) {
         return auth.loginAdmin(req);
@@ -55,7 +56,7 @@ public class AuthApiController {
         return auth.trocarPerfil(UsuarioAtual.obter(), req.tipo());
     }
 
-    @PostMapping("/confirmar-email")
+    @PostMapping(value = "/confirmar-email", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Confirma o e-mail da conta com o código de 6 dígitos recebido por e-mail",
         description = "Máximo de 5 tentativas por código; depois é preciso pedir um novo em /auth/reenviar-confirmacao.")
     public MensagemResponse confirmarEmail(@Valid @RequestBody ConfirmarEmailRequest req) {
@@ -63,7 +64,7 @@ public class AuthApiController {
         return new MensagemResponse("E-mail confirmado. Já pode entrar.");
     }
 
-    @PostMapping("/reenviar-confirmacao")
+    @PostMapping(value = "/reenviar-confirmacao", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Envia um novo código de confirmação por e-mail (o anterior deixa de valer)",
         description = "No máximo um por minuto por conta.")
     public MensagemResponse reenviarConfirmacao(@Valid @RequestBody EmailRequest req) {
@@ -72,14 +73,14 @@ public class AuthApiController {
         return new MensagemResponse("Se existir uma conta por confirmar com este e-mail, enviámos um novo código.");
     }
 
-    @PostMapping("/recuperar-senha")
+    @PostMapping(value = "/recuperar-senha", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Pede o e-mail de recuperação de senha")
     public MensagemResponse recuperarSenha(@Valid @RequestBody EmailRequest req) {
         auth.recuperarSenha(req.email());
         return new MensagemResponse("Se o e-mail estiver registado, enviámos as instruções de recuperação.");
     }
 
-    @PostMapping("/redefinir-senha")
+    @PostMapping(value = "/redefinir-senha", consumes = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Define a nova senha com o token recebido por e-mail")
     public MensagemResponse redefinirSenha(@Valid @RequestBody RedefinirSenhaRequest req) {
         auth.redefinirSenha(req);

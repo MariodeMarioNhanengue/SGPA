@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const bairro    = document.getElementById("bairroC");
 
     // ================= PROVÍNCIAS =================
-    fetch("/api/provincias")
+    fetch("/api/v1/localizacao/provincias")
         .then(r => {
             if (!r.ok) throw new Error("Erro ao carregar províncias");
             return r.json();
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!provinciaId) return;
 
-        fetch(`/api/distritos/${provinciaId}`)
+        fetch(`/api/v1/localizacao/distritos/${provinciaId}`)
             .then(r => {
                 if (!r.ok) throw new Error("Erro ao carregar distritos");
                 return r.json();
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!distritoId) return;
 
-        fetch(`/api/bairros/${distritoId}`)
+        fetch(`/api/v1/localizacao/bairros/${distritoId}`)
             .then(r => {
                 if (!r.ok) throw new Error("Erro ao carregar bairros");
                 return r.json();

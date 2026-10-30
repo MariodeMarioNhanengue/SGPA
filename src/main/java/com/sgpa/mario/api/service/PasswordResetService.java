@@ -69,7 +69,7 @@ public class PasswordResetService {
 
     private void enviarLink(TipoUtilizador tipo, Long id, String nome, String email, String baseUrl) {
         String token = tokenVerificacaoService.gerarToken(tipo, id, Finalidade.RESET_SENHA, VALIDADE_TOKEN);
-        String link = baseUrl + "/redefinir-senha?token=" + token;
+        String link = baseUrl + "/api/v1/auth/redefinir-senha?token=" + token;
         String assunto = "Recuperação de senha — SGPA";
         String corpo = "Olá " + nome + ",\n\n"
             + "Recebemos um pedido para redefinir a sua senha no SGPA.\n\n"

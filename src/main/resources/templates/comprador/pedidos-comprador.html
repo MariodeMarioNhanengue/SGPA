@@ -37,7 +37,7 @@
 <header class="mkt-header">
   <div class="mkt-header-top">
 
-    <a class="mkt-logo" th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}">
+    <a class="mkt-logo" th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}">
       <div class="mkt-logo-icon"><img src="/images/logo.png" alt="Logo SGPA" class="mkt-logo-icon"></div>
       <div>
         <span>SGPA</span>
@@ -48,12 +48,12 @@
     <div style="flex:1;"></div>
 
     <div class="mkt-user-area">
-      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
+      <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
          class="mkt-user-btn">
         <i class="bi bi-shop"></i>
         <span class="d-none d-sm-inline">Explorar Produtos</span>
       </a>
-      <a th:href="@{/comprador/editar-perfil(id=${comprador != null ? comprador.id : ''})}"
+      <a th:href="@{/api/v1/comprador/editar-perfil(id=${comprador != null ? comprador.id : ''})}"
          class="mkt-user-btn d-none d-md-flex">
         <div class="mkt-avatar">
           <img th:if="${comprador != null and comprador.fotoPerfil != null and !#strings.isEmpty(comprador.fotoPerfil)}"
@@ -63,7 +63,7 @@
         </div>
         <span th:text="${comprador != null ? comprador.nome : 'Conta'}">Conta</span>
       </a>
-      <a th:href="@{/logout}" class="mkt-user-btn" title="Sair">
+      <a th:href="@{/api/v1/auth/logout}" class="mkt-user-btn" title="Sair">
         <i class="bi bi-box-arrow-right"></i>
       </a>
     </div>
@@ -72,14 +72,14 @@
   <!-- Sub-nav comprador -->
   <nav class="mkt-cats">
     <div class="mkt-cats-inner">
-      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
+      <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
          class="mkt-cat-link">
         <i class="bi bi-shop"></i> Mercado
       </a>
       <a class="mkt-cat-link active">
         <i class="bi bi-bag-heart-fill"></i> Os Meus Pedidos
       </a>
-      <a th:href="@{/comprador/editar-perfil(id=${comprador != null ? comprador.id : ''})}"
+      <a th:href="@{/api/v1/comprador/editar-perfil(id=${comprador != null ? comprador.id : ''})}"
          class="mkt-cat-link">
         <i class="bi bi-person-gear"></i> Editar Perfil
       </a>
@@ -108,7 +108,7 @@
   </div>
 
     <h1 class="page-title mb-0">Os Meus Pedidos</h1>
-    <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
+    <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
        style="background:var(--mkt-verde);color:#fff;border:none;border-radius:8px;
               padding:.5rem 1.2rem;font-size:.85rem;font-weight:700;text-decoration:none;
               display:flex;align-items:center;gap:.4rem;">
@@ -180,7 +180,7 @@
   <div class="mkt-empty" th:if="${meusPedidos == null or #lists.isEmpty(meusPedidos)}">
     <i class="bi bi-bag"></i>
     <p>Ainda não fez nenhum pedido.<br>
-      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
+      <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
          style="color:var(--mkt-verde);font-weight:700;">Explore os produtos no mercado!</a>
     </p>
   </div>
@@ -305,7 +305,7 @@
             <span th:if="${pedido.oferta != null and pedido.oferta.produtor != null}"
                   th:text="${pedido.oferta.produtor.nomeCompleto}"></span>
           </div>
-          <a th:href="@{/comprador/pagamento(pedidoId=${pedido.id})}"
+          <a th:href="@{/api/v1/comprador/pagamento(pedidoId=${pedido.id})}"
              style="display:inline-flex;align-items:center;gap:.4rem;margin-top:.7rem;
                     background:#16a34a;color:#fff;border-radius:9px;padding:.5rem 1.1rem;
                     font-size:.85rem;font-weight:700;text-decoration:none;">
@@ -344,7 +344,7 @@
          th:id="'modalCancelar' + ${pedido.id}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:14px;">
-          <form th:action="@{/comprador/cancelar-pedido/{id}(id=${pedido.id},_method='patch')}" method="post">
+          <form th:action="@{/api/v1/comprador/cancelar-pedido/{id}(id=${pedido.id},_method='patch')}" method="post">
             <div class="modal-header">
               <h5 class="modal-title" style="font-weight:800;color:#6a1b9a;">
                 <i class="bi bi-slash-circle me-1"></i> Cancelar Pedido

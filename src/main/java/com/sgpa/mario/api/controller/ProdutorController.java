@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -17,7 +18,7 @@ import com.sgpa.mario.api.service.exception.NaoAutorizadoException;
 import com.sgpa.mario.api.service.exception.RegraNegocioException;
 
 @Controller
-@RequestMapping("/produtor")
+@RequestMapping("/api/v1/produtor")
 public class ProdutorController {
 
     private final ProdutorService produtorService;
@@ -54,7 +55,7 @@ public class ProdutorController {
         return "produtor/criar-produtor";
     }
 
-    @PostMapping("/cadastrar")
+    @PostMapping(value = "/cadastrar", consumes = {"application/x-www-form-urlencoded", "multipart/form-data"})
     public String salvarProdutor(@ModelAttribute Produtor produtor,
                                  @RequestParam(required = false) String confirmarSenha,
                                  @RequestParam(value = "fotoPerfilFile", required = false) MultipartFile fotoPerfilFile,
@@ -69,11 +70,11 @@ public class ProdutorController {
             authService.mudarSessaoParaProdutor(session, salvo);
             if (jaVerificado) {
                 redirectAttrs.addFlashAttribute("sucesso", "Conta criada com sucesso!");
-                return "redirect:/produtor/dashboard?id=" + salvo.getId();
+                return "redirect:/api/v1/produtor/dashboard?id=" + salvo.getId();
             }
             redirectAttrs.addFlashAttribute("sucesso",
                 "Conta criada! Enviámos um código de 6 dígitos para " + salvo.getEmail() + ".");
-            return "redirect:/confirmar-codigo";
+            return "redirect:/api/v1/auth/confirmar-email";
         } catch (RegraNegocioException e) {
             model.addAttribute("erro", e.getMessage());
             model.addAttribute("produtor", produtor);
@@ -96,7 +97,7 @@ public class ProdutorController {
         Produtor salvo = produtorService.atualizarPerfil(produtor, fotoPerfilFile);
         session.setAttribute("loggedInNome", salvo.getNomeCompleto());
         redirectAttrs.addFlashAttribute("sucesso", "Perfil actualizado com sucesso!");
-        return "redirect:/produtor/dashboard?id=" + salvo.getId();
+        return "redirect:/api/v1/produtor/dashboard?id=" + salvo.getId();
     }
 
     // PUBLICAR OFERTA
@@ -121,7 +122,7 @@ public class ProdutorController {
 
         if (produtorId == null) produtorId = authService.getSessionId(session);
         Oferta salva = produtorService.publicarOferta(oferta, provinciaNome, distritoNome, bairroNome, produtorId, imagemFile);
-        return "redirect:/produtor/dashboard?id=" + salva.getProdutor().getId();
+        return "redirect:/api/v1/produtor/dashboard?id=" + salva.getProdutor().getId();
     }
 
     // EDITAR OFERTA
@@ -144,10 +145,10 @@ public class ProdutorController {
         try {
             Oferta oferta = produtorService.editarOferta(id, ofertaEditada, produtorId, imagemFile);
             Long redirectId = produtorId != null ? produtorId : oferta.getProdutor().getId();
-            return "redirect:/produtor/minhas-ofertas?produtorId=" + redirectId;
+            return "redirect:/api/v1/produtor/minhas-ofertas?produtorId=" + redirectId;
         } catch (NaoAutorizadoException e) {
             redirectAttrs.addFlashAttribute("erro", e.getMessage());
-            return "redirect:/produtor/minhas-ofertas?produtorId=" + authService.getSessionId(session);
+            return "redirect:/api/v1/produtor/minhas-ofertas?produtorId=" + authService.getSessionId(session);
         }
     }
 
@@ -158,10 +159,10 @@ public class ProdutorController {
                                RedirectAttributes redirectAttrs) {
         try {
             Long redirectId = produtorService.apagarOferta(id, produtorId);
-            return "redirect:/produtor/minhas-ofertas?produtorId=" + redirectId;
+            return "redirect:/api/v1/produtor/minhas-ofertas?produtorId=" + redirectId;
         } catch (NaoAutorizadoException e) {
             redirectAttrs.addFlashAttribute("erro", e.getMessage());
-            return "redirect:/produtor/minhas-ofertas?produtorId=" + produtorId;
+            return "redirect:/api/v1/produtor/minhas-ofertas?produtorId=" + produtorId;
         }
     }
 
@@ -214,9 +215,9 @@ public class ProdutorController {
             redirectAttrs.addFlashAttribute("erro", e.getMessage());
         }
         if ("dashboard".equals(from)) {
-            return "redirect:/produtor/dashboard" + (prodId != null ? "?id=" + prodId : "");
+            return "redirect:/api/v1/produtor/dashboard" + (prodId != null ? "?id=" + prodId : "");
         }
-        return "redirect:/produtor/pedidos";
+        return "redirect:/api/v1/produtor/pedidos";
     }
 
     // REJEITAR PEDIDO
@@ -234,9 +235,9 @@ public class ProdutorController {
             redirectAttrs.addFlashAttribute("erro", e.getMessage());
         }
         if ("dashboard".equals(from)) {
-            return "redirect:/produtor/dashboard" + (prodId != null ? "?id=" + prodId : "");
+            return "redirect:/api/v1/produtor/dashboard" + (prodId != null ? "?id=" + prodId : "");
         }
-        return "redirect:/produtor/pedidos";
+        return "redirect:/api/v1/produtor/pedidos";
     }
 
     // TORNAR-SE COMPRADOR
@@ -253,7 +254,7 @@ public class ProdutorController {
             if (compradorExistente.isPresent()) {
                 Comprador c = compradorExistente.get();
                 authService.mudarSessaoParaComprador(session, c);
-                return "redirect:/comprador/dashboard?id=" + c.getId();
+                return "redirect:/api/v1/comprador/dashboard?id=" + c.getId();
             }
         }
 

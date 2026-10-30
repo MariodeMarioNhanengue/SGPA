@@ -4,13 +4,13 @@ import java.math.BigDecimal;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -26,7 +26,7 @@ import com.sgpa.mario.api.service.exception.RegraNegocioException;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
-@RequestMapping("/comprador")
+@RequestMapping("/api/v1/comprador")
 public class CompradorController {
 
     private final CompradorService compradorService;
@@ -44,7 +44,7 @@ public class CompradorController {
     }
 
     // ─── CADASTRAR COMPRADOR ────────────────────────────────────────
-    @PostMapping("/cadastrar")
+    @PostMapping(value = "/cadastrar", consumes = {"application/x-www-form-urlencoded", "multipart/form-data"})
     public String cadastrar(
             @ModelAttribute Comprador comprador,
             @RequestParam(required = false) String confirmarSenha,
@@ -64,11 +64,11 @@ public class CompradorController {
             authService.mudarSessaoParaComprador(session, salvo);
             if (jaVerificado) {
                 redirectAttrs.addFlashAttribute("sucesso", "Conta criada com sucesso!");
-                return "redirect:/comprador/dashboard?id=" + salvo.getId();
+                return "redirect:/api/v1/comprador/dashboard?id=" + salvo.getId();
             }
             redirectAttrs.addFlashAttribute("sucesso",
                 "Conta criada! Enviámos um código de 6 dígitos para " + salvo.getEmail() + ".");
-            return "redirect:/confirmar-codigo";
+            return "redirect:/api/v1/auth/confirmar-email";
         } catch (RegraNegocioException e) {
             model.addAttribute("erro", e.getMessage());
             // Devolve o que o utilizador já escreveu (a senha nunca é devolvida)
@@ -133,7 +133,7 @@ public class CompradorController {
         } catch (RegraNegocioException | NaoAutorizadoException e) {
             redirectAttrs.addFlashAttribute("erro", e.getMessage());
         }
-        return "redirect:/comprador/dashboard?id=" + compradorId;
+        return "redirect:/api/v1/comprador/dashboard?id=" + compradorId;
     }
 
     // ─── PÁGINA DE PAGAMENTO ────────────────────────────────────────
@@ -144,7 +144,7 @@ public class CompradorController {
         var detalhe = compradorService.detalhePagamento(pedidoId);
         if (detalhe == null) {
             redirectAttrs.addFlashAttribute("erro", "Pedido não encontrado.");
-            return "redirect:/comprador/dashboard";
+            return "redirect:/api/v1/comprador/dashboard";
         }
         model.addAttribute("pedido", detalhe.pedido());
         model.addAttribute("total", detalhe.total());
@@ -164,7 +164,7 @@ public class CompradorController {
 
         redirectAttrs.addFlashAttribute("sucesso",
                 "Pagamento efectuado com sucesso! O seu pedido foi concluído.");
-        return "redirect:/comprador/dashboard?id=" + compradorId;
+        return "redirect:/api/v1/comprador/dashboard?id=" + compradorId;
     }
 
     // ─── HISTÓRICO ──────────────────────────────────────────────────
@@ -202,11 +202,11 @@ public class CompradorController {
         compradorService.atualizarPerfil(id, nome, apelido, telefone, email, senha,
             provinciaNome, distritoNome, bairroNome, fotoPerfilFile);
         redirectAttrs.addFlashAttribute("sucesso", "Perfil actualizado com sucesso!");
-        return "redirect:/comprador/dashboard?id=" + id;
+        return "redirect:/api/v1/comprador/dashboard?id=" + id;
     }
 
     // ─── CANCELAR PEDIDO (pelo comprador) ──────────────────────────
-    @PatchMapping("/cancelar-pedido/{pedidoId}")
+    @PostMapping("/cancelar-pedido/{pedidoId}")
     public String cancelarPedido(@PathVariable Long pedidoId,
                                  HttpSession session,
                                  RedirectAttributes redirectAttrs) {
@@ -216,7 +216,7 @@ public class CompradorController {
         } catch (RegraNegocioException | NaoAutorizadoException e) {
             redirectAttrs.addFlashAttribute("erro", e.getMessage());
         }
-        return "redirect:/comprador/pedidos";
+        return "redirect:/api/v1/comprador/pedidos";
     }
 
     // ─── TORNAR-SE PRODUTOR ─────────────────────────────────────────
@@ -233,7 +233,7 @@ public class CompradorController {
             if (produtorExistente.isPresent()) {
                 Produtor p = produtorExistente.get();
                 authService.mudarSessaoParaProdutor(session, p);
-                return "redirect:/produtor/dashboard?id=" + p.getId();
+                return "redirect:/api/v1/produtor/dashboard?id=" + p.getId();
             }
         }
 

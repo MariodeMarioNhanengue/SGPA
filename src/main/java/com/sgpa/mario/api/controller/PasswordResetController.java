@@ -2,6 +2,7 @@ package com.sgpa.mario.api.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +14,7 @@ import com.sgpa.mario.api.service.exception.RegraNegocioException;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
+@RequestMapping("/api/v1/auth")
 public class PasswordResetController {
 
     private final PasswordResetService passwordResetService;
@@ -33,14 +35,14 @@ public class PasswordResetController {
         return "recuperar-senha";
     }
 
-    @PostMapping("/recuperar-senha")
+    @PostMapping(value = "/recuperar-senha", consumes = {"application/x-www-form-urlencoded", "multipart/form-data"})
     public String processarRecuperar(@RequestParam String email,
                                      HttpServletRequest request,
                                      RedirectAttributes redirectAttrs) {
         passwordResetService.solicitarRecuperacao(email, baseUrl(request));
         redirectAttrs.addFlashAttribute("sucesso",
             "Se existir uma conta registada com este email, enviámos um link de recuperação. Verifique a sua caixa de entrada (e o spam).");
-        return "redirect:/login";
+        return "redirect:/api/v1/auth/login";
     }
 
     // ─── DEFINIR NOVA SENHA ─────────────────────────────────────────────
@@ -53,7 +55,7 @@ public class PasswordResetController {
         return "redefinir-senha";
     }
 
-    @PostMapping("/redefinir-senha")
+    @PostMapping(value = "/redefinir-senha", consumes = {"application/x-www-form-urlencoded", "multipart/form-data"})
     public String processarRedefinir(@RequestParam String token,
                                      @RequestParam String novaSenha,
                                      @RequestParam String confirmarSenha,
@@ -62,7 +64,7 @@ public class PasswordResetController {
         try {
             passwordResetService.redefinirSenha(token, novaSenha, confirmarSenha);
             redirectAttrs.addFlashAttribute("sucesso", "Senha redefinida com sucesso. Já pode entrar com a nova senha.");
-            return "redirect:/login";
+            return "redirect:/api/v1/auth/login";
         } catch (RegraNegocioException e) {
             model.addAttribute("erro", e.getMessage());
             model.addAttribute("tokenValido", passwordResetService.validarToken(token).isPresent());

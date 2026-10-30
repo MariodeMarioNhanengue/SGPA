@@ -15,7 +15,7 @@ import com.sgpa.mario.web.domain.Provincia;
 import com.sgpa.mario.api.service.LocalizacaoService;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1/localizacao")
 public class LocalizacaoController {
 
     private final LocalizacaoService localizacaoService;

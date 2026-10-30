@@ -30,12 +30,12 @@ public class HomeControler {
         return "index";
     }
 
-    @GetMapping("/sobre")
+    @GetMapping("/api/v1/sobre")
     public String sobre() {
         return "sobre";
     }
 
-    @GetMapping("/como-funciona")
+    @GetMapping("/api/v1/como-funciona")
     public String comoFunciona() {
         return "como-funciona";
     }

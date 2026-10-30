@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -46,12 +47,39 @@ public class WebMvcConfig implements WebMvcConfigurer {
     }
 
     /** Contas por validar ficam em modo restrito em toda a área de Produtor/Comprador. */
+    /**
+     * URLs antigos do site de login/registo/recuperação (favoritos, e-mails já enviados, etc.):
+     * redirecionam para os URLs actuais em /api/v1, mantendo a query (?tipo=..., ?token=...).
+     */
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        String[][] antigos = {
+            {"/login", "/api/v1/auth/login"},
+            {"/logout", "/api/v1/auth/logout"},
+            {"/admin/login", "/api/v1/auth/admin/login"},
+            {"/admin/logout", "/api/v1/auth/admin/logout"},
+            {"/recuperar-senha", "/api/v1/auth/recuperar-senha"},
+            {"/redefinir-senha", "/api/v1/auth/redefinir-senha"},
+            {"/confirmar-codigo", "/api/v1/auth/confirmar-email"},
+            {"/comprador/criar", "/api/v1/comprador/criar"},
+            {"/produtor/criar", "/api/v1/produtor/criar"},
+            {"/comprador/dashboard", "/api/v1/comprador/dashboard"},
+            {"/produtor/dashboard", "/api/v1/produtor/dashboard"},
+            {"/admin/dashboard", "/api/v1/admin/dashboard"},
+            {"/sobre", "/api/v1/sobre"},
+            {"/como-funciona", "/api/v1/como-funciona"},
+        };
+        for (String[] r : antigos) {
+            registry.addRedirectViewController(r[0], r[1]).setKeepQueryParams(true);
+        }
+    }
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(contaVerificadaInterceptor)
-                .addPathPatterns("/produtor/**", "/comprador/**")
+                .addPathPatterns("/api/v1/produtor/**", "/api/v1/comprador/**")
                 // registo de novas contas continua acessível
-                .excludePathPatterns("/produtor/criar", "/produtor/cadastrar",
-                                     "/comprador/criar", "/comprador/cadastrar");
+                .excludePathPatterns("/api/v1/produtor/criar", "/api/v1/produtor/cadastrar",
+                                     "/api/v1/comprador/criar", "/api/v1/comprador/cadastrar");
     }
 }

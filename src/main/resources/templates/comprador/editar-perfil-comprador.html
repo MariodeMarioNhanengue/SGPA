@@ -15,7 +15,7 @@
 <!-- ═══════════════ HEADER ═══════════════ -->
 <header class="mkt-header">
   <div class="mkt-header-top">
-    <a class="mkt-logo" th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}">
+    <a class="mkt-logo" th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}">
       <div class="mkt-logo-icon"><i class="bi bi-tree-fill"></i></div>
       <div>
         <span>SGPA</span>
@@ -26,17 +26,17 @@
     <div style="flex:1;"></div>
 
     <div class="mkt-user-area">
-      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
+      <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
          class="mkt-user-btn">
         <i class="bi bi-shop"></i>
         <span class="d-none d-sm-inline">Mercado</span>
       </a>
-      <a th:href="@{/comprador/pedidos(id=${comprador != null ? comprador.id : ''})}"
+      <a th:href="@{/api/v1/comprador/pedidos(id=${comprador != null ? comprador.id : ''})}"
          class="mkt-cart-btn">
         <i class="bi bi-bag-fill"></i>
         <span class="d-none d-sm-inline">Pedidos</span>
       </a>
-      <a th:href="@{/logout}" class="mkt-user-btn" title="Sair">
+      <a th:href="@{/api/v1/auth/logout}" class="mkt-user-btn" title="Sair">
         <i class="bi bi-box-arrow-right"></i>
       </a>
     </div>
@@ -44,10 +44,10 @@
 
   <nav class="mkt-cats">
     <div class="mkt-cats-inner">
-      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}" class="mkt-cat-link">
+      <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}" class="mkt-cat-link">
         <i class="bi bi-shop"></i> Mercado
       </a>
-      <a th:href="@{/comprador/pedidos(id=${comprador != null ? comprador.id : ''})}" class="mkt-cat-link">
+      <a th:href="@{/api/v1/comprador/pedidos(id=${comprador != null ? comprador.id : ''})}" class="mkt-cat-link">
         <i class="bi bi-bag-heart-fill"></i> Os Meus Pedidos
       </a>
       <a class="mkt-cat-link active">
@@ -75,7 +75,7 @@
     </div>
 
     <div class="p-4">
-      <form th:action="@{/comprador/editar-perfil(_method='put')}" method="post" enctype="multipart/form-data">
+      <form th:action="@{/api/v1/comprador/editar-perfil(_method='put')}" method="post" enctype="multipart/form-data">
         <input type="hidden" name="id" th:value="${comprador.id}"/>
 
         <!-- FOTO DE PERFIL -->
@@ -171,7 +171,7 @@
 
         <!-- BOTÕES -->
         <div class="d-flex gap-2 pt-2">
-          <a th:href="@{/comprador/dashboard(id=${comprador.id})}" class="btn-cancelar">
+          <a th:href="@{/api/v1/comprador/dashboard(id=${comprador.id})}" class="btn-cancelar">
             <i class="bi bi-arrow-left"></i> Cancelar
           </a>
           <button type="submit" class="btn-guardar">

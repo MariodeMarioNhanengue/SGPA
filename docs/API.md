@@ -35,14 +35,18 @@ Quem tem conta de Produtor e de Comprador com o mesmo e-mail pode trocar com `PO
 
 ## 3. Endpoints
 
+> **O site e a API partilham o prefixo `/api/v1`.** Os controllers do site (as páginas HTML) vivem sob `/api/v1/auth` (login, logout, código de confirmação, recuperação de senha), `/api/v1/comprador`, `/api/v1/produtor` e `/api/v1/admin`. Nos URLs que existem dos dois lados (`/api/v1/auth/login`, `/api/v1/auth/admin/login`, `/api/v1/auth/confirmar-email`, `/api/v1/auth/reenviar-confirmacao`, `/api/v1/auth/recuperar-senha`, `/api/v1/auth/redefinir-senha`) o servidor distingue o cliente pelo `Content-Type`: `application/json` → API (JSON, JWT); formulário → site (página/redirecionamento, sessão). Em `/api/v1/admin/...` (listas de produtores, compradores, vendas, histórico e administradores) distingue pelo `Accept`: `text/html` (browser) → página; `application/json` (Postman) → JSON, e exige sempre `ROLE_ADMIN`. As páginas públicas são `/api/v1/sobre` e `/api/v1/como-funciona`, e os dados de localização usados pelos formulários de registo estão em `/api/v1/localizacao/{provincias,distritos/{id},bairros/{id}}`. A única rota sem prefixo é a raiz `/` (página inicial). As rotas antigas do site (`/login`, `/admin/login`, `/comprador/criar`, `/sobre`, `*/dashboard`, …) redirecionam para as novas.
+>
+> O registo pelo site é `/api/v1/comprador/criar` e `/api/v1/produtor/criar` (formulário em `.../cadastrar`); pela API é `POST /api/v1/compradores` e `POST /api/v1/produtores`.
+
 ### Autenticação
 | Método | Caminho | Descrição |
 |---|---|---|
 | POST | `/auth/login` | `{email, senha, tipo?}` → `{accessToken, tokenType, expiresIn, usuario}` |
 | POST | `/auth/admin/login` | login de administrador |
 | POST | `/auth/trocar-perfil` | `{tipo: "PRODUTOR"\|"COMPRADOR"}` → novo token |
-| POST | `/auth/confirmar-email` | `{token}` |
-| POST | `/auth/reenviar-confirmacao` | `{email}` |
+| POST | `/auth/confirmar-email` | `{email, codigo}` — código de 6 dígitos recebido por e-mail (máx. 5 tentativas; válido 15 min) |
+| POST | `/auth/reenviar-confirmacao` | `{email}` — novo código (o anterior deixa de valer; no máximo 1 por minuto) |
 | POST | `/auth/recuperar-senha` | `{email}` |
 | POST | `/auth/redefinir-senha` | `{token, novaSenha, confirmarSenha}` |
 
@@ -142,5 +146,5 @@ curl -X POST localhost:8010/api/v1/pedidos -H "Authorization: Bearer $TOKEN" \
 ## 6. Limitações conhecidas
 - Não há refresh token nem logout no servidor: o token vale até expirar (`expiration-minutes`). Suspender uma conta só impede **novos** logins.
 - O limite de tentativas de login é em memória (uma única instância).
-- Notificações continuam só por e-mail. Os links dos e-mails apontam para `app.base-url` e abrem as páginas MVC `/confirmar-email` e `/redefinir-senha`; numa app separada, aponte-o para o front-end e use `POST /auth/confirmar-email` e `POST /auth/redefinir-senha`.
+- Notificações continuam só por e-mail. A confirmação de conta usa um **código de 6 dígitos** (sem link): no site escreve-se em `/confirmar-codigo`, na API usa-se `POST /auth/confirmar-email`. O link de recuperação de senha continua a apontar para `app.base-url` e abre a página MVC `/redefinir-senha`; numa app separada, aponte-o para o front-end e use `POST /auth/redefinir-senha`.
 - Favoritos não existem no modelo de dados.

@@ -20,14 +20,14 @@
 <header class="mkt-header">
   <div class="mkt-header-top">
 
-    <a class="mkt-logo" th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}">
+    <a class="mkt-logo" th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}">
 		<img src="/images/logo.png" alt="Logo SGPA" class="mkt-logo-icon">
       <div>
         <span>SGPA</span>
         <small>Mercado Agrário</small>
       </div>
     </a>
-    <form method="get" th:action="@{/comprador/dashboard}" class="mkt-search">
+    <form method="get" th:action="@{/api/v1/comprador/dashboard}" class="mkt-search">
       <input type="hidden" name="id" th:value="${comprador != null ? comprador.id : ''}"/>
       <select name="categoria">
         <option value="">Todas</option>
@@ -44,7 +44,7 @@
     </form>
 
     <div class="mkt-user-area">
-      <a th:href="@{/comprador/editar-perfil(id=${comprador != null ? comprador.id : ''})}"
+      <a th:href="@{/api/v1/comprador/editar-perfil(id=${comprador != null ? comprador.id : ''})}"
          class="mkt-user-btn d-none d-md-flex">
         <div class="mkt-avatar">
           <img th:if="${comprador != null and comprador.fotoPerfil != null and !#strings.isEmpty(comprador.fotoPerfil)}"
@@ -56,7 +56,7 @@
       </a>
 
       <!-- Botão Pedidos → vai para página dedicada -->
-      <a th:href="@{/comprador/pedidos(id=${comprador != null ? comprador.id : ''})}"
+      <a th:href="@{/api/v1/comprador/pedidos(id=${comprador != null ? comprador.id : ''})}"
          class="mkt-cart-btn">
         <i class="bi bi-bag-fill"></i>
         <span class="d-none d-sm-inline">Pedidos</span>
@@ -67,7 +67,7 @@
       </a>
 
       <!-- Botão Produtor: entra directamente se já for produtor, senão cria conta -->
-      <a th:href="${jaEProdutor} ? @{/comprador/tornar-produtor} : @{/comprador/tornar-produtor}"
+      <a th:href="${jaEProdutor} ? @{/api/v1/comprador/tornar-produtor} : @{/api/v1/comprador/tornar-produtor}"
          class="mkt-user-btn d-none d-md-flex"
          th:title="${jaEProdutor} ? 'Ir para o painel de produtor' : 'Registar-se como produtor'"
          style="background:linear-gradient(135deg,#2e7d32,#4caf50);color:#fff;border-radius:8px;padding:.4rem .9rem;gap:.4rem;font-weight:700;font-size:.82rem;text-decoration:none;">
@@ -75,7 +75,7 @@
         <span class="d-none d-lg-inline" th:text="${jaEProdutor} ? 'Painel Produtor' : 'Ser Produtor'">Ser Produtor</span>
       </a>
 
-      <a th:href="@{/logout}" class="mkt-user-btn" title="Sair">
+      <a th:href="@{/api/v1/auth/logout}" class="mkt-user-btn" title="Sair">
         <i class="bi bi-box-arrow-right"></i>
       </a>
     </div>
@@ -83,28 +83,28 @@
 
   <nav class="mkt-cats">
     <div class="mkt-cats-inner">
-      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
+      <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
          class="mkt-cat-link"
          th:classappend="${param.categoria == null or #strings.isEmpty(param.categoria)} ? ' active' : ''">
         <i class="bi bi-grid-fill"></i> Todos
       </a>
-      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Frutas')}"
+      <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Frutas')}"
          class="mkt-cat-link" th:classappend="${param.categoria == 'Frutas'} ? ' active' : ''">
         <i class="bi bi-apple"></i> Frutas
       </a>
-      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Legumes')}"
+      <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Legumes')}"
          class="mkt-cat-link" th:classappend="${param.categoria == 'Legumes'} ? ' active' : ''">
         <i class="bi bi-leaf"></i> Legumes
       </a>
-      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Cereais')}"
+      <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Cereais')}"
          class="mkt-cat-link" th:classappend="${param.categoria == 'Cereais'} ? ' active' : ''">
         <i class="bi bi-basket2"></i> Cereais
       </a>
-      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Tubérculos')}"
+      <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Tubérculos')}"
          class="mkt-cat-link" th:classappend="${param.categoria == 'Tubérculos'} ? ' active' : ''">
         <i class="bi bi-circle-fill" style="font-size:.55rem;"></i> Tubérculos
       </a>
-      <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Hortícolas')}"
+      <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''},categoria='Hortícolas')}"
          class="mkt-cat-link" th:classappend="${param.categoria == 'Hortícolas'} ? ' active' : ''">
         <i class="bi bi-flower1"></i> Hortícolas
       </a>
@@ -140,7 +140,7 @@
 
   <!-- ═══════════════ FILTRO DE DATAS ═══════════════ -->
   <div class="mkt-date-filter" id="painelDatas">
-    <form method="get" th:action="@{/comprador/dashboard}" id="formDatas">
+    <form method="get" th:action="@{/api/v1/comprador/dashboard}" id="formDatas">
       <input type="hidden" name="id"        th:value="${comprador != null ? comprador.id : ''}"/>
       <input type="hidden" name="nome"      th:value="${param.nome}"/>
       <input type="hidden" name="categoria" th:value="${param.categoria}"/>
@@ -191,7 +191,7 @@
           <button type="submit" class="mkt-date-apply">
             <i class="bi bi-funnel-fill"></i> Filtrar
           </button>
-          <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''},nome=${param.nome},categoria=${param.categoria})}"
+          <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''},nome=${param.nome},categoria=${param.categoria})}"
              class="mkt-date-clear"
              th:if="${param.dataInicio != null or param.dataFim != null}">
             <i class="bi bi-x-circle"></i> Limpar datas
@@ -220,7 +220,7 @@
       <span class="mkt-count-badge"
             th:text="${ofertas != null ? #lists.size(ofertas) : 0} + ' produto(s)'"></span>
       <a th:if="${param.nome != null or param.categoria != null}"
-         th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
+         th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
          style="font-size:.78rem;color:#888;text-decoration:none;">
         <i class="bi bi-x-circle"></i> Limpar filtro
       </a>
@@ -308,7 +308,7 @@
         <th:block th:with="eProprio=${produtorDoCompradorId != null and oferta.produtor != null and oferta.produtor.id.equals(produtorDoCompradorId)}">
 
         <form th:if="${!eProprio}"
-              th:action="@{/comprador/comprar}" method="post"
+              th:action="@{/api/v1/comprador/comprar}" method="post"
               th:data-preco="${oferta.preco}" th:data-unidade="${oferta.unidade}">
           <input type="hidden" name="ofertaId" th:value="${oferta.id}"/>
           <input type="hidden" name="compradorId" th:value="${comprador != null ? comprador.id : ''}"/>
@@ -343,7 +343,7 @@
          th:if="${ofertas == null or #lists.isEmpty(ofertas)}">
       <i class="bi bi-basket2"></i>
       <p>Nenhuma oferta disponível de momento.<br>
-        <a th:href="@{/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
+        <a th:href="@{/api/v1/comprador/dashboard(id=${comprador != null ? comprador.id : ''})}"
            style="color:var(--mkt-verde);font-weight:700;">Ver todas as categorias</a></p>
     </div>
   </div>
@@ -365,7 +365,7 @@
         <i class="bi bi-bag-fill" ></i>
         <span  id="btnPedidosLabel">Ver Pedidos</span>
       </button>
-      <a th:href="@{/comprador/pedidos(id=${comprador != null ? comprador.id : ''})}"
+      <a th:href="@{/api/v1/comprador/pedidos(id=${comprador != null ? comprador.id : ''})}"
          style="background-color: aquamarine;color:var(--mkt-verde);border:1.5px solid #4caf50;
                 border-radius:8px;padding:.45rem 1.1rem;font-size:.85rem;font-weight:700;
                 text-decoration:none;display:flex;align-items:center;gap:.4rem;">
@@ -422,7 +422,7 @@
             </div>
             <div style="font-size:1.1rem;font-weight:900;color:#166534;letter-spacing:.05em;"
                  th:text="${pedido.numeroPagamentoProdutor != null ? pedido.numeroPagamentoProdutor : '—'}">—</div>
-            <a th:href="@{/comprador/pagamento(pedidoId=${pedido.id})}"
+            <a th:href="@{/api/v1/comprador/pagamento(pedidoId=${pedido.id})}"
                style="display:inline-flex;align-items:center;gap:.35rem;margin-top:.6rem;background:#16a34a;color:#fff;border-radius:8px;padding:.4rem .9rem;font-size:.82rem;font-weight:700;text-decoration:none;">
               <i class="bi bi-credit-card-fill"></i> Efectuar Pagamento
             </a>
@@ -800,7 +800,7 @@ function togglePedidos() {
     });
   }
 
-  document.querySelectorAll('form[action$="/comprador/comprar"]').forEach(function (form) {
+  document.querySelectorAll('form[action$="/api/v1/comprador/comprar"]').forEach(function (form) {
     form.addEventListener('submit', function (e) {
       const qtyInput = form.querySelector('.prd-qty-input');
       if (form.checkValidity && !form.checkValidity()) return; // deixa a validação nativa agir

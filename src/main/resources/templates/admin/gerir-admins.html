@@ -199,29 +199,29 @@
   <div class="sb-section">
     <div class="sb-section-label">Principal</div>
     <ul class="sb-nav">
-      <li><a href="/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+      <li><a href="/api/v1/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
     </ul>
   </div>
 
   <div class="sb-section">
     <div class="sb-section-label">Utilizadores</div>
     <ul class="sb-nav">
-      <li><a href="/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
-      <li><a href="/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
+      <li><a href="/api/v1/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
+      <li><a href="/api/v1/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
     </ul>
   </div>
 
   <div class="sb-section">
     <div class="sb-section-label">Transacções</div>
     <ul class="sb-nav">
-      <li><a href="/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
+      <li><a href="/api/v1/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
     </ul>
   </div>
 
   <div th:if="${isSuperAdmin}" class="sb-section">
     <div class="sb-section-label">Sistema</div>
     <ul class="sb-nav">
-      <li><a href="/admin/administradores" class="active"><i class="bi bi-people-fill"></i> Administradores</a></li>
+      <li><a href="/api/v1/admin/administradores" class="active"><i class="bi bi-people-fill"></i> Administradores</a></li>
     </ul>
   </div>
 
@@ -237,7 +237,7 @@
         <div class="sb-user-role">Super Admin</div>
       </div>
     </div>
-    <a href="/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
+    <a href="/api/v1/auth/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
   </div>
 </nav>
 
@@ -336,7 +336,7 @@
       </div>
       <div class="criar-body">
 
-        <form th:action="@{/admin/administradores/criar}" method="post" id="criarForm">
+        <form th:action="@{/api/v1/admin/administradores/criar}" method="post" id="criarForm">
 
           <div class="aviso-box">
             <i class="bi bi-info-circle"></i>
@@ -413,7 +413,7 @@
 <script>
   function abrirModal(id, nome) {
     document.getElementById('modalNome').textContent = nome;
-    document.getElementById('modalForm').action = '/admin/administradores/' + id + '?_method=delete';
+    document.getElementById('modalForm').action = '/api/v1/admin/administradores/' + id + '?_method=delete';
     document.getElementById('modalOverlay').classList.add('open');
   }
   function fecharModal() {

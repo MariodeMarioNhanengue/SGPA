@@ -90,7 +90,7 @@
       O código é válido por <span th:text="${validadeMinutos}">15</span> minutos.
     </p>
 
-    <form th:action="@{/confirmar-codigo}" method="post" autocomplete="off">
+    <form th:action="@{/api/v1/auth/confirmar-email}" method="post" autocomplete="off">
       <input type="text" name="codigo" id="codigo" class="codigo"
              inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}"
              placeholder="000000" aria-label="Código de 6 dígitos" required autofocus/>
@@ -98,7 +98,7 @@
     </form>
 
     <div class="extras">
-      <form th:action="@{/reenviar-confirmacao}" method="post">
+      <form th:action="@{/api/v1/auth/reenviar-confirmacao}" method="post">
         <input type="hidden" name="email" th:value="${email}"/>
         Não recebeu o e-mail? <button type="submit" class="link">Enviar novo código</button>
       </form>

@@ -148,26 +148,26 @@
   </div>
   <div class="sb-section">
     <div class="sb-section-label">Principal</div>
-    <ul class="sb-nav"><li><a href="/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li></ul>
+    <ul class="sb-nav"><li><a href="/api/v1/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li></ul>
   </div>
   <div class="sb-section">
     <div class="sb-section-label">Utilizadores</div>
     <ul class="sb-nav">
-      <li><a href="/admin/produtores" class="active"><i class="bi bi-person-workspace"></i> Produtores</a></li>
-      <li><a href="/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
+      <li><a href="/api/v1/admin/produtores" class="active"><i class="bi bi-person-workspace"></i> Produtores</a></li>
+      <li><a href="/api/v1/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
     </ul>
   </div>
   <div class="sb-section">
     <div class="sb-section-label">Transacções</div>
-    <ul class="sb-nav"><li><a href="/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li></ul>
+    <ul class="sb-nav"><li><a href="/api/v1/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li></ul>
   </div>
   <div class="sb-section">
     <div class="sb-section-label">Conta</div>
-    <ul class="sb-nav"><li><a href="/admin/perfil"><i class="bi bi-person-circle"></i> Editar Perfil</a></li></ul>
+    <ul class="sb-nav"><li><a href="/api/v1/admin/perfil"><i class="bi bi-person-circle"></i> Editar Perfil</a></li></ul>
   </div>
   <div th:if="${isSuperAdmin}" class="sb-section">
     <div class="sb-section-label">Sistema</div>
-    <ul class="sb-nav"><li><a href="/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li></ul>
+    <ul class="sb-nav"><li><a href="/api/v1/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li></ul>
   </div>
   <div class="sb-footer">
     <div class="sb-user">
@@ -180,7 +180,7 @@
         <div class="sb-user-role" th:text="${isSuperAdmin ? 'Super Admin' : 'Admin'}">Admin</div>
       </div>
     </div>
-    <a href="/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
+    <a href="/api/v1/auth/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
   </div>
 </nav>
 
@@ -190,7 +190,7 @@
 
 
   <div class="topbar">
-    <a href="/admin/produtores" class="btn-back"><i class="bi bi-arrow-left"></i> Produtores</a>
+    <a href="/api/v1/admin/produtores" class="btn-back"><i class="bi bi-arrow-left"></i> Produtores</a>
     <div>
       <div class="topbar-title">Perfil do Produtor</div>
       <div class="topbar-sub" th:text="'ID #' + ${produtor.id}">—</div>
@@ -214,7 +214,7 @@
           <div class="profile-badge"><i class="bi bi-person-workspace"></i> Produtor</div>
           <div class="validar-box" th:if="${produtor.emailVerificado != null and !produtor.emailVerificado}">
             <div class="validar-txt"><i class="bi bi-hourglass-split"></i> Conta por validar: o e-mail ainda não foi confirmado.</div>
-            <form th:action="@{/admin/produtores/{id}/validar(id=${produtor.id},voltar='detalhe')}" method="post" style="margin:0;">
+            <form th:action="@{/api/v1/admin/produtores/{id}/validar(id=${produtor.id},voltar='detalhe')}" method="post" style="margin:0;">
               <button type="submit" class="btn-validar"><i class="bi bi-patch-check"></i> Validar conta</button>
             </form>
           </div>
@@ -428,7 +428,7 @@
     <p class="modal-text">Tem a certeza que pretende apagar <strong th:text="${produtor.nomeCompleto}"></strong>? Todas as ofertas e dados associados serão removidos permanentemente.</p>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="document.getElementById('modalOverlay').classList.remove('open')">Cancelar</button>
-      <form th:action="@{/admin/produtores/{id}(id=${produtor.id},_method='delete')}" method="post">
+      <form th:action="@{/api/v1/admin/produtores/{id}(id=${produtor.id},_method='delete')}" method="post">
         <button type="submit" class="modal-confirm"><i class="bi bi-trash3"></i> Apagar</button>
       </form>
     </div>

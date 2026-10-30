@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -22,7 +22,7 @@ import com.sgpa.mario.api.service.exception.RegraNegocioException;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/api/v1/admin")
 public class AdminController {
 
     private final AdminAuthService adminAuthService;
@@ -42,43 +42,14 @@ public class AdminController {
 
     private String negarGestaoAdmins(RedirectAttributes ra) {
         ra.addFlashAttribute("erro", AdminService.MSG_SO_SUPER_ADMIN);
-        return "redirect:/admin/dashboard";
-    }
-
-    // ════════ LOGIN / LOGOUT ════════
-
-    @GetMapping("/login")
-    public String loginPage() { return "admin/login-admin"; }
-
-    @PostMapping("/login")
-    public String processarLogin(@RequestParam String email,
-                                 @RequestParam String senha,
-                                 HttpSession session, Model model) {
-        AdminAuthService.ResultadoLoginAdmin resultado = adminAuthService.autenticar(email, senha, session);
-
-        if (resultado.sucesso()) {
-            return "redirect:/admin/dashboard";
-        }
-        if (resultado.bloqueado()) {
-            model.addAttribute("erro", "Demasiadas tentativas falhadas. Tente novamente dentro de "
-                + resultado.minutosRestantes() + " minuto(s).");
-        } else {
-            model.addAttribute("erro", "Credenciais inválidas. Verifique o e-mail e a senha.");
-        }
-        return "admin/login-admin";
-    }
-
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        adminAuthService.logout(session);
-        return "redirect:/admin/login";
+        return "redirect:/api/v1/admin/dashboard";
     }
 
     // ════════ DASHBOARD ════════
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         preencherModeloBase(model, session);
         var stats = adminService.estatisticasDashboard();
         model.addAttribute("totalProdutores",  stats.totalProdutores());
@@ -95,7 +66,7 @@ public class AdminController {
 
     @GetMapping("/perfil")
     public String editarPerfil(HttpSession session, Model model) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         model.addAttribute("admin", adminService.obterAdmin(adminAuthService.getAdminId(session)));
         preencherModeloBase(model, session);
         return "admin/editar-perfil-admin";
@@ -110,7 +81,7 @@ public class AdminController {
                                @RequestParam(required = false) String confirmarSenha,
                                @RequestParam(value = "fotoPerfilFile", required = false) MultipartFile fotoPerfilFile,
                                HttpSession session, RedirectAttributes ra) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         try {
             adminService.atualizarPerfil(adminAuthService.getAdminId(session), nome, apelido, email,
                 senhaAtual, novaSenha, confirmarSenha, fotoPerfilFile, session);
@@ -118,14 +89,14 @@ public class AdminController {
         } catch (RegraNegocioException e) {
             ra.addFlashAttribute("erro", e.getMessage());
         }
-        return "redirect:/admin/perfil";
+        return "redirect:/api/v1/admin/perfil";
     }
 
     // ════════ HISTÓRICO DO ADMIN ════════
 
-    @GetMapping("/historico")
+    @GetMapping(value = "/historico", produces = "text/html")
     public String historico(HttpSession session, Model model) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         preencherModeloBase(model, session);
         model.addAttribute("logs", adminService.historico(session));
         return "admin/historico-admin";
@@ -134,9 +105,9 @@ public class AdminController {
     // ════════ GESTÃO DE ADMINS (SUPERADMIN) ════════
 
     // Só o Super Admin cria/remove/lista administradores; um Admin normal é mandado de volta ao painel.
-    @GetMapping("/administradores")
+    @GetMapping(value = "/administradores", produces = "text/html")
     public String listarAdmins(HttpSession session, Model model, RedirectAttributes ra) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         if (!adminAuthService.isSuperAdmin(session)) return negarGestaoAdmins(ra);
         preencherModeloBase(model, session);
         model.addAttribute("admins", adminService.listarAdmins(session));
@@ -149,7 +120,7 @@ public class AdminController {
                              @RequestParam String email,
                              @RequestParam String senha,
                              HttpSession session, RedirectAttributes ra) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         if (!adminAuthService.isSuperAdmin(session)) return negarGestaoAdmins(ra);
         try {
             Admin novo = adminService.criarAdmin(nome, apelido, email, senha, session);
@@ -157,12 +128,12 @@ public class AdminController {
         } catch (RegraNegocioException e) {
             ra.addFlashAttribute("erro", e.getMessage());
         }
-        return "redirect:/admin/administradores";
+        return "redirect:/api/v1/admin/administradores";
     }
 
-    @DeleteMapping("/administradores/{id}")
+    @DeleteMapping(value = "/administradores/{id}", produces = "text/html")
     public String removerAdmin(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         if (!adminAuthService.isSuperAdmin(session)) return negarGestaoAdmins(ra);
         try {
             adminService.removerAdmin(id, session);
@@ -170,27 +141,27 @@ public class AdminController {
         } catch (RegraNegocioException e) {
             ra.addFlashAttribute("erro", e.getMessage());
         }
-        return "redirect:/admin/administradores";
+        return "redirect:/api/v1/admin/administradores";
     }
 
     // ════════ PRODUTORES ════════
 
-    @GetMapping("/produtores")
+    @GetMapping(value = "/produtores", produces = "text/html")
     public String listarProdutores(@RequestParam(required = false) String pesquisa,
                                    HttpSession session, Model model) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         preencherModeloBase(model, session);
         model.addAttribute("produtores", adminService.listarProdutores(pesquisa));
         model.addAttribute("pesquisa", pesquisa);
         return "admin/gerir-produtores";
     }
 
-    @DeleteMapping("/produtores/{id}")
+    @DeleteMapping(value = "/produtores/{id}", produces = "text/html")
     public String removerProdutor(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         adminService.removerProdutor(id, session);
         ra.addFlashAttribute("sucesso", "Produtor removido com sucesso.");
-        return "redirect:/admin/produtores";
+        return "redirect:/api/v1/admin/produtores";
     }
 
     @PostMapping("/produtores/criar")
@@ -201,14 +172,14 @@ public class AdminController {
                                 @RequestParam(required = false) String nuit,
                                 @RequestParam String senha,
                                 HttpSession session, RedirectAttributes ra) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         try {
             var p = adminService.criarProdutor(nome, apelido, email, telefone, nuit, senha, session);
             ra.addFlashAttribute("sucesso", "Produtor " + p.getNomeCompleto() + " criado com sucesso.");
         } catch (RegraNegocioException e) {
             ra.addFlashAttribute("erro", e.getMessage());
         }
-        return "redirect:/admin/produtores";
+        return "redirect:/api/v1/admin/produtores";
     }
 
     /** Valida manualmente a conta de um produtor (sem precisar do link do e-mail). */
@@ -216,34 +187,34 @@ public class AdminController {
     public String validarProdutor(@PathVariable Long id,
                                   @RequestParam(required = false) String voltar,
                                   HttpSession session, RedirectAttributes ra) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         try {
             var p = adminService.validarProdutor(id, session);
             ra.addFlashAttribute("sucesso", "Conta de " + p.getNomeCompleto() + " validada com sucesso.");
         } catch (RegraNegocioException e) {
             ra.addFlashAttribute("erro", e.getMessage());
         }
-        return "detalhe".equals(voltar) ? "redirect:/admin/produtores/" + id : "redirect:/admin/produtores";
+        return "detalhe".equals(voltar) ? "redirect:/api/v1/admin/produtores/" + id : "redirect:/api/v1/admin/produtores";
     }
 
     // ════════ COMPRADORES ════════
 
-    @GetMapping("/compradores")
+    @GetMapping(value = "/compradores", produces = "text/html")
     public String listarCompradores(@RequestParam(required = false) String pesquisa,
                                     HttpSession session, Model model) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         preencherModeloBase(model, session);
         model.addAttribute("compradores", adminService.listarCompradores(pesquisa));
         model.addAttribute("pesquisa", pesquisa);
         return "admin/gerir-compradores";
     }
 
-    @DeleteMapping("/compradores/{id}")
+    @DeleteMapping(value = "/compradores/{id}", produces = "text/html")
     public String removerComprador(@PathVariable Long id, HttpSession session, RedirectAttributes ra) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         adminService.removerComprador(id, session);
         ra.addFlashAttribute("sucesso", "Comprador removido com sucesso.");
-        return "redirect:/admin/compradores";
+        return "redirect:/api/v1/admin/compradores";
     }
 
     @PostMapping("/compradores/criar")
@@ -254,14 +225,14 @@ public class AdminController {
                                  @RequestParam(required = false) String nuit,
                                  @RequestParam String senha,
                                  HttpSession session, RedirectAttributes ra) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         try {
             var c = adminService.criarComprador(nome, apelido, email, telefone, nuit, senha, session);
             ra.addFlashAttribute("sucesso", "Comprador " + c.getNomeCompleto() + " criado com sucesso.");
         } catch (RegraNegocioException e) {
             ra.addFlashAttribute("erro", e.getMessage());
         }
-        return "redirect:/admin/compradores";
+        return "redirect:/api/v1/admin/compradores";
     }
 
     /** Valida manualmente a conta de um comprador (sem precisar do link do e-mail). */
@@ -269,21 +240,21 @@ public class AdminController {
     public String validarComprador(@PathVariable Long id,
                                    @RequestParam(required = false) String voltar,
                                    HttpSession session, RedirectAttributes ra) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         try {
             var c = adminService.validarComprador(id, session);
             ra.addFlashAttribute("sucesso", "Conta de " + c.getNomeCompleto() + " validada com sucesso.");
         } catch (RegraNegocioException e) {
             ra.addFlashAttribute("erro", e.getMessage());
         }
-        return "detalhe".equals(voltar) ? "redirect:/admin/compradores/" + id : "redirect:/admin/compradores";
+        return "detalhe".equals(voltar) ? "redirect:/api/v1/admin/compradores/" + id : "redirect:/api/v1/admin/compradores";
     }
 
     // ════════ DETALHES COMPRADOR ════════
 
-    @GetMapping("/compradores/{id}")
+    @GetMapping(value = "/compradores/{id}", produces = "text/html")
     public String verComprador(@PathVariable Long id, HttpSession session, Model model) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         var d = adminService.detalheComprador(id);
         preencherModeloBase(model, session);
         model.addAttribute("comprador",    d.comprador());
@@ -297,9 +268,9 @@ public class AdminController {
 
     // ════════ DETALHES PRODUTOR ════════
 
-    @GetMapping("/produtores/{id}")
+    @GetMapping(value = "/produtores/{id}", produces = "text/html")
     public String verProdutor(@PathVariable Long id, HttpSession session, Model model) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         var d = adminService.detalheProdutor(id);
         preencherModeloBase(model, session);
         model.addAttribute("produtor",             d.produtor());
@@ -318,10 +289,10 @@ public class AdminController {
 
     // ════════ VENDAS ════════
 
-    @GetMapping("/vendas")
+    @GetMapping(value = "/vendas", produces = "text/html")
     public String listarVendas(@RequestParam(required = false) String estado,
                                HttpSession session, Model model) {
-        if (!adminAuthService.isAdmin(session)) return "redirect:/admin/login";
+        if (!adminAuthService.isAdmin(session)) return "redirect:/api/v1/auth/admin/login";
         preencherModeloBase(model, session);
         model.addAttribute("pedidos", adminService.listarVendas(estado));
         model.addAttribute("estadoFiltro", estado);

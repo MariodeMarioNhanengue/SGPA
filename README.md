@@ -128,12 +128,12 @@ mvnw.cmd spring-boot:run        # Windows
 ```bash
 BASE=http://localhost:8010/api/v1
 
-# 1) registo de comprador (recebe um e-mail de confirmação)
+# 1) registo de comprador (recebe um e-mail com um código de 6 dígitos)
 curl -X POST $BASE/compradores -H 'Content-Type: application/json' \
   -d '{"nome":"Ana","apelido":"Silva","telefone":"841234567","email":"ana@exemplo.com","senha":"segredo1"}'
 
-# 2) confirmar o e-mail: abrir o link recebido (/confirmar-email?token=...) ou
-curl -X POST $BASE/auth/confirmar-email -H 'Content-Type: application/json' -d '{"token":"<TOKEN_DO_EMAIL>"}'
+# 2) confirmar o e-mail com o código recebido (no site: página /confirmar-codigo)
+curl -X POST $BASE/auth/confirmar-email -H 'Content-Type: application/json' -d '{"email":"ana@exemplo.com","codigo":"<CODIGO_DO_EMAIL>"}'
 
 # 3) login → accessToken
 TOKEN=$(curl -s -X POST $BASE/auth/login -H 'Content-Type: application/json' \

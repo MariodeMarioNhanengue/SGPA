@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,10 +24,11 @@ import jakarta.servlet.http.HttpSession;
  * Páginas web da confirmação de e-mail por código de 6 dígitos.
  *
  * O código é enviado por e-mail no registo; o utilizador (que já tem sessão, em modo restrito) escreve-o
- * em /confirmar-codigo. Se estiver certo a conta fica activa de imediato e vai para o seu painel.
+ * em /api/v1/auth/confirmar-email. Se estiver certo a conta fica activa de imediato e vai para o seu painel.
  * Template: confirmar-codigo.html
  */
 @Controller
+@RequestMapping("/api/v1/auth")
 public class ConfirmacaoEmailController {
 
     private final ConfirmacaoEmailService confirmacaoEmailService;
@@ -38,7 +40,7 @@ public class ConfirmacaoEmailController {
     }
 
     /** Página onde se escreve o código. Só faz sentido para quem tem a conta por validar na sessão. */
-    @GetMapping("/confirmar-codigo")
+    @GetMapping("/confirmar-email")
     public String pagina(HttpServletRequest request, Model model) {
         HttpSession session = request.getSession(false); // não cria sessão para visitantes anónimos
         Optional<ContaPorVerificar> conta = authService.contaPorVerificar(session);
@@ -50,7 +52,7 @@ public class ConfirmacaoEmailController {
     }
 
     /** Botão "Confirmar": código certo -> conta activa e entra directamente no painel. */
-    @PostMapping("/confirmar-codigo")
+    @PostMapping(value = "/confirmar-email", consumes = {"application/x-www-form-urlencoded", "multipart/form-data"})
     public String confirmar(@RequestParam(defaultValue = "") String codigo, HttpServletRequest request,
                             Model model, RedirectAttributes redirectAttrs) {
         HttpSession session = request.getSession(false);
@@ -77,7 +79,7 @@ public class ConfirmacaoEmailController {
      * Pede um código novo (o anterior deixa de valer). Usado na página do código, no aviso do painel e na página
      * de login. A resposta é sempre a mesma, exista ou não a conta: não revela que e-mails estão registados.
      */
-    @PostMapping("/reenviar-confirmacao")
+    @PostMapping(value = "/reenviar-confirmacao", consumes = {"application/x-www-form-urlencoded", "multipart/form-data"})
     public String reenviar(@RequestParam String email, HttpServletRequest request,
                            RedirectAttributes redirectAttrs) {
         confirmacaoEmailService.reenviarConfirmacao(email.trim());
@@ -87,7 +89,7 @@ public class ConfirmacaoEmailController {
 
         HttpSession session = request.getSession(false);
         if (authService.contaPorVerificar(session).isPresent()) {
-            return "redirect:/confirmar-codigo";
+            return "redirect:/api/v1/auth/confirmar-email";
         }
         return "redirect:" + destinoSemContaPorVerificar(session);
     }
@@ -102,16 +104,16 @@ public class ConfirmacaoEmailController {
     }
 
     private String painel(ContaPorVerificar conta) {
-        return (conta.tipo() == AuthService.TipoUtilizador.PRODUTOR ? "/produtor" : "/comprador")
+        return (conta.tipo() == AuthService.TipoUtilizador.PRODUTOR ? "/api/v1/produtor" : "/api/v1/comprador")
             + "/dashboard?id=" + conta.id();
     }
 
     /** Sem conta por validar: quem já está num painel volta lá; os restantes vão ao login. */
     private String destinoSemContaPorVerificar(HttpSession session) {
         Object tipo = session == null ? null : session.getAttribute("loggedInType");
-        if ("PRODUTOR".equals(tipo)) return "/produtor/dashboard";
-        if ("COMPRADOR".equals(tipo)) return "/comprador/dashboard";
-        return "/login";
+        if ("PRODUTOR".equals(tipo)) return "/api/v1/produtor/dashboard";
+        if ("COMPRADOR".equals(tipo)) return "/api/v1/comprador/dashboard";
+        return "/api/v1/auth/login";
     }
 
     private String mensagem(ResultadoCodigo r) {

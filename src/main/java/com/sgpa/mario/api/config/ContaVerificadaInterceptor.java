@@ -21,7 +21,7 @@ import jakarta.servlet.http.HttpSession;
  *
  * Enquanto o e-mail de um Produtor/Comprador não for confirmado (pelo código de 6 dígitos enviado
  * por e-mail ou por um administrador), a ÚNICA coisa que a conta pode fazer é abrir o seu painel para
- * ver o aviso de validação. Qualquer outra rota de /produtor/** e /comprador/** — pedidos,
+ * ver o aviso de validação. Qualquer outra rota de /api/v1/produtor/** e /api/v1/comprador/** — pedidos,
  * pagamentos, publicar/editar ofertas, editar perfil, trocar de perfil, etc. — é recusada
  * aqui, no servidor, por isso não há botão escondido nem URL escrito à mão que contorne.
  */
@@ -29,7 +29,7 @@ import jakarta.servlet.http.HttpSession;
 public class ContaVerificadaInterceptor implements HandlerInterceptor {
 
     /** Únicas páginas (GET) acessíveis a uma conta por validar. */
-    private static final Set<String> PAGINAS_PERMITIDAS = Set.of("/comprador/dashboard", "/produtor/dashboard");
+    private static final Set<String> PAGINAS_PERMITIDAS = Set.of("/api/v1/comprador/dashboard", "/api/v1/produtor/dashboard");
 
     static final String MENSAGEM =
         "Valide a sua conta para continuar. Introduza o código de 6 dígitos que lhe enviámos por e-mail "
@@ -64,7 +64,7 @@ public class ContaVerificadaInterceptor implements HandlerInterceptor {
         }
 
         String destino = conta.get().tipo() == AuthService.TipoUtilizador.PRODUTOR
-            ? "/produtor/dashboard" : "/comprador/dashboard";
+            ? "/api/v1/produtor/dashboard" : "/api/v1/comprador/dashboard";
         FlashMap flash = RequestContextUtils.getOutputFlashMap(request);
         flash.put("erro", MENSAGEM);
         RequestContextUtils.saveOutputFlashMap(destino, request, response);

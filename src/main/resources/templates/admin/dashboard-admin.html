@@ -255,37 +255,37 @@
   <div class="sb-section">
     <div class="sb-section-label">Principal</div>
     <ul class="sb-nav">
-      <li><a href="/admin/dashboard" class="active"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+      <li><a href="/api/v1/admin/dashboard" class="active"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
     </ul>
   </div>
 
   <div class="sb-section">
     <div class="sb-section-label">Utilizadores</div>
     <ul class="sb-nav">
-      <li><a href="/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
-      <li><a href="/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
+      <li><a href="/api/v1/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
+      <li><a href="/api/v1/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
     </ul>
   </div>
 
   <div class="sb-section">
     <div class="sb-section-label">Transacções</div>
     <ul class="sb-nav">
-      <li><a href="/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
+      <li><a href="/api/v1/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
     </ul>
   </div>
 
   <div class="sb-section">
     <div class="sb-section-label">Conta</div>
     <ul class="sb-nav">
-      <li><a href="/admin/perfil"><i class="bi bi-person-circle"></i> Editar Perfil</a></li>
-      <li><a href="/admin/historico"><i class="bi bi-clock-history"></i> Histórico</a></li>
+      <li><a href="/api/v1/admin/perfil"><i class="bi bi-person-circle"></i> Editar Perfil</a></li>
+      <li><a href="/api/v1/admin/historico"><i class="bi bi-clock-history"></i> Histórico</a></li>
     </ul>
   </div>
 
   <div th:if="${isSuperAdmin}" class="sb-section">
     <div class="sb-section-label">Sistema</div>
     <ul class="sb-nav">
-      <li><a href="/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li>
+      <li><a href="/api/v1/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li>
     </ul>
   </div>
 
@@ -300,7 +300,7 @@
         <div class="sb-user-role" th:text="${isSuperAdmin} ? 'Super Admin' : 'Admin'">Admin</div>
       </div>
     </div>
-    <a href="/admin/logout" class="sb-logout">
+    <a href="/api/v1/auth/admin/logout" class="sb-logout">
       <i class="bi bi-box-arrow-left"></i> Terminar sessão
     </a>
   </div>
@@ -336,13 +336,13 @@
       <div class="stat-icon amber"><i class="bi bi-person-workspace"></i></div>
       <div class="stat-num" th:text="${totalProdutores}">0</div>
       <div class="stat-label">Produtores registados</div>
-      <a href="/admin/produtores" class="stat-link"><i class="bi bi-arrow-right-circle"></i> Ver produtores</a>
+      <a href="/api/v1/admin/produtores" class="stat-link"><i class="bi bi-arrow-right-circle"></i> Ver produtores</a>
     </div>
     <div class="stat-card green">
       <div class="stat-icon green"><i class="bi bi-people-fill"></i></div>
       <div class="stat-num" th:text="${totalCompradores}">0</div>
       <div class="stat-label">Compradores registados</div>
-      <a href="/admin/compradores" class="stat-link"><i class="bi bi-arrow-right-circle"></i> Ver compradores</a>
+      <a href="/api/v1/admin/compradores" class="stat-link"><i class="bi bi-arrow-right-circle"></i> Ver compradores</a>
     </div>
     <div class="stat-card blue">
       <div class="stat-icon blue"><i class="bi bi-tags-fill"></i></div>
@@ -363,7 +363,7 @@
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title"><i class="bi bi-clock-history"></i> Pedidos Recentes</div>
-        <a href="/admin/vendas" class="panel-link">Ver todos <i class="bi bi-arrow-right"></i></a>
+        <a href="/api/v1/admin/vendas" class="panel-link">Ver todos <i class="bi bi-arrow-right"></i></a>
       </div>
       <div th:if="${#lists.isEmpty(recentesPedidos)}" class="empty-state">
         <i class="bi bi-inbox"></i>

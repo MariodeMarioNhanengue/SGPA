@@ -268,29 +268,29 @@
   <div class="sb-section">
     <div class="sb-section-label">Principal</div>
     <ul class="sb-nav">
-      <li><a href="/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
+      <li><a href="/api/v1/admin/dashboard"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a></li>
     </ul>
   </div>
 
   <div class="sb-section">
     <div class="sb-section-label">Utilizadores</div>
     <ul class="sb-nav">
-      <li><a href="/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
-      <li><a href="/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
+      <li><a href="/api/v1/admin/produtores"><i class="bi bi-person-workspace"></i> Produtores</a></li>
+      <li><a href="/api/v1/admin/compradores"><i class="bi bi-cart-fill"></i> Compradores</a></li>
     </ul>
   </div>
 
   <div class="sb-section">
     <div class="sb-section-label">Transacções</div>
     <ul class="sb-nav">
-      <li><a href="/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
+      <li><a href="/api/v1/admin/vendas"><i class="bi bi-receipt"></i> Vendas / Pedidos</a></li>
     </ul>
   </div>
 
   <div th:if="${isSuperAdmin}" class="sb-section">
     <div class="sb-section-label">Sistema</div>
     <ul class="sb-nav">
-      <li><a href="/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li>
+      <li><a href="/api/v1/admin/administradores"><i class="bi bi-people-fill"></i> Administradores</a></li>
     </ul>
   </div>
 
@@ -306,7 +306,7 @@
         <div class="sb-user-role" th:text="${isSuperAdmin} ? 'Super Admin' : 'Administrador'">Admin</div>
       </div>
     </div>
-    <a href="/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
+    <a href="/api/v1/auth/admin/logout" class="sb-logout"><i class="bi bi-box-arrow-left"></i> Terminar sessão</a>
   </div>
 </nav>
 
@@ -315,7 +315,7 @@
 
   <div class="topbar">
     <div class="topbar-left">
-      <a href="/admin/dashboard" class="back-btn"><i class="bi bi-arrow-left"></i> Voltar</a>
+      <a href="/api/v1/admin/dashboard" class="back-btn"><i class="bi bi-arrow-left"></i> Voltar</a>
       <div>
         <div class="topbar-title">Editar Perfil</div>
         <div class="topbar-sub">Actualize os seus dados pessoais e definições de conta</div>
@@ -370,7 +370,7 @@
 
     <!-- ── Formulário ── -->
     <div class="form-card">
-      <form th:action="@{/admin/perfil(_method='put')}" method="post" enctype="multipart/form-data" id="perfilForm">
+      <form th:action="@{/api/v1/admin/perfil(_method='put')}" method="post" enctype="multipart/form-data" id="perfilForm">
 
         <!-- Input de foto escondido -->
         <input type="file" id="fotoInput" name="fotoPerfilFile" accept="image/*"/>
@@ -465,7 +465,7 @@
         <!-- SECÇÃO 3: Acções -->
         <div class="form-section" style="border-bottom:none">
           <div class="form-actions">
-            <a href="/admin/dashboard" class="btn-cancel">
+            <a href="/api/v1/admin/dashboard" class="btn-cancel">
               <i class="bi bi-x-lg"></i> Cancelar
             </a>
             <button type="submit" class="btn-save">
